@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#0c0e1a",
+                        "surface": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["'Plus Jakarta Sans'", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.75rem", "lg": "1.25rem", "xl": "1.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-secondary dark:text-slate-100 min-h-screen">
+<div class="flex flex-col min-h-screen">
+<!-- Top Navigation -->
+<header class="bg-white dark:bg-slate-900 border-b border-primary/10 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<div class="flex items-center gap-4">
+<div class="bg-primary p-1.5 rounded-lg flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">pets</span>
+</div>
+<h2 class="text-xl font-extrabold tracking-tight text-secondary dark:text-white">PawAdmin</h2>
+<div class="hidden md:flex ml-10 space-x-8">
+<a class="text-primary font-bold border-b-2 border-primary px-1 pt-1" href="#">Moderation</a>
+<a class="text-slate-400 hover:text-primary px-1 pt-1 transition-colors font-medium" href="#">Users</a>
+<a class="text-slate-400 hover:text-primary px-1 pt-1 transition-colors font-medium" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="block w-64 pl-10 pr-3 py-2 border-none bg-slate-100 dark:bg-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-primary/50" placeholder="Search pet ID..." type="text"/>
+</div>
+<button class="relative p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 block h-2 w-2 rounded-full bg-primary ring-2 ring-white"></span>
+</button>
+<div class="h-9 w-9 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center overflow-hidden" data-alt="Admin user profile picture">
+<img alt="Profile" data-alt="Portrait of the system administrator" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdjLbtLWU5GXScNtNchmSjNo20CzTZ6tej0PExVoX6uHLsFMMhlGpKL6isQOJjQIIsE4PWdWzpFrtzBlI50fPuD6-B-XYgCowZHPsVHhpm5cCgZvmpIc08YtCIELaUnkJ4nelkKPrZVmdOGVi4FNKuabgqKwzQW9yuohu8CCbVVIMotnyvaRzbsKvmUUceIEJ-MUtiXgBKLpx6fj7A63xeBTyxTBRd_hLE1eI4j8lgT2EFCKv2sDMIuA_eMIPotfyshi3tcfmnqP8Z"/>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Sidebar + Content Layout -->
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Sidebar Nav -->
+<aside class="w-full lg:w-64 flex-shrink-0">
+<nav class="space-y-1.5">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-bold shadow-md shadow-primary/30" href="#">
+<span class="material-symbols-outlined">pending_actions</span>
+                            Pending Approval
+                            <span class="ml-auto bg-white/20 px-2 py-0.5 rounded text-xs font-bold">12</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary/70 dark:text-slate-400 hover:bg-primary/5 rounded-xl font-semibold transition-colors" href="#">
+<span class="material-symbols-outlined">check_circle</span>
+                            Approved
+                        </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary/70 dark:text-slate-400 hover:bg-primary/5 rounded-xl font-semibold transition-colors" href="#">
+<span class="material-symbols-outlined">cancel</span>
+                            Rejected
+                        </a>
+<div class="my-6 border-t border-slate-200 dark:border-slate-800"></div>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary/70 dark:text-slate-400 hover:bg-primary/5 rounded-xl font-semibold transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                            Settings
+                        </a>
+</nav>
+</aside>
+<!-- Content Area -->
+<div class="flex-grow">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h1 class="text-3xl font-extrabold text-secondary dark:text-white tracking-tight">Pet Moderation Queue</h1>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Review and approve pet listings before they go live.</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<button class="p-2 border border-primary/20 rounded-xl bg-primary/10 text-primary font-bold">
+<span class="material-symbols-outlined">list</span>
+</button>
+</div>
+</div>
+<!-- Filter Tabs -->
+<div class="flex border-b border-slate-200 dark:border-slate-800 mb-8 gap-8">
+<button class="pb-4 border-b-2 border-primary text-primary font-bold text-sm">All Pending (12)</button>
+<button class="pb-4 border-b-2 border-transparent text-slate-400 dark:text-slate-500 text-sm font-semibold hover:text-primary transition-colors">Urgent Reviews</button>
+<button class="pb-4 border-b-2 border-transparent text-slate-400 dark:text-slate-500 text-sm font-semibold hover:text-primary transition-colors">Flagged by System</button>
+</div>
+<!-- Pet Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Listing Card 1 -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+<div class="h-48 bg-slate-200 relative group overflow-hidden">
+<img alt="Golden Retriever" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Golden Retriever sitting happily in a park" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPMSEoJpEykAoKW-owuMuZ_16__zXUD5_7EmkWAkCyw5aOZNlJREPq1kfB79semgNL4BlLn_kFhWPZ_2OwMXVT2GRLpOn0ZfGCjKBz9kvvXPw_icBOkRI2ZbEMGDESQM4HopyZSffIAssr6OWZkGqFvVqxZZZgcVUDVvMvqkRqidUPbxoHf68v4jJbyeTHbW79GASwstKs3vqRBbtbfra4OugpfSvHy0tZjKPeW_SJqCQd5-l8jaW2Fc0E4ASxYXAVuWJJG0ZH1joN"/>
+<div class="absolute top-4 left-4 bg-primary text-white px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest shadow-lg">Pending</div>
+</div>
+<div class="p-5 flex-grow">
+<div class="flex justify-between items-start mb-3">
+<h3 class="text-lg font-bold text-secondary dark:text-white leading-tight">Buddy (Golden Retriever)</h3>
+<span class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">#4421</span>
+</div>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px] text-primary/60">person</span>
+<span class="font-medium">Sarah Jenkins</span>
+</div>
+<div class="flex items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px] text-primary/60">calendar_today</span>
+<span class="font-medium">Oct 24, 2023</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<button class="w-full py-2.5 bg-slate-50 dark:bg-slate-800 text-secondary dark:text-slate-300 font-bold rounded-xl hover:bg-primary/5 hover:text-primary transition-colors text-sm border border-slate-100 dark:border-slate-700">View Details</button>
+<div class="grid grid-cols-2 gap-2.5">
+<button class="flex items-center justify-center gap-1.5 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:scale-[1.02] transition-all text-sm shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">check</span> Approve
+</button>
+<button class="flex items-center justify-center gap-1.5 py-2.5 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 hover:scale-[1.02] transition-all text-sm">
+<span class="material-symbols-outlined text-[18px]">close</span> Reject
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Listing Card 2 -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+<div class="h-48 bg-slate-200 relative group overflow-hidden">
+<img alt="Siamese Cat" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Elegant Siamese cat looking at the camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLKGxkANkqdi4zfI4K39Dn4IYGYYJHhJQu2yFQUb8K3L7OzRuyPDO05lou7cXDXTqRUyXetdCQNFKQPiRkev2sXmipPvrUmZUbcdiIvK8SOqeg2I1rpqHFaLswLNwKLdY0E3XUeF9O4U7onlUOCMr-sfs3o9AQwkoIWEfiviWIjwmS5DukVLRUnPn6BsKh3ATRHfwr-eOPbGz-xXXdiLRtFIJp5Z06_0I9fcjNY96XAH55c3arjL8rrqNVw90dZ7O8uqhsQupA1_Z0"/>
+<div class="absolute top-4 left-4 bg-primary text-white px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest shadow-lg">Pending</div>
+</div>
+<div class="p-5 flex-grow">
+<div class="flex justify-between items-start mb-3">
+<h3 class="text-lg font-bold text-secondary dark:text-white leading-tight">Luna (Siamese Cat)</h3>
+<span class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">#4425</span>
+</div>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px] text-primary/60">person</span>
+<span class="font-medium">Mike Rivera</span>
+</div>
+<div class="flex items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px] text-primary/60">calendar_today</span>
+<span class="font-medium">Oct 23, 2023</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<button class="w-full py-2.5 bg-slate-50 dark:bg-slate-800 text-secondary dark:text-slate-300 font-bold rounded-xl hover:bg-primary/5 hover:text-primary transition-colors text-sm border border-slate-100 dark:border-slate-700">View Details</button>
+<div class="grid grid-cols-2 gap-2.5">
+<button class="flex items-center justify-center gap-1.5 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:scale-[1.02] transition-all text-sm shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">check</span> Approve
+</button>
+<button class="flex items-center justify-center gap-1.5 py-2.5 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 hover:scale-[1.02] transition-all text-sm">
+<span class="material-symbols-outlined text-[18px]">close</span> Reject
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Listing Card 3 -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+<div class="h-48 bg-slate-200 relative group overflow-hidden">
+<img alt="Beagle" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Small Beagle puppy playing on grass" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGax0vqIGiiug5LMS-oxcIvmzr3XGuKHqo5ItqKHqS9AGBSkkilkaW1i3AdWGz4Zx0O4xdzSfH7fMa17kHR0hDKeK2bhNRrLmrR2X9tFZIOB998HoPPaZgJK77MqFKHxaotmqnLM0x3D69ASlzeK0hPeryb51jxS2aCFKkJsxHWaDkn_SlK2ZbmQjgmjr8jGVFoAsgWeCLZgZTptwYKjNKNhallg5oXKXyoUCEIQfOoHMq--ORXQbXNxD4XK1QUMLSB_Jt3q6gDrbW"/>
+<div class="absolute top-4 left-4 bg-primary text-white px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest shadow-lg">Pending</div>
+</div>
+<div class="p-5 flex-grow">
+<div class="flex justify-between items-start mb-3">
+<h3 class="text-lg font-bold text-secondary dark:text-white leading-tight">Max (Beagle)</h3>
+<span class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">#4428</span>
+</div>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px] text-primary/60">person</span>
+<span class="font-medium">Anna Kim</span>
+</div>
+<div class="flex items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px] text-primary/60">calendar_today</span>
+<span class="font-medium">Oct 23, 2023</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<button class="w-full py-2.5 bg-slate-50 dark:bg-slate-800 text-secondary dark:text-slate-300 font-bold rounded-xl hover:bg-primary/5 hover:text-primary transition-colors text-sm border border-slate-100 dark:border-slate-700">View Details</button>
+<div class="grid grid-cols-2 gap-2.5">
+<button class="flex items-center justify-center gap-1.5 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:scale-[1.02] transition-all text-sm shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">check</span> Approve
+</button>
+<button class="flex items-center justify-center gap-1.5 py-2.5 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 hover:scale-[1.02] transition-all text-sm">
+<span class="material-symbols-outlined text-[18px]">close</span> Reject
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Listing Card 4 -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+<div class="h-48 bg-slate-200 relative group overflow-hidden">
+<img alt="Hamster" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Hamster eating a sunflower seed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvHMx5bcXoIRYfjubrSTVQhfnGBIAkVJj21c6PRddm5UalrZQB63vPhvtSpT2ztEhM728skKglcEF2ih_jZNJS75rnp4ZVrCrchCPWAyPKUMKYMEjzymrKmoC2CyZg7CqePUF2R-rBZJn3C0wiOq_dGOoAylP3D6dCF4gbD1V4fSfBw22GCtOCyt0Dy4-26uDqIupU7Gdnx6SbmIGOrjuAJPNVd5TqAXqBoFJYKB76iz3z85nOC0Hh7nJqfvxdYCUSMHg1rI4bs6WM"/>
+<div class="absolute top-4 left-4 bg-primary text-white px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest shadow-lg">Pending</div>
+</div>
+<div class="p-5 flex-grow">
+<div class="flex justify-between items-start mb-3">
+<h3 class="text-lg font-bold text-secondary dark:text-white leading-tight">Bella (Hamster)</h3>
+<span class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">#4430</span>
+</div>
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px] text-primary/60">person</span>
+<span class="font-medium">David Lee</span>
+</div>
+<div class="flex items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[18px] text-primary/60">calendar_today</span>
+<span class="font-medium">Oct 22, 2023</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<button class="w-full py-2.5 bg-slate-50 dark:bg-slate-800 text-secondary dark:text-slate-300 font-bold rounded-xl hover:bg-primary/5 hover:text-primary transition-colors text-sm border border-slate-100 dark:border-slate-700">View Details</button>
+<div class="grid grid-cols-2 gap-2.5">
+<button class="flex items-center justify-center gap-1.5 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:scale-[1.02] transition-all text-sm shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">check</span> Approve
+</button>
+<button class="flex items-center justify-center gap-1.5 py-2.5 bg-secondary text-white font-bold rounded-xl hover:bg-secondary/90 hover:scale-[1.02] transition-all text-sm">
+<span class="material-symbols-outlined text-[18px]">close</span> Reject
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-12 flex items-center justify-between">
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Showing <span class="font-extrabold text-secondary dark:text-white">4</span> of <span class="font-extrabold text-secondary dark:text-white">12</span> pending</p>
+<div class="flex gap-3">
+<button class="px-5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-slate-800 transition-colors" disabled="">Previous</button>
+<button class="px-5 py-2.5 border border-primary/20 bg-primary/5 text-primary rounded-xl text-sm font-bold hover:bg-primary hover:text-white transition-all shadow-sm">Next</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Info -->
+<footer class="bg-primary/5 dark:bg-slate-900/50 border-t border-primary/10 mt-16 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center text-sm font-medium text-slate-500">
+<p>© 2023 PawModerator. Designed for caregivers.</p>
+<div class="flex gap-8 mt-6 md:mt-0">
+<a class="hover:text-primary transition-colors" href="#">Terms</a>
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

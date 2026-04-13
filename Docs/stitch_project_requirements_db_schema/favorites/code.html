@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Adopter Favorites | PetFinder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#1a1c2e",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-secondary dark:text-slate-100 transition-colors duration-200">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between border-b border-primary/10 bg-white dark:bg-slate-900 px-6 md:px-20 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="bg-primary p-1.5 rounded-lg text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined block">pets</span>
+</div>
+<h2 class="text-secondary dark:text-slate-100 text-xl font-extrabold leading-tight tracking-tight">PetFinder</h2>
+</div>
+<nav class="hidden md:flex flex-1 justify-center gap-8">
+<a class="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-sm font-semibold" href="#">Find Pets</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-sm font-semibold" href="#">Messages</a>
+<a class="text-primary text-sm font-extrabold border-b-2 border-primary pb-1" href="#">Favorites</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors text-sm font-semibold" href="#">Profile</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center rounded-full size-10 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<div class="h-10 w-10 rounded-full bg-primary/20 border-2 border-primary/30 overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover" data-alt="User profile avatar of Alex Smith" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPPa9h1DoqEY2ya2_4YIKzxJ6LzcOQ0qX1yXZLHGgO8fd-ZfWu846KrbejA1NkyWMGKm0_iRwOkhLQslOQKeWjyyQQcX_IWOsiXteA1DXGJXoM9kJ9G2lBXLMpWHeQx5uoGOh7jDWKUA8epfXMKxMobBVxIezb7-zJWh6KJjgBf_YeRMhuG0pyJQw7N9Bb2fAYHjyAka5TkNotXgmRvhemlYvoo_2XhQaJQ8l5EIxqmnEuu9JS1N6o7nmw67Gt29shF6XXmqD5GrAE"/>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center py-8 px-6 md:px-20">
+<div class="w-full max-w-[1200px]">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+<div>
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="material-symbols-outlined filled-icon text-sm">favorite</span>
+<span class="text-[10px] font-extrabold uppercase tracking-[0.1em]">Saved for later</span>
+</div>
+<h1 class="text-3xl font-extrabold text-secondary dark:text-slate-100">My Favorites</h1>
+<p class="text-slate-500 dark:text-slate-400 mt-2 font-medium">You have 4 pets saved in your favorites list.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-xl shadow-primary/30 hover:bg-primary/90 hover:-translate-y-0.5 transition-all">
+<span class="material-symbols-outlined text-[20px]">search</span>
+<span>Back to Search</span>
+</button>
+</div>
+</div>
+<!-- Filter Tabs -->
+<div class="mb-10 border-b border-primary/10">
+<div class="flex gap-10 overflow-x-auto no-scrollbar">
+<button class="flex flex-col items-center border-b-2 border-primary text-primary pb-4 px-1 font-extrabold text-sm whitespace-nowrap">
+                            All Pets (4)
+                        </button>
+<button class="flex flex-col items-center border-b-2 border-transparent text-slate-400 hover:text-secondary dark:hover:text-white pb-4 px-1 font-semibold text-sm transition-colors whitespace-nowrap">
+                            Dogs (2)
+                        </button>
+<button class="flex flex-col items-center border-b-2 border-transparent text-slate-400 hover:text-secondary dark:hover:text-white pb-4 px-1 font-semibold text-sm transition-colors whitespace-nowrap">
+                            Cats (2)
+                        </button>
+<button class="flex flex-col items-center border-b-2 border-transparent text-slate-400 hover:text-secondary dark:hover:text-white pb-4 px-1 font-semibold text-sm transition-colors whitespace-nowrap">
+                            Other (0)
+                        </button>
+</div>
+</div>
+<!-- Favorites Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1 -->
+<div class="group relative flex flex-col bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 border border-primary/5">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Golden Retriever sitting in a garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzwrRGYPoipdtzTl4wc20ryBEy-HkEgqze72m8PCNNgREFrJL4K62JL3oV-mylVGArV7dDXqa3YvzPnQTfsiTMbn68tZUmEirNS2VLj7hwN3DitpbqoGxDUGxzEbzgKE0CZcG1NqlRhF11uzuA5AN8gh5miZ2b8jbJX5DBJkmsBLlc2SubFpDO5TA8xtb7a3fi-ZOKrW7R7e7CTkgN5qSSQm7rk2bmmk23w51UShURYJVIcPfmE79IX4i4pmj228Mzx3W0lfasj_ba"/>
+<div class="absolute top-4 right-4">
+<button class="size-10 rounded-full bg-white/95 backdrop-blur text-primary flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all" title="Remove from favorites">
+<span class="material-symbols-outlined filled-icon text-[22px]">favorite</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1.5 bg-emerald-500/90 backdrop-blur text-white text-[10px] font-extrabold uppercase rounded-lg tracking-wider">Available</span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="text-xl font-extrabold text-secondary dark:text-slate-100">Buddy</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Golden Retriever • 2 years</p>
+<button class="mt-5 w-full py-3 bg-primary/5 text-primary font-extrabold text-sm rounded-xl hover:bg-primary hover:text-white transition-all duration-300">View Profile</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative flex flex-col bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 border border-primary/5">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Blue-eyed Siamese cat looking up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD22LLByrnntomY9hHgEp_eKewubH2mznmKdqLeQcW2axHnxtpRmmRQ8i7Jw_vMSwQG-aCb8O5p9JajmwYIFaHJLbNqecd1juHL330Ge3hZiBJsj4H9-Wm6C8eHXHi2caNJ2lA0ojo7Eq6y9IfVShdYQEIOc5vfQLiIW-RzE5rnmt5BKwE_zPhu3ptwCKfIio99thSiafcByyZMZcmBSts2hfGYthkDQPWIJRci_N0mu9mCMxIeNRO3dXPrbdBvAdfDDMZELaT3kx6O"/>
+<div class="absolute top-4 right-4">
+<button class="size-10 rounded-full bg-white/95 backdrop-blur text-primary flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all" title="Remove from favorites">
+<span class="material-symbols-outlined filled-icon text-[22px]">favorite</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1.5 bg-emerald-500/90 backdrop-blur text-white text-[10px] font-extrabold uppercase rounded-lg tracking-wider">Available</span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="text-xl font-extrabold text-secondary dark:text-slate-100">Luna</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Siamese Cat • 1 year</p>
+<button class="mt-5 w-full py-3 bg-primary/5 text-primary font-extrabold text-sm rounded-xl hover:bg-primary hover:text-white transition-all duration-300">View Profile</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group relative flex flex-col bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 border border-primary/5">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-90" data-alt="Happy Beagle dog on a leash" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Ide7XJHJhyjGz6TM1bp5VWt23nvqgIPp8iAWirMqwBv62HqlUtWcwLWie8LXN1HFXy_4UJPPCKu2FdjiZLNP9Lkn6vW-HJY2-d5_6WGc7bPpYqj6C7Z_0jggEWauLphbOPl9M2Xg_bEtTxFeTfUMmBcxegNsUBAEMTy-mNhs3wDKsCq2pe25ZBQCEDBZVePg_PYt4JwPYfLH-G7S08rG-eZMTn0UrxSHd30TElntd1UaOHkdQLHOkOFnNi0adqyRQa4cdV30uGOI"/>
+<div class="absolute top-4 right-4">
+<button class="size-10 rounded-full bg-white/95 backdrop-blur text-primary flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all" title="Remove from favorites">
+<span class="material-symbols-outlined filled-icon text-[22px]">favorite</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1.5 bg-amber-500/90 backdrop-blur text-white text-[10px] font-extrabold uppercase rounded-lg tracking-wider">Pending</span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="text-xl font-extrabold text-secondary dark:text-slate-100">Max</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Beagle • 4 years</p>
+<button class="mt-5 w-full py-3 bg-primary/5 text-primary font-extrabold text-sm rounded-xl hover:bg-primary hover:text-white transition-all duration-300">Check Status</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group relative flex flex-col bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 border border-primary/5">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="French Bulldog with a cute expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARI_mXqnIbAei-pRDLrcjDjrJDmDaAv6k0EaviQJudCV5qsWj7nRnXYEhXpvXKC4tPxL8fml-L_ZAGPNflPbOfhdR4RIGoibs1cY-lI1kGL2Vwq2y1cx5VzmfoMlLc3AXYuIYI9kLGAjooHDHML5KZU1JfWvOGGZU6A8grZ2d1xOJMsw_6x6nnndE4BiuvWXwkcqbE-DPzejAVMBQ9118wrh9zmjOk3X5TbtokhRr6xPUUaojgg-Be3VV0GuMX1dNXgNOwOr0z2kJA"/>
+<div class="absolute top-4 right-4">
+<button class="size-10 rounded-full bg-white/95 backdrop-blur text-primary flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all" title="Remove from favorites">
+<span class="material-symbols-outlined filled-icon text-[22px]">favorite</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1.5 bg-emerald-500/90 backdrop-blur text-white text-[10px] font-extrabold uppercase rounded-lg tracking-wider">Available</span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="text-xl font-extrabold text-secondary dark:text-slate-100">Bella</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">French Bulldog • 3 years</p>
+<button class="mt-5 w-full py-3 bg-primary/5 text-primary font-extrabold text-sm rounded-xl hover:bg-primary hover:text-white transition-all duration-300">View Profile</button>
+</div>
+</div>
+</div>
+<!-- Search Navigation Footer -->
+<div class="mt-20 py-16 flex flex-col items-center border-t border-primary/10">
+<div class="bg-white dark:bg-slate-900 border border-primary/10 rounded-3xl p-10 w-full max-w-3xl text-center shadow-xl shadow-primary/5">
+<div class="inline-flex items-center justify-center size-16 rounded-2xl bg-primary/10 text-primary mb-6">
+<span class="material-symbols-outlined text-4xl">search_spark</span>
+</div>
+<h2 class="text-2xl font-extrabold text-secondary dark:text-slate-100 mb-3">Want to see more furry friends?</h2>
+<p class="text-slate-500 dark:text-slate-400 mb-8 font-medium">Explore hundreds of pets available for adoption in your area.</p>
+<button class="inline-flex items-center gap-2 px-10 py-4 rounded-2xl bg-primary text-white font-extrabold shadow-xl shadow-primary/30 hover:bg-primary/90 hover:scale-105 transition-all">
+<span class="material-symbols-outlined">explore</span>
+<span>Discover More Pets</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Quick Nav (Mobile Only) -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-primary/10 px-6 py-4 flex justify-between items-center z-50 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)]">
+<button class="flex flex-col items-center gap-1.5 text-slate-400">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tight">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 text-slate-400">
+<span class="material-symbols-outlined text-2xl">search</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tight">Search</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined filled-icon text-2xl">favorite</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tight">Favorites</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 text-slate-400">
+<span class="material-symbols-outlined text-2xl">chat</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tight">Messages</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 text-slate-400">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tight">Profile</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

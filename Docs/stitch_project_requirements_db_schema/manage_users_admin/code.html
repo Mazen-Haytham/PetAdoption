@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin - Manage Users</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#1a1c2e",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-secondary dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/10 bg-white dark:bg-slate-900 px-6 py-3 md:px-10">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl">pets</span>
+</div>
+<h2 class="text-secondary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight">PawsAdmin</h2>
+</div>
+<div class="flex flex-1 justify-end gap-4 md:gap-8">
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-xl h-10 w-10 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-xl h-10 w-10 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="bg-primary/20 bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" data-alt="Profile picture of the administrator" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDgHcQiVhe58ysScXwRQnWWl2SlxFqSKsJEDhgedVXQ57ywWCIgodiNtvZPasGQA9pmQZ8nXlE6y0rKgehuC-r6HuUUIOv5okzK1cHcE-lf_Zq8ypaScTH_-RtSGsEgfjLSjWK_2fM-Ik1LDTQAIo9Ir86FJi8S078E_sR0KstNu0TsQ0o6-67TMTsw6L01nCRJ6A6XPA-LeilrZ87ks0uPlcWziWYB3-K__8iiY3snkyt7Wmn0fD3bie_oUQOhHT1pDgBYZyrInagB");'></div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar -->
+<aside class="hidden md:flex w-64 flex-col border-r border-primary/10 bg-white dark:bg-slate-900 p-4 gap-4">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-primary/5 cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">group</span>
+<p class="text-sm font-medium">Users</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-primary/5 cursor-pointer">
+<span class="material-symbols-outlined">description</span>
+<p class="text-sm font-medium">Reports</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-primary/5 cursor-pointer">
+<span class="material-symbols-outlined">verified_user</span>
+<p class="text-sm font-medium">Verification</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-y-auto p-4 md:p-8">
+<div class="max-w-6xl mx-auto w-full flex flex-col gap-6">
+<!-- Page Header -->
+<div class="flex flex-col gap-2">
+<h1 class="text-3xl md:text-4xl font-black leading-tight tracking-tight text-secondary dark:text-slate-100">Manage Users</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base">Oversee user accounts, review shelter registrations, and handle permissions.</p>
+</div>
+<!-- Filter & Search Section -->
+<div class="flex flex-col lg:flex-row gap-4">
+<div class="flex-1">
+<label class="flex flex-col min-w-40 h-12 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm">
+<div class="text-primary flex border-none bg-white dark:bg-slate-800 items-center justify-center pl-4 rounded-l-xl">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-secondary dark:text-slate-100 focus:outline-0 focus:ring-0 border-none bg-white dark:bg-slate-800 h-full placeholder:text-slate-400 px-4 text-base font-normal leading-normal" placeholder="Search by name, email, or user ID" value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-white dark:bg-slate-800 px-4 text-slate-700 dark:text-slate-300 border border-primary/10 hover:border-primary/30 transition-all">
+<span class="text-sm font-medium">All Roles</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-white dark:bg-slate-800 px-4 text-slate-700 dark:text-slate-300 border border-primary/10 hover:border-primary/30 transition-all">
+<span class="text-sm font-medium text-primary">Status: Pending</span>
+<span class="material-symbols-outlined text-sm text-primary">expand_more</span>
+</button>
+<button class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-primary px-6 text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">filter_list</span>
+<span class="text-sm">Apply Filters</span>
+</button>
+</div>
+</div>
+<!-- Table Section -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-primary/10 overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-primary/5 dark:bg-primary/10">
+<tr>
+<th class="px-6 py-4 text-sm font-bold text-secondary dark:text-slate-200">User Details</th>
+<th class="px-6 py-4 text-sm font-bold text-secondary dark:text-slate-200">Role</th>
+<th class="px-6 py-4 text-sm font-bold text-secondary dark:text-slate-200">Account Status</th>
+<th class="px-6 py-4 text-sm font-bold text-secondary dark:text-slate-200 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-primary/10">
+<!-- Pending Shelter Account -->
+<tr class="bg-primary/5 dark:bg-primary/10 border-l-4 border-primary">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Shelter avatar logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQn9zjEmQofOxlijzOzeDhNGOGnhTScucEsH1DcZzvd90RD6hQ_-wAxT8fpHGmVcEdrvjjPmKqrD5DC-ofT1K4fpOI_tzSM5Hskea6M7pvjHX2lA1zCCwE8yLdC_AoZqCrxnx8mP-YZoF0YvcO_eGbAEJxjy29Ah7A9_u_w8eMETsCQG0T_31dtz2nB_XisTBmAkdmJQBLGhl9fSk_42S_YWdm55D7XAGkR2tymwiWolTfoUUNUFkMX7RJ5A5MFO1La_eS5SdbRpha"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-secondary dark:text-slate-100">Happy Paws Shelter</span>
+<span class="text-xs text-slate-500">contact@happypaws.org</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 text-xs font-bold rounded-full bg-primary/20 text-primary uppercase tracking-wider">Shelter</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-amber-600">
+<span class="material-symbols-outlined text-base">hourglass_empty</span>
+<span class="text-sm font-medium">Pending Approval</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="px-4 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-all">Approve</button>
+<button class="px-4 py-1.5 rounded-lg bg-red-100 text-red-600 text-xs font-bold hover:bg-red-200 transition-all">Reject</button>
+</div>
+</td>
+</tr>
+<!-- Active Owner Account -->
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtCp3FagTpfOa_1kZoQq-UoOyGN4JsGizEgK4WfoS0wjAXBhMOVehifaVJIqq2tMW_hINMEYEu2HZ4bzaLq0EpV3AelihpDxRFFv2Z7DRF4KJKeaPyNwqvgURgmFIqTN-3w9I0T27fFcoGqJH41lEOmh6EyoMEqtZoZ7uO3r2tUUGYEsQMr2y3q5DGrHEkvwRd-zVNaK21nGSKx1aMb89Dy9Q0ywD3IqA635cF-LYz3mjlqpEYMASprzul94J1EqXw7PvoAtCeV54g"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-secondary dark:text-slate-100">Sarah Jenkins</span>
+<span class="text-xs text-slate-500">sarah.j@example.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Owner</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-green-600">
+<span class="material-symbols-outlined text-base">check_circle</span>
+<span class="text-sm font-medium">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right text-slate-400">
+<button class="p-2 hover:bg-primary/5 rounded-full transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Pending Shelter Account 2 -->
+<tr class="bg-primary/5 dark:bg-primary/10 border-l-4 border-primary">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Shelter logo placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS0rr84tp_1iayu70DPO330H3-toQSf54ZMM84fHsEG93aANM3Mye0ZKbZYmuzc6P-kQbC2CXOcVAl4ITeN4VVG5SpUvAKwqIrqJCTpn6CkF_QCrGeadJ7iZs4RAYHb_ElnurTmZ1_AgprcaTjADh1w49_XfNxDR9KxUusD0bnvV8fxig_90ftdRMesz8-rlMtl5NRvHq7fJdUr9tFj2UjnnZeuKpfX4gtxXCRi1lkKcCbgMUJPeOlpcAoih0uGKgsDdRiL3m4NTMT"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-secondary dark:text-slate-100">Green Valley Rescues</span>
+<span class="text-xs text-slate-500">admin@gvrescues.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 text-xs font-bold rounded-full bg-primary/20 text-primary uppercase tracking-wider">Shelter</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-amber-600">
+<span class="material-symbols-outlined text-base">hourglass_empty</span>
+<span class="text-sm font-medium">Pending Approval</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="px-4 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-all">Approve</button>
+<button class="px-4 py-1.5 rounded-lg bg-red-100 text-red-600 text-xs font-bold hover:bg-red-200 transition-all">Reject</button>
+</div>
+</td>
+</tr>
+<!-- Active Adopter Account -->
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Adopter user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB76pAd-c2-HhlToIIKSJccaPsGwZSmh6Tgp8rL0PIf7XG6-mmVIhnc20tisbnkHq_u6e6lowk1ZLfq5vZbsflUFV2TEpfH3967KgcpP4QQCwGl-PMTqX-JS9kgk652Wp0rpvFtagZLSwfriQEnXNvAsQ2RSIzkEfRifAxk1onL29Y0Vvj8Df22EWg9GbNM7Mv1cbTx5S0nIGwXFNoch2WR2_ep0O_MXjYXMElQPfw0PjDAUBsqAvLGPluf5Ac_Uvjc9znFIfNjWcd2"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-secondary dark:text-slate-100">David Miller</span>
+<span class="text-xs text-slate-500">dave.mill@gmail.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Adopter</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-green-600">
+<span class="material-symbols-outlined text-base">check_circle</span>
+<span class="text-sm font-medium">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right text-slate-400">
+<button class="p-2 hover:bg-primary/5 rounded-full transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Blocked User Account -->
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3 opacity-60">
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Inactive user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFHRpLxo5XVWlhjqvgBgLhDyNbPKu2dxyxEo4LQmQquBR3637hXS1fQyXfmPzmY63tJXG_5qMigIFIohD6BbKmEk2Sa94WdPerg62C48vrZ6Ae5vxMML409Cg1Qqv_cD-fc11ncE_P5AQFLx0It1SYb6UjxKVAvc-KeIOALOHg-mVyPMC5_QEO-YTMPEpDswFG1QlrPnEyNnf1v-6sCLFzm7LM7-ySmP-HLFjLeQ01z_AqmJyFFx_ujbSJrXEklU708-hTuCQEgDme"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-secondary dark:text-slate-100">Robert Chen</span>
+<span class="text-xs text-slate-500">rob.chen@blocked.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Owner</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-red-500">
+<span class="material-symbols-outlined text-base">block</span>
+<span class="text-sm font-medium">Deactivated</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right text-slate-400">
+<button class="p-2 hover:bg-primary/5 rounded-full transition-all text-primary font-bold text-xs uppercase">Reactivate</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between border-t border-primary/10">
+<span class="text-sm text-slate-500">Showing 5 of 142 users</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg border border-primary/10 bg-white dark:bg-slate-800 text-slate-400 cursor-not-allowed">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="p-2 rounded-lg border border-primary/10 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-primary/40">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Statistics Summary -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/10 shadow-sm flex items-center gap-4">
+<div class="bg-primary/10 text-primary p-3 rounded-xl">
+<span class="material-symbols-outlined text-3xl">domain</span>
+</div>
+<div>
+<p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Shelter Requests</p>
+<p class="text-2xl font-black text-secondary dark:text-slate-100">12 Pending</p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/10 shadow-sm flex items-center gap-4">
+<div class="bg-primary/10 text-primary p-3 rounded-xl">
+<span class="material-symbols-outlined text-3xl">person</span>
+</div>
+<div>
+<p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Total Adopters</p>
+<p class="text-2xl font-black text-secondary dark:text-slate-100">842 Total</p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-primary/10 shadow-sm flex items-center gap-4">
+<div class="bg-primary/10 text-primary p-3 rounded-xl">
+<span class="material-symbols-outlined text-3xl">trending_up</span>
+</div>
+<div>
+<p class="text-slate-500 text-xs font-bold uppercase tracking-wider">Weekly Growth</p>
+<p class="text-2xl font-black text-secondary dark:text-slate-100">+14.5%</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pet Adoption Reviews &amp; Feedback</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#1a1c2e",
+                    },
+                    fontFamily: {
+                        "sans": ["Plus Jakarta Sans", "ui-sans-serif", "system-ui"],
+                        "display": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .fill-star { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-secondary dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 md:px-40 py-3">
+<div class="flex items-center gap-4 text-secondary dark:text-slate-100">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">pets</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">Pawsitive Reviews</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center rounded-xl size-10 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-10 rounded-full bg-primary/20 border-2 border-primary overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="User profile avatar with friendly face" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCRDePoQa-vAFR5r4gaBqGIfQe-BMIrmebwGVEqe90JVS-Oxm9-4mrmwhXF3hb2s1wpvw6kMSHP0V8fSQRWRHXireVINsna9vGYOg7uho-IMz0AqUMP-jG_Z_pOSRzra1MeGX-kpRTZ00Viw_t_PgjaIuOv7ofDstPjSS3Y_F4Z5c2Z0D__tlEB8Z00Ad6EE980n7M0aDMqAuMcLWFpuCAEROLlh1pMhRl-gv8Sx4k7yZjYRjhxdVL81YT-LPMUtDQGk7hftl5j7xXe')"></div>
+</div>
+</div>
+</header>
+<main class="px-4 md:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 gap-8">
+<!-- Rating Summary Card -->
+<div class="bg-white dark:bg-slate-900/50 rounded-xl p-6 shadow-sm border border-primary/10 flex flex-col md:flex-row gap-8 items-center">
+<div class="flex flex-col items-center gap-2 px-8 md:border-r border-primary/10">
+<p class="text-secondary dark:text-slate-100 text-6xl font-black leading-tight tracking-tighter">4.9</p>
+<div class="flex text-primary">
+<span class="material-symbols-outlined fill-star">star</span>
+<span class="material-symbols-outlined fill-star">star</span>
+<span class="material-symbols-outlined fill-star">star</span>
+<span class="material-symbols-outlined fill-star">star</span>
+<span class="material-symbols-outlined fill-star">star_half</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">1,284 Verified Reviews</p>
+</div>
+<div class="grid w-full grid-cols-[30px_1fr_45px] items-center gap-y-2.5">
+<span class="text-slate-600 dark:text-slate-400 text-sm font-semibold">5</span>
+<div class="flex h-2.5 flex-1 overflow-hidden rounded-full bg-primary/10">
+<div class="rounded-full bg-primary" style="width: 88%;"></div>
+</div>
+<span class="text-slate-500 text-sm font-medium text-right">88%</span>
+<span class="text-slate-600 dark:text-slate-400 text-sm font-semibold">4</span>
+<div class="flex h-2.5 flex-1 overflow-hidden rounded-full bg-primary/10">
+<div class="rounded-full bg-primary" style="width: 8%;"></div>
+</div>
+<span class="text-slate-500 text-sm font-medium text-right">8%</span>
+<span class="text-slate-600 dark:text-slate-400 text-sm font-semibold">3</span>
+<div class="flex h-2.5 flex-1 overflow-hidden rounded-full bg-primary/10">
+<div class="rounded-full bg-primary" style="width: 3%;"></div>
+</div>
+<span class="text-slate-500 text-sm font-medium text-right">3%</span>
+<span class="text-slate-600 dark:text-slate-400 text-sm font-semibold">2</span>
+<div class="flex h-2.5 flex-1 overflow-hidden rounded-full bg-primary/10">
+<div class="rounded-full bg-primary" style="width: 1%;"></div>
+</div>
+<span class="text-slate-500 text-sm font-medium text-right">1%</span>
+<span class="text-slate-600 dark:text-slate-400 text-sm font-semibold">1</span>
+<div class="flex h-2.5 flex-1 overflow-hidden rounded-full bg-primary/10">
+<div class="rounded-full bg-primary" style="width: 0.5%;"></div>
+</div>
+<span class="text-slate-500 text-sm font-medium text-right">&lt;1%</span>
+</div>
+</div>
+<!-- Review Form Section (Visible to eligible users) -->
+<section class="bg-primary/5 dark:bg-primary/10 rounded-xl p-8 border-2 border-dashed border-primary/30">
+<div class="flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-xl font-bold text-secondary dark:text-slate-100">Share Your Experience</h3>
+<p class="text-slate-600 dark:text-slate-400 text-sm mt-1">You recently adopted <strong>"Luna"</strong> from <strong>Happy Paws Shelter</strong>. How was the process?</p>
+</div>
+<span class="bg-primary text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Eligible</span>
+</div>
+<form class="space-y-4">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-secondary/80 dark:text-slate-300">Rate your experience</label>
+<div class="flex gap-1 text-primary cursor-pointer">
+<span class="material-symbols-outlined text-3xl fill-star">star</span>
+<span class="material-symbols-outlined text-3xl fill-star">star</span>
+<span class="material-symbols-outlined text-3xl fill-star">star</span>
+<span class="material-symbols-outlined text-3xl fill-star">star</span>
+<span class="material-symbols-outlined text-3xl">star</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-secondary/80 dark:text-slate-300">Pet Name</label>
+<input class="bg-white dark:bg-slate-800 border border-primary/20 rounded-lg px-4 py-2 text-slate-500 cursor-not-allowed" readonly="" type="text" value="Luna"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-secondary/80 dark:text-slate-300">Shelter/Owner</label>
+<input class="bg-white dark:bg-slate-800 border border-primary/20 rounded-lg px-4 py-2 text-slate-500 cursor-not-allowed" readonly="" type="text" value="Happy Paws Shelter"/>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-secondary/80 dark:text-slate-300">Your Review</label>
+<textarea class="bg-white dark:bg-slate-800 border border-primary/20 focus:ring-2 focus:ring-primary focus:border-transparent rounded-lg px-4 py-3 text-secondary dark:text-slate-100 placeholder:text-slate-400" placeholder="Tell us about the adoption process, communication, and your new furry friend..." rows="3"></textarea>
+</div>
+<div class="flex justify-end pt-2">
+<button class="bg-primary text-white font-bold py-3 px-8 rounded-lg hover:brightness-110 transition-all flex items-center gap-2 shadow-lg shadow-primary/20" type="submit">
+                                    Post Review <span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</form>
+</div>
+</section>
+<!-- Reviews Feed Header -->
+<div class="flex items-center justify-between px-2 pt-4">
+<h2 class="text-2xl font-bold tracking-tight text-secondary dark:text-white">Community Feedback</h2>
+<div class="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+<span>Sort by:</span>
+<select class="bg-transparent border-none focus:ring-0 cursor-pointer text-primary font-bold py-0">
+<option>Newest</option>
+<option>Highest Rating</option>
+<option>Most Helpful</option>
+</select>
+</div>
+</div>
+<!-- Reviews List -->
+<div class="flex flex-col gap-6">
+<!-- Review 1 -->
+<div class="bg-white dark:bg-slate-900/40 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-primary/5 flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="aspect-square rounded-full size-12 bg-primary/20 overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Reviewer profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAZucZ9sd3K6eTQeRmij6gBVpOnNALlPuKlPFwFSVI4yk3zP39xqRrS9PHv4KgsqfqUvlF28lxF54JolfjjLtn4ABRbTpV9B3lPAPEdLKhuzqj4NXYIdipRzCQBtkGIpsb1W8wTx3lQayw-pgerpzAbZqA0-YoNP2jNSSRCIh0WPggQ5Om76Nb91OHFJVtUEY6Ysw6p-aZ84Y3rHO5wMQ_FXi2Add3NRiYBnUrmeAhrsF7RsP15AzAiwoD48UgZk48s9kRl3-XYNTv3')"></div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<p class="text-secondary dark:text-slate-100 font-bold">Sarah Jenkins</p>
+<span class="material-symbols-outlined text-primary text-base" title="Verified Adopter">verified</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Adopted <span class="font-semibold">Milo (Golden Retriever)</span> • 3 days ago</p>
+</div>
+</div>
+<div class="flex text-primary">
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+</div>
+</div>
+<p class="text-secondary/80 dark:text-slate-300 leading-relaxed">
+                            The process was seamless! Happy Paws Shelter provided all the medical history and even checked in on us twice after we brought Milo home. They really care about where their pets go. Highly recommend them to anyone looking to adopt.
+                        </p>
+<div class="flex gap-4 border-t border-slate-100 dark:border-slate-800 pt-4">
+<button class="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">thumb_up</span> Helpful (24)
+                            </button>
+<button class="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm">chat_bubble</span> Reply
+                            </button>
+</div>
+</div>
+<!-- Review 2 -->
+<div class="bg-white dark:bg-slate-900/40 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-primary/5 flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="aspect-square rounded-full size-12 bg-primary/20 overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Reviewer profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWWJLItzpGkIqkCWVXmNirosUm1YzOO63n2W2_bH451GqobIGsyZsWpc_QbFW59Xtb6mrJcYxuTtS8IKqv8aMTm-2MpZHlJH2EZLYqqA5iHOl96uXes1hO9sUmQ_DVUceUiWj-xlkpTyJSH_x5eCjj7KWMIxZEvIUtQUYUvAGQlnMoJjYAUo18zPOp9BabEpnRtBDJH-X-9UKKQSxnDkeLPrLu6rkOcfdDCLrgmy-H3kuI2u5VaFL-YuwMfVPQS7A_NVuuG5wgfqIT')"></div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<p class="text-secondary dark:text-slate-100 font-bold">Marcus Chen</p>
+<span class="material-symbols-outlined text-primary text-base" title="Verified Adopter">verified</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Adopted <span class="font-semibold">Bella (Siamese Cat)</span> • 1 week ago</p>
+</div>
+</div>
+<div class="flex text-primary">
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+</div>
+<p class="text-secondary/80 dark:text-slate-300 leading-relaxed">
+                            Very transparent owner. Bella was a bit shy at first but they gave us great tips on how to introduce her to our other cat. One star off only because the initial communication took a couple of days, but the rest was perfect.
+                        </p>
+<div class="flex gap-4 border-t border-slate-100 dark:border-slate-800 pt-4">
+<button class="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">thumb_up</span> Helpful (12)
+                            </button>
+<button class="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm">chat_bubble</span> Reply
+                            </button>
+</div>
+</div>
+<!-- Review 3 -->
+<div class="bg-white dark:bg-slate-900/40 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-primary/5 flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="aspect-square rounded-full size-12 bg-primary/20 overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Reviewer profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCtQOrAcQVDv0onrgcFzOzetKBEYSONDXdJ2a7RbMOQ_zKU6sjvNpYslzKHsard_lf0HJMH97m8kkUaTOGumt8QqZxk2oFiDfrM8NXPaifFephVaMDv2U5HcrjZPDWWQ7PbPIuJ9Cp9p2TmjThtTgpFVLk3SEtPcVzeqBAqVyYGVcUflgf03hR3ucBujTioznmdabZEqDcAwoG5P_YCMdyWGRElUFvm1J37-uMr5kv_l5G5u4EmzuA5_YXg-aL70MetOe7uWYF_MAOJ')"></div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<p class="text-secondary dark:text-slate-100 font-bold">Elena Rodriguez</p>
+<span class="material-symbols-outlined text-primary text-base" title="Verified Adopter">verified</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Adopted <span class="font-semibold">Rocky (Beagle)</span> • 2 weeks ago</p>
+</div>
+</div>
+<div class="flex text-primary">
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+<span class="material-symbols-outlined fill-star text-lg">star</span>
+</div>
+</div>
+<p class="text-secondary/80 dark:text-slate-300 leading-relaxed">
+                            Amazing experience! Rocky is healthy, happy, and was exactly as described in his profile. The foster parents were so helpful and sent us a bag of his current food and his favorite toy.
+                        </p>
+<div class="flex gap-4 border-t border-slate-100 dark:border-slate-800 pt-4">
+<button class="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">thumb_up</span> Helpful (8)
+                            </button>
+<button class="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm">chat_bubble</span> Reply
+                            </button>
+</div>
+</div>
+<!-- Load More Button -->
+<div class="flex justify-center py-6">
+<button class="px-6 py-2 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary/5 transition-colors">
+                            Load More Reviews
+                        </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Mobile) -->
+<footer class="md:hidden fixed bottom-0 w-full bg-white dark:bg-background-dark border-t border-slate-100 dark:border-slate-800 py-3 px-6 flex justify-between items-center z-50">
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-bold">Search</span>
+</button>
+<button class="flex flex-col items-center text-primary">
+<span class="material-symbols-outlined fill-star">reviews</span>
+<span class="text-[10px] font-bold">Reviews</span>
+</button>
+<button class="flex flex-col items-center text-slate-400">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold">Profile</span>
+</button>
+</footer>
+</div>
+</div>
+</body></html>

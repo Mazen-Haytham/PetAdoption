@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Join PetPal Adoption - Create Your Account</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#1a1c35",
+                    },
+                    fontFamily: {
+                        "sans": ["'Plus Jakarta Sans'", "sans-serif"],
+                        "display": ["'Plus Jakarta Sans'", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between border-b border-primary/10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 py-4 lg:px-20 sticky top-0 z-50">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl font-bold">pets</span>
+<h2 class="text-xl font-bold leading-tight tracking-tight text-secondary dark:text-white">PetPal Adoption</h2>
+</div>
+<div class="flex items-center gap-4">
+<span class="hidden md:block text-sm text-slate-600 dark:text-slate-400">Already have an account?</span>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-xl h-10 px-6 border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors text-sm font-bold">
+<span>Login</span>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center justify-center px-4 py-12">
+<div class="w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-2xl shadow-primary/5">
+<!-- Left Side: Visual/Branding -->
+<div class="hidden lg:flex flex-col justify-between p-12 bg-primary text-white relative overflow-hidden">
+<div class="relative z-10">
+<h1 class="text-4xl font-bold mb-6">Start your journey to a new best friend.</h1>
+<p class="text-white/80 text-lg leading-relaxed font-medium">Join thousands of happy families who found their perfect furry companion through PetPal.</p>
+</div>
+<!-- Decorative Element -->
+<div class="absolute bottom-0 right-0 opacity-20 transform translate-x-1/4 translate-y-1/4">
+<span class="material-symbols-outlined text-[300px]">pets</span>
+</div>
+<div class="relative z-10 mt-12">
+<div class="flex items-center gap-4 mb-8">
+<div class="flex -space-x-3">
+<img class="w-10 h-10 rounded-full border-2 border-primary brightness-110" data-alt="Profile picture of a happy user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdc0-laokzoUmaPZXQA9j4Zs2BdVcaXt4Gya0oMwIqeWa-gdtPoXESgdO-XQAEuQWLE1Uaorc8JpiAuHoJJLITSeRW75nkBbA5EJwk2X0o5PGE29gQETBHcvYtrIWLJJvDAphbt3TBX_dMg87j5F3DPFhsaggTcj3aWjVNNw6QMSz5eHMWdYGK6JX5OvvJqbhFAy0sgHCc_SgRuJOd11do9KD8y7dnaizcr8Q6Jdu3D6cfn4MtCrkd2UpBUW-0eDhn_2O4z7_-l04Q"/>
+<img class="w-10 h-10 rounded-full border-2 border-primary brightness-110" data-alt="Profile picture of a pet owner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANSb7hyzeSQOjA05VEcKZ0ndTEV36hjp6VW0uFskbicGDpx7utjAXuI5y3ZCBN5OAxH5Z8wz21cawOkeTNNSlpahJdEo_SEx7xqLoqGbqKAcivtQHOL0jwtZnuyDRQzY8lFTy8-CrDQmPtjzxwz7ccS5D7AvhQSWJwkANimIDZ1MeK6Wr63j0rEBCz6kjjFqCfacVHjF7XXQXCRU6z3zWyz716plLR94a6wwASx6i-65OfJ9MLBxN8ohixfswMWkPGMUMQFb807iEW"/>
+<img class="w-10 h-10 rounded-full border-2 border-primary brightness-110" data-alt="Profile picture of a shelter worker" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6R2yfDNk-tnEJfjAXFnC3cN_3xTTZIsE-JHpEG2SPnXsUKMypoaYmuc1rYk_yQUU4J_vr6739hQ12d00sJtkpM8H7NCG2nrcbOhUlR5xPJlqxEGMpbNYkGlMZPoMEXFFNua7JrIvf3ChKRkw9ZZtjpTcAzXbm-VWhQfb5k6qa1-nLoneGHehjPa0BVaBg6SM7AXxzfIj81dW1qADzhIwQ8iYPlLmD-X598eOaUrdNrmIvSbjBp9_mqF_LosLFHBeSGCT1yHoR0oGG"/>
+</div>
+<span class="text-sm font-semibold">Join 5,000+ pet lovers</span>
+</div>
+</div>
+</div>
+<!-- Right Side: Registration Form -->
+<div class="p-8 lg:p-12">
+<div class="mb-8">
+<h2 class="text-2xl font-bold text-secondary dark:text-white">Create an Account</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Fill in your details to get started.</p>
+</div>
+<form class="space-y-5" id="registration-form">
+<!-- Role Selection -->
+<div class="space-y-2">
+<p class="text-secondary dark:text-slate-300 text-sm font-bold">I am a...</p>
+<div class="flex h-12 w-full items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-primary has-[:checked]:shadow-sm has-[:checked]:text-primary dark:has-[:checked]:text-white text-slate-500 dark:text-slate-400 text-sm font-bold transition-all">
+<span class="truncate">Adopter</span>
+<input class="invisible w-0" name="user-role" type="radio" value="Adopter"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-primary has-[:checked]:shadow-sm has-[:checked]:text-primary dark:has-[:checked]:text-white text-slate-500 dark:text-slate-400 text-sm font-bold transition-all">
+<span class="truncate">Shelter/Owner</span>
+<input checked="checked" class="invisible w-0" id="role-shelter" name="user-role" type="radio" value="Shelter"/>
+</label>
+</div>
+</div>
+<!-- Full Name -->
+<div class="space-y-2">
+<label class="block text-sm font-bold text-secondary dark:text-slate-300">Full Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 text-xl">person</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="John Doe" type="text"/>
+</div>
+</div>
+<!-- Email -->
+<div class="space-y-2">
+<label class="block text-sm font-bold text-secondary dark:text-slate-300">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 text-xl">mail</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="john@example.com" type="email"/>
+</div>
+</div>
+<!-- Password Fields -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="block text-sm font-bold text-secondary dark:text-slate-300">Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 text-xl">lock</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-bold text-secondary dark:text-slate-300">Confirm Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 text-xl">lock_reset</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="••••••••" type="password"/>
+</div>
+</div>
+</div>
+<!-- Terms -->
+<div class="flex items-start gap-3 py-2">
+<input class="mt-1 rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" id="terms" type="checkbox"/>
+<label class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium" for="terms">
+                                By creating an account, I agree to the <a class="text-primary font-bold hover:underline" href="#">Terms of Service</a> and <a class="text-primary font-bold hover:underline" href="#">Privacy Policy</a>.
+                            </label>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all transform active:scale-[0.98]" type="submit">
+                            Create Account
+                        </button>
+</form><div class="hidden flex flex-col items-center justify-center py-12 text-center animate-in fade-in duration-500" id="success-message">
+<div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-5xl text-primary">verified_user</span>
+</div>
+<h3 class="text-2xl font-bold text-secondary dark:text-white mb-4">Thank you for registering!</h3>
+<p class="text-slate-600 dark:text-slate-400 leading-relaxed">We are waiting now for approval from the admin. <br/> You will receive an email once your account is verified.</p>
+<button class="mt-8 text-primary font-bold hover:underline flex items-center gap-2" onclick="window.location.reload()">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+        Return to Sign Up
+    </button>
+</div>
+<!-- Social Login Divider -->
+<div class="relative my-8">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
+</div>
+<div class="relative flex justify-center text-xs uppercase font-bold tracking-wider">
+<span class="bg-white dark:bg-slate-900 px-2 text-slate-400">Or continue with</span>
+</div>
+</div>
+<!-- Social Buttons -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 py-3 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<img class="w-5 h-5" data-alt="Google logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFLKT3WDtEVHQtf23xtA9Z6QyDFwDqQM8m_n8OuhKhgaRzRwib5d4kig8tAAo8Qj2ODa2X9NgJmcRHXnZu01TRA1u5FEzz8Og_EsGnCsiz8leSwCoH-KcHi0Os9w4nXOp79-H74AaqI0tCpi_b-XahkKjUsnidX_D9GUew0rr0DGLanmfgzDAW1li8DIPl313CWwp_HOTu1mTMYFQdKnRI7AjFXqFtAaASZ_e9wLj5I0ef9ZPyys5I7UcYPYVgFfWApFWQF0DcMUNz"/>
+<span class="text-sm font-bold text-secondary dark:text-slate-300">Google</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-3 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-xl text-[#1877F2]">social_leaderboard</span>
+<span class="text-sm font-bold text-secondary dark:text-slate-300">Facebook</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<footer class="py-8 text-center text-slate-500 dark:text-slate-500 text-sm font-medium">
+<p>© 2024 PetPal Adoption. All rights reserved.</p>
+</footer>
+</div>
+<script>
+    document.getElementById('registration-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const isShelter = document.getElementById('role-shelter').checked;
+        if (isShelter) {
+            document.getElementById('registration-form').classList.add('hidden');
+            document.querySelector('.mb-8').classList.add('hidden'); // Hide the original header
+            document.querySelector('.relative.my-8').classList.add('hidden'); // Hide divider
+            document.querySelector('.grid-cols-2.gap-4').classList.add('hidden'); // Hide social buttons
+            document.getElementById('success-message').classList.remove('hidden');
+        } else {
+            // Default behavior for Adopters (e.g., redirect to dashboard)
+            alert('Adopter registration submitted!');
+        }
+    });
+</script></body></html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | PetPal Adoption</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#1a1c35",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-secondary dark:text-slate-100 min-h-screen">
+<div class="flex min-h-screen">
+<!-- Left Side: Split Screen Image (Hidden on mobile) -->
+<div class="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/20 mix-blend-multiply z-10"></div>
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Heartwarming photo of a happy person hugging a golden retriever dog" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBhtVzVhHKwgl1th8GmJwnlIc7mSzJmk1hSWrIUrmSYqYJ765V6hrG8vnHZBr6bXC17hvhUhlHb35QvKKJEWzDQX10lh49iB1StPCYdvYuhuaKjrF2q9oj6qsy6inviGgDTxWOvE3Mjpj5ZMj_A-4QGsXOw2ylRVkGid_K7N-YMYOXW4wGmnH0tUMGzjumFX6kUBZ0nGP1pPlQHnvy07PExeQUdKFSnb47qri69gkzMwefI-l1frLvbEXEO2fcW1N0zhk0GEI5aMbPB');">
+</div>
+<div class="relative z-20 flex flex-col justify-end p-16 text-white bg-gradient-to-t from-secondary/90 to-transparent w-full">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-4xl">pets</span>
+<h1 class="text-3xl font-black tracking-tight">PetPal Adoption</h1>
+</div>
+<h2 class="text-5xl font-bold leading-tight mb-4">Find your new <br/>best friend today.</h2>
+<p class="text-lg opacity-90 max-w-md">Join thousands of happy families who found their perfect match through our compassionate adoption network.</p>
+</div>
+</div>
+<!-- Right Side: Login Form -->
+<div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 sm:p-12 lg:p-20 bg-background-light dark:bg-background-dark">
+<div class="w-full max-w-md">
+<!-- Mobile Header -->
+<div class="lg:hidden flex items-center gap-3 mb-12">
+<div class="bg-primary p-2 rounded-lg text-white">
+<span class="material-symbols-outlined text-2xl">pets</span>
+</div>
+<span class="text-xl font-bold text-primary">PetPal</span>
+</div>
+<div class="mb-10">
+<h2 class="text-3xl font-black text-secondary dark:text-slate-100 mb-2">Welcome back</h2>
+<p class="text-slate-500 dark:text-slate-400">Please enter your details to sign in to your account.</p>
+</div>
+<form class="space-y-6">
+<!-- Email Field -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-secondary/80 dark:text-slate-300 ml-1">Email Address</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</div>
+<input class="block w-full pl-11 pr-4 h-14 bg-white dark:bg-slate-800 border border-primary/10 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-secondary dark:text-white placeholder:text-slate-400" placeholder="name@example.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center ml-1">
+<label class="text-sm font-semibold text-secondary/80 dark:text-slate-300">Password</label>
+<a class="text-sm font-semibold text-primary hover:text-secondary transition-colors" href="#">Forgot password?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<input class="block w-full pl-11 pr-12 h-14 bg-white dark:bg-slate-800 border border-primary/10 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-secondary dark:text-white placeholder:text-slate-400" placeholder="••••••••" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-primary" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center gap-2 px-1">
+<input class="w-4 h-4 text-primary border-primary/20 rounded focus:ring-primary bg-white dark:bg-slate-800" id="remember" type="checkbox"/>
+<label class="text-sm text-slate-600 dark:text-slate-400" for="remember">Remember for 30 days</label>
+</div>
+<!-- Sign In Button -->
+<button class="w-full bg-primary hover:bg-secondary text-white font-bold h-14 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 text-lg" type="submit">
+                    Sign In
+                </button>
+</form>
+<!-- Social Logins -->
+<div class="mt-8">
+<div class="relative flex items-center mb-8">
+<div class="flex-grow border-t border-primary/10 dark:border-slate-700"></div>
+<span class="flex-shrink mx-4 text-sm text-slate-500 uppercase tracking-wider font-medium">Or continue with</span>
+<div class="flex-grow border-t border-primary/10 dark:border-slate-700"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 h-12 border border-primary/10 dark:border-slate-700 rounded-xl hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-800">
+<img alt="" class="w-5 h-5" data-alt="Google colorful brand logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzb9ZFXJQwAUj9NSeF-VOktGkmMmSmDedUWkB_54oMkBhFRg7qArLk6oKKLGKHClGMZWE_jPvKyFE_v1yrut6RwqYYfjIHD54EweaadD-ryGPKj7H784vwSWVX3FW4qcY38gEUJthZcR1kSTlW_RpJ2bkXc4iJGlrT3YUPoBvp0dOO-fvqR03YugBuQ85uHk00mwKvHph1YSqxadUGyg-BEtF1tw41L6BnjnjEYZYAneogIIaWK5wy2vTQlTjoIjjtfEs01yq7Dgra"/>
+<span class="text-sm font-semibold text-secondary dark:text-slate-200">Google</span>
+</button>
+<button class="flex items-center justify-center gap-2 h-12 border border-primary/10 dark:border-slate-700 rounded-xl hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm transition-all bg-white dark:bg-slate-800">
+<img alt="" class="w-5 h-5" data-alt="Facebook blue brand logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHaTJCvueswr35oCRZF7jxRLqio7P4N47Xj9SLYkqGZjuOfiBUIV8RATY78KE1hEIFJJ6LHarlnWkhCbrw08pgoVady_b8zmA4FwVlvvTMw0GF8TrFneCtAlTmkk3g84xHfId7pCT5XoPcyfh08D4h2_LmKVg2Tk6nKbZe8Nd4UXR9Ij2johu5Gp-77ZzXgWGF--DnhwmtsWNBUYlvnUNVVExzbOaSdQXeAtYCXwEl9MoO_dy-gBeOEgeDT51inCjK61TjtVjqBoih"/>
+<span class="text-sm font-semibold text-secondary dark:text-slate-200">Facebook</span>
+</button>
+</div>
+</div>
+<!-- Register Link -->
+<p class="mt-10 text-center text-slate-600 dark:text-slate-400">
+                Don't have an account? 
+                <a class="text-primary font-bold hover:text-secondary transition-colors" href="#">Create an account</a>
+</p>
+</div>
+<!-- Footer Small Links -->
+<div class="mt-auto pt-10 flex gap-6 text-xs text-slate-400 dark:text-slate-500">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">Help Center</a>
+</div>
+</div>
+</div>
+</body></html>

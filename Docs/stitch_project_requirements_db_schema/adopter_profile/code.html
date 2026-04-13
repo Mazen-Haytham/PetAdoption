@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Adopter Profile | PawAdopt</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#1a1c35",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "sans": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-secondary dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/10 px-6 py-4 lg:px-40 bg-white dark:bg-background-dark/50 sticky top-0 z-50 backdrop-blur-md">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-secondary dark:text-slate-100 text-lg font-extrabold leading-tight tracking-tight font-display">PawAdopt</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center rounded-xl h-10 w-10 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-xl h-10 w-10 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<main class="px-6 lg:px-40 py-8 max-w-[1200px] mx-auto w-full">
+<section class="mb-10 flex flex-col md:flex-row items-center md:items-start gap-8 bg-white dark:bg-slate-800/50 p-8 rounded-2xl shadow-sm border border-primary/10">
+<div class="relative">
+<div class="size-32 rounded-full border-4 border-primary/10 p-1">
+<img alt="Profile picture" class="w-full h-full object-cover rounded-full" data-alt="Close up portrait of a smiling woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWRnXua3-w4xbzgL69DFKy64E8Cr8KMqhWRcIaCRQ_zlVc7p3NZe12hJixyU7gn9qaH-S3xd42RMN0IHqW4nDilzTd2gihke1qp6gu5DibqGPyS-1M3Nd41SlO5K-sk9KWjJ3xTTvq3TYlhPgyKzABXHA426pquebmB0duQhZqqg3V---ToNz1fpG0SngJoG1rDYi-OfdgYacFLz-MVMg1B5r6I4XRaMJvZlQBPwruPAwaPRhMYxgCxgQVu6JyyzTC_8f3qmnHVXpo"/>
+</div>
+<div class="absolute bottom-1 right-1 bg-primary text-white p-1.5 rounded-full border-2 border-white dark:border-slate-800 shadow-lg">
+<span class="material-symbols-outlined text-[16px] block">verified</span>
+</div>
+</div>
+<div class="flex-1 text-center md:text-left">
+<div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
+<h1 class="text-3xl font-extrabold font-display text-secondary dark:text-slate-100">Sarah Jenkins</h1>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary self-center">
+                                Premium Adopter
+                            </span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-lg mb-4 max-w-2xl leading-relaxed">
+                            Passionate animal welfare advocate and professional dog trainer. I currently share my home with two rescues and am looking to foster senior dogs.
+                        </p>
+<div class="flex flex-wrap justify-center md:justify-start gap-6 text-sm">
+<div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
+                                Austin, TX
+                            </div>
+<div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-primary text-[18px]">calendar_today</span>
+                                Joined May 2021
+                            </div>
+<div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined text-primary text-[18px]">pets</span>
+                                4 Adoptions
+                            </div>
+</div>
+</div>
+<button class="bg-primary text-white px-6 py-2.5 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-md shadow-primary/20">
+                        Edit Profile
+                    </button>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 space-y-8">
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-xl font-extrabold font-display text-secondary dark:text-slate-100">Active Applications</h2>
+<a class="text-primary text-sm font-bold hover:underline" href="#">View All</a>
+</div>
+<div class="grid gap-4">
+<div class="bg-white dark:bg-slate-800/50 p-4 rounded-2xl border border-primary/5 flex items-center gap-4 transition-transform hover:scale-[1.01]">
+<div class="size-16 rounded-xl overflow-hidden shrink-0">
+<img alt="Cooper the Beagle" class="w-full h-full object-cover" data-alt="Beagle dog sitting on grass" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIOzn9k-gcpM-is2iOdkjYtT7Ryg5lKMyGsBxSomDafwSnli9jcbIkz6u5RLLB-m_AGhqNhYtpdEjQ_vlU1QQ9tR07j9Sgsf35VKAEoEPyJ23Xjph0PeMhcowCtOErfA725tTYqL1Yr7hYMayCgFobuBR4LJ3jjwUrzp-IE1W-LHXwArlPlThJPgbCMeGF1rsiIxb07_g_b-dvHSzGJfs-HlgRNo5uKWDJL0-4fJkGJyHbt7nzfO6hn4MhwZOU5oS6967WaWiUrW_E"/>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-secondary dark:text-slate-100">Cooper</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Beagle • Senior • Male</p>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                            Pending
+                                        </span>
+<p class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-semibold">Updated 2h ago</p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800/50 p-4 rounded-2xl border border-primary/5 flex items-center gap-4 transition-transform hover:scale-[1.01]">
+<div class="size-16 rounded-xl overflow-hidden shrink-0">
+<img alt="Misty the Cat" class="w-full h-full object-cover" data-alt="Grey fluffy cat looking at camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASyUSZSG-blslrh3vi7P33Av8yRyLkZ73vmXao_nvKUV4xEip48QHbl0LxFIs-c5ve5Tb-0cBXNnngSpJKVmNg2grFoT-SSt_1vwTdVr-LmJ-0WSdvdav_tfonfnHk8ti0FjwMK3YzSYozBI-UFJNIQmJH8hYn5-cyF0CJnSVGolsy8cBuIxtNmGD_y-QEaZyYkrpo5et9xwpV0tdfjtuzWmTzlfTIwt4AdRwoZgDFIEO3SqTiTo8isJNkPrNCCLmXdkmN6I2vtEId"/>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-secondary dark:text-slate-100">Misty</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Siberian • Young • Female</p>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                            Accepted
+                                        </span>
+<p class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-semibold">Updated 1d ago</p>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800/50 p-4 rounded-2xl border border-primary/5 flex items-center gap-4 opacity-75 grayscale-[0.2]">
+<div class="size-16 rounded-xl overflow-hidden shrink-0">
+<img alt="Duke the Husky" class="w-full h-full object-cover" data-alt="Husky dog with blue eyes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcgE84mIpG4x-FFpuRep34_fOvKZKK9fwIm53-6KfItZH-c_hhnfMZuooEJax0wsAbJGtV2z65Gbfm1t_75ojYyppxq7p3zpVtWA8hVHc6RMbsKBxxgsl3KzF5To686wkCJEFBkprm1L383VRPVIXDjkArRAdhA7UEj0zti2HUqkty4DrxcKBPanPLbvt8rtYrfzece2MnVBrFLiIiXJH6Attqvh-o5PsRcd-l8dDX3t9PICw2jy2Lvf619sEQKptj9_NmyZ95q5ro"/>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-secondary dark:text-slate-100">Duke</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Husky • Adult • Male</p>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
+                                            Rejected
+                                        </span>
+<p class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-semibold">3 weeks ago</p>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-xl font-extrabold font-display text-secondary dark:text-slate-100 mb-4">My Adoption History</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-primary/5 shadow-sm group">
+<div class="flex items-center gap-4 mb-4">
+<img alt="Charlie" class="size-14 rounded-full object-cover" data-alt="Small yellow labrador puppy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjzsfvIWuw23VEUs50uWTZRIQWHtPd-MWVBZUiBGZmsUTKE2vDzzKYnetfo9bh0S5uxtZwbgy7uKgV4WEnkZZmFHE2JQjvP5RhUHnlDOjhm7efs7yvVdkg-2ZFQeYQYSv4Y-Ujx13uUhNL_ukxcipNfSAg74ZVbMIbgsYEwJbKqQbSwYshatG3Fq26slDxiYmgmPKpuD_kBrtRklZuNeffqJhOvp5pGZDGGtTcxil5IJwp46QM3cB9BzyuSGCiE2M3uzYxctThrZlc"/>
+<div>
+<h3 class="font-bold text-secondary dark:text-slate-100">Charlie</h3>
+<p class="text-xs text-primary font-bold">Adopted Feb 2022</p>
+</div>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-4 italic">"The most loyal golden retriever. We've spent many days at the lake since his adoption."</p>
+<button class="text-xs font-bold text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                                        View Story <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<div class="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-primary/5 shadow-sm group">
+<div class="flex items-center gap-4 mb-4">
+<img alt="Luna" class="size-14 rounded-full object-cover" data-alt="White and ginger cat" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8f9-OfaZBzyN1Yhqma2lm4N5A8uUQunKv9dRara_WriJiGK-9gV90cqoEbkq_h96n_1U_MNhT-wYwl9Fo5NwsW5AYcvkAKkCou-QctetXHHKtHbJIQBOor88PmCtPZR1JiFvxNv_paY0a_bNu8QH4HIjwgdtpQBGZcSQEHJg0CYA4G8ycoXUsFbjLFkgnnNQTMXOJXE0w0n-3nTw-MOLxZaknvMmsrkOcsS7bzY37VK77WTQP7XJUqeVSPecLaEMFXcm6Uha4KsND"/>
+<div>
+<h3 class="font-bold text-secondary dark:text-slate-100">Luna</h3>
+<p class="text-xs text-primary font-bold">Adopted Oct 2021</p>
+</div>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-4 italic">"Luna was shy at first, but now she's the queen of the living room. Best companion ever."</p>
+<button class="text-xs font-bold text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                                        View Story <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+<div class="space-y-8">
+<section class="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-primary/5 shadow-sm">
+<h2 class="text-xl font-extrabold font-display text-secondary dark:text-slate-100 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">medical_services</span>
+                                Veterinary Refs
+                            </h2>
+<div class="space-y-6">
+<div class="relative pl-4 border-l-2 border-primary/30">
+<h3 class="text-sm font-bold text-secondary dark:text-slate-100">Dr. Emily Rivera</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">Central Veterinary Clinic</p>
+<div class="flex items-center gap-2 text-primary font-bold text-xs mb-1">
+<span class="material-symbols-outlined text-[14px]">phone</span>
+                                        (512) 555-0123
+                                    </div>
+<div class="flex items-center gap-2 text-primary font-bold text-xs">
+<span class="material-symbols-outlined text-[14px]">mail</span>
+                                        e.rivera@centralvet.com
+                                    </div>
+<span class="absolute top-0 right-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary text-white">
+                                        Primary
+                                    </span>
+</div>
+<div class="relative pl-4 border-l-2 border-slate-200 dark:border-slate-700">
+<h3 class="text-sm font-bold text-secondary dark:text-slate-100">Dr. Marcus Thorne</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">Paws &amp; Claws Specialist</p>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-bold text-xs mb-1">
+<span class="material-symbols-outlined text-[14px]">phone</span>
+                                        (512) 555-0199
+                                    </div>
+<div class="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-bold text-xs">
+<span class="material-symbols-outlined text-[14px]">mail</span>
+                                        m.thorne@pawsclaws.com
+                                    </div>
+</div>
+</div>
+<button class="w-full mt-6 py-2.5 bg-primary/10 text-primary rounded-xl text-sm font-bold hover:bg-primary/20 transition-colors">
+                                Add Reference
+                            </button>
+</section>
+<section class="bg-secondary text-white p-6 rounded-2xl shadow-xl relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="text-xl font-extrabold font-display mb-2">Volunteer?</h2>
+<p class="text-sm text-white/80 mb-4 font-medium">Your profile strength is 85%. Add volunteer experience to increase your adoption chances!</p>
+<button class="bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-black/20 hover:bg-primary/90 transition-all">
+                                    Update Experience
+                                </button>
+</div>
+<div class="absolute -right-8 -bottom-8 opacity-20 text-primary">
+<span class="material-symbols-outlined text-[120px]">volunteer_activism</span>
+</div>
+</section>
+</div>
+</div>
+</main>
+<footer class="mt-auto py-10 border-t border-primary/10 bg-white dark:bg-background-dark/50">
+<div class="px-6 lg:px-40 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-slate-400 text-sm font-medium">© 2024 PawAdopt. Connecting hearts with paws.</p>
+<div class="flex gap-6 text-slate-400 text-sm font-bold">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

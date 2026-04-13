@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PetAdopt - Find Your New Best Friend</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#0f111a",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "sans": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-secondary dark:text-slate-100 font-display">
+<div class="relative flex min-h-screen flex-col">
+<!-- Navigation Bar -->
+<header class="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl font-bold">pets</span>
+<h1 class="text-xl font-extrabold tracking-tight text-secondary dark:text-white">PetAdopt</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-semibold hover:text-primary transition-colors text-secondary/70 dark:text-slate-300 dark:hover:text-primary" href="#">Our Mission</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors text-secondary/70 dark:text-slate-300 dark:hover:text-primary" href="#">Resources</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors text-secondary/70 dark:text-slate-300 dark:hover:text-primary" href="#">Success Stories</a>
+</nav>
+<div class="flex items-center gap-4">
+<a class="text-sm font-semibold hover:text-primary transition-colors text-secondary dark:text-slate-300" href="#">Login</a>
+<button class="rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+                    Register
+                </button>
+</div>
+</div>
+</header>
+<main class="flex-1">
+<!-- Hero Section with Search -->
+<section class="relative px-6 py-12 md:py-20 overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 dark:bg-primary/10 -z-10"></div>
+<div class="mx-auto max-w-7xl">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+<div class="flex flex-col gap-6">
+<h2 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight text-secondary dark:text-white">
+                            Find Your Furry <span class="text-primary">Soulmate</span> Today
+                        </h2>
+<p class="text-lg text-secondary/60 dark:text-slate-400 max-w-lg">
+                            Over 5,000+ pets are waiting for their forever homes. Browse by breed, age, and location to find the perfect addition to your family.
+                        </p>
+<!-- Search Bar -->
+<div class="mt-4 flex flex-col gap-4 rounded-2xl bg-white dark:bg-slate-800 p-4 shadow-2xl shadow-primary/5 dark:shadow-none border border-primary/10">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-xl">category</span>
+<select class="w-full rounded-lg border-primary/10 bg-slate-50 dark:bg-slate-900 pl-10 text-sm focus:border-primary focus:ring-primary text-secondary/80 dark:text-slate-200">
+<option>All Types</option>
+<option>Dogs</option>
+<option>Cats</option>
+<option>Birds</option>
+<option>Rabbits</option>
+</select>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-xl">location_on</span>
+<input class="w-full rounded-lg border-primary/10 bg-slate-50 dark:bg-slate-900 pl-10 text-sm focus:border-primary focus:ring-primary text-secondary/80 dark:text-slate-200" placeholder="Location" type="text"/>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary text-xl">search</span>
+<input class="w-full rounded-lg border-primary/10 bg-slate-50 dark:bg-slate-900 pl-10 text-sm focus:border-primary focus:ring-primary text-secondary/80 dark:text-slate-200" placeholder="Breed or Keyword" type="text"/>
+</div>
+</div>
+<button class="w-full rounded-xl bg-secondary dark:bg-primary py-3.5 font-bold text-white hover:opacity-90 transition-all shadow-lg shadow-secondary/20 dark:shadow-primary/20">
+                                Search Pets
+                            </button>
+</div>
+</div>
+<div class="hidden lg:block relative">
+<div class="aspect-square rounded-full bg-primary/10 absolute -right-10 -bottom-10 w-64 h-64 -z-10 blur-3xl"></div>
+<div class="rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02]">
+<img alt="Hero Pet" class="w-full h-[500px] object-cover" data-alt="Happy golden retriever dog smiling at camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCup_z2uOjFy_GA5sI-mPkei2GSSSJ9HA5yydjVB9SDAaUD-9Lqehnxt2IDuPP8rRdyDbMjTJoTTy5AAIhII-nuBqddNYQz4f-lZGT7JLKXW5V-2dltQ2Dvy9cII_6ItjQl_Dq53DvjHKQ-rN-FF2AsLvZylEfqe0miDiIsvxxsX6l71RnOEynHV02Fkn0H3GsTN4Qr3xAFS6e6XKB2KZcdMEYNbLhL5_VhXkwBA8R0OryMDL8NM12SfwjNCWZAA_df5O4QqiYOtgUm"/>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Category Quick Filters -->
+<section class="py-8 border-y border-primary/10 bg-white dark:bg-slate-900/50">
+<div class="mx-auto max-w-7xl px-6">
+<div class="flex flex-wrap justify-center gap-4">
+<button class="flex items-center gap-2 rounded-full border-2 border-primary bg-primary/5 px-6 py-2.5 text-sm font-bold text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-xl">pets</span> Dogs
+                    </button>
+<button class="flex items-center gap-2 rounded-full border-2 border-secondary/5 px-6 py-2.5 text-sm font-bold text-secondary/60 hover:border-primary hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-all">
+<span class="material-symbols-outlined text-xl">pets</span> Cats
+                    </button>
+<button class="flex items-center gap-2 rounded-full border-2 border-secondary/5 px-6 py-2.5 text-sm font-bold text-secondary/60 hover:border-primary hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-all">
+<span class="material-symbols-outlined text-xl">cruelty_free</span> Rabbits
+                    </button>
+<button class="flex items-center gap-2 rounded-full border-2 border-secondary/5 px-6 py-2.5 text-sm font-bold text-secondary/60 hover:border-primary hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-all">
+<span class="material-symbols-outlined text-xl">nest_multi_room</span> Birds
+                    </button>
+<button class="flex items-center gap-2 rounded-full border-2 border-secondary/5 px-6 py-2.5 text-sm font-bold text-secondary/60 hover:border-primary hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-all">
+<span class="material-symbols-outlined text-xl">more_horiz</span> Others
+                    </button>
+</div>
+</div>
+</section>
+<!-- Pet Grid Section -->
+<section class="mx-auto max-w-7xl px-6 py-16">
+<div class="mb-10 flex items-center justify-between">
+<div>
+<h3 class="text-3xl font-extrabold text-secondary dark:text-white">Newest Arrivals</h3>
+<p class="text-secondary/50 dark:text-slate-400 mt-1">Meet the latest additions looking for home</p>
+</div>
+<a class="text-primary font-bold hover:underline flex items-center gap-1 group" href="#">
+                    View All <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+<!-- Pet Card 1 -->
+<div class="group overflow-hidden rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-primary/5 dark:shadow-none transition-all hover:-translate-y-2 border border-primary/5">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Buddy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Young beagle dog sitting in the grass" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTgyefcoJ5dizzLaF828-czRlacw0tyY-n0kZDWWW3YSvfCK2peWi_tw9tan_INofn6w4ZhFb4PsowYDJGwgztPYGbCizvw6jtB5-pG3LCyuiBnZ_1-pTKRPnOSVP8Pt44wxUcgNs8WYCJ5JCDbhJ8cz9gt-g5Qao1Q3-mdzujDr6wTe_9gUdm5yRsdG4NJiGMALNtXGONS-ArwcnMDVOpfhBoytjxSuSyUZiWBCpuLkUdCTGnYGlanCYqzMWAh7gAzojFzvOn2MGG"/>
+<div class="absolute top-4 right-4 rounded-full bg-white/95 p-2.5 text-primary shadow-lg cursor-pointer hover:scale-110 transition-transform">
+<span class="material-symbols-outlined block">favorite</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-center justify-between mb-2">
+<h4 class="text-xl font-extrabold text-secondary dark:text-white">Buddy</h4>
+<span class="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-primary">Puppy</span>
+</div>
+<p class="text-sm font-semibold text-secondary/50 dark:text-slate-400">Beagle Mix • 2 years</p>
+<div class="mt-4 flex items-center gap-1.5 text-xs font-medium text-secondary/40 dark:text-slate-500">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>San Francisco, CA</span>
+</div>
+</div>
+</div>
+<!-- Pet Card 2 -->
+<div class="group overflow-hidden rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-primary/5 dark:shadow-none transition-all hover:-translate-y-2 border border-primary/5">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Luna" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Calico cat with green eyes sitting on a sofa" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANDt1a61ScUiKZQJ9vjufG4nUQMiuzRr1BETctVzhJQIr9C0wku6MFtWYMWBXd3QXRAjpUjLp4vwLLp_f2CBrsNBemu1xybfs2iJh_UBqtlr0f3J3-Y4h9wZXzwMv0H1OWK2mokWmMqXCj4mc56yh_Q8R6hmh05z7TI-8pGQjP3nlPqtlq_V35m5rkle6JquigRmHytC5P42XPA-jv6rugYK5nGRmroxQtkx8Ll0nIKUGAegp4T7LLF1TPZzbkaSdGY0mgnyH7QnpO"/>
+<div class="absolute top-4 right-4 rounded-full bg-white/95 p-2.5 text-primary shadow-lg cursor-pointer hover:scale-110 transition-transform">
+<span class="material-symbols-outlined block">favorite</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-center justify-between mb-2">
+<h4 class="text-xl font-extrabold text-secondary dark:text-white">Luna</h4>
+<span class="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-primary">Young</span>
+</div>
+<p class="text-sm font-semibold text-secondary/50 dark:text-slate-400">Siamese • 1 year</p>
+<div class="mt-4 flex items-center gap-1.5 text-xs font-medium text-secondary/40 dark:text-slate-500">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>New York, NY</span>
+</div>
+</div>
+</div>
+<!-- Pet Card 3 -->
+<div class="group overflow-hidden rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-primary/5 dark:shadow-none transition-all hover:-translate-y-2 border border-primary/5">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Max" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Large grey cat with fluffy fur looking up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLuYyDrrTltFtUOi4X9O3Q6Io-kKG5jFmHE83cEh_dsc4DsVnEdviyKKCfgMMuiTjOOiLkRtwnMiPeNXxvb-CU6wZCKOt0aEVd_H1R2RsgmC6d67nFQEb9okh7S3VIaVGOoIE2rbr4JLTHMAauMncCbIKPQOMTvxGf76eB_sNabzwAbDJbng9kJ18pXApDyPCFhgtxw1UkfzvGB0pbu7lXtvh4h9zxiDlLfoFtwZWzEB1s9AjaRhHjaG3lut6LjpRZqHMl1CN0h0H2"/>
+<div class="absolute top-4 right-4 rounded-full bg-white/95 p-2.5 text-primary shadow-lg cursor-pointer hover:scale-110 transition-transform">
+<span class="material-symbols-outlined block">favorite</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-center justify-between mb-2">
+<h4 class="text-xl font-extrabold text-secondary dark:text-white">Max</h4>
+<span class="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-primary">Adult</span>
+</div>
+<p class="text-sm font-semibold text-secondary/50 dark:text-slate-400">Maine Coon • 4 years</p>
+<div class="mt-4 flex items-center gap-1.5 text-xs font-medium text-secondary/40 dark:text-slate-500">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Austin, TX</span>
+</div>
+</div>
+</div>
+<!-- Pet Card 4 -->
+<div class="group overflow-hidden rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-primary/5 dark:shadow-none transition-all hover:-translate-y-2 border border-primary/5">
+<div class="relative aspect-[4/5] overflow-hidden">
+<img alt="Bella" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Small white and brown dog running towards camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5aNi0Xw8DALM4mFHL253rnfw_Ype95f0085AzhQo1fvP97uTH0Tq3i4QPV0op1n3Zpd5fp_AVrImKlpGhuMIpQdb-yohjuUi8kujAhQcVk-o20mma00O-Icw0QqIqRnFw5WNLppsBGbOwV1bLXzhYUCgVDw30wQUumuKKKS-j_PUY75iiWJlzcRXuzQzNERIkDVUOrUhJz-KYFRzaeMYrNhIhisM9YgmS5x_Tucok5U_waFLICVWPXlcrKOyPPwZE38PAcnwB6KJX"/>
+<div class="absolute top-4 right-4 rounded-full bg-white/95 p-2.5 text-primary shadow-lg cursor-pointer hover:scale-110 transition-transform">
+<span class="material-symbols-outlined block">favorite</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-center justify-between mb-2">
+<h4 class="text-xl font-extrabold text-secondary dark:text-white">Bella</h4>
+<span class="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-primary">Senior</span>
+</div>
+<p class="text-sm font-semibold text-secondary/50 dark:text-slate-400">French Bulldog • 8 years</p>
+<div class="mt-4 flex items-center gap-1.5 text-xs font-medium text-secondary/40 dark:text-slate-500">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>Seattle, WA</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Mission Teaser -->
+<section class="bg-primary/5 dark:bg-slate-900/40 py-20">
+<div class="mx-auto max-w-7xl px-6">
+<div class="flex flex-col md:flex-row items-center gap-16">
+<div class="md:w-1/2">
+<div class="relative">
+<div class="absolute -inset-4 bg-primary/20 rounded-[2.5rem] -z-10 blur-xl"></div>
+<img alt="Our Mission" class="rounded-[2rem] shadow-2xl w-full" data-alt="Person hugging a rescued dog outdoors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADYHqWw5jlYcxys3RXSfWAH3sxd1oRjXB0TwM1TN_8Hpmzg4bnY_MXj5naGwhngFmmyx-O4gL5Xyd8h1uMg3apO1Dq6evZXHM_4GPG8f1LPrk86Ajof1WblusaaUBbWq5KZcECm2tI87uBzt1IDmYk2nKPJiHj1XjPdSQQBJ7LsWZe8mm18FtViueOZ2MrbEcGZJce3aaNDedDx_1S83wtfwlkrdlU3O0D7PJrpBhZNtgcLbfySnEriM9BgordxyMFdqhlV6EGVMUp"/>
+</div>
+</div>
+<div class="md:w-1/2 flex flex-col gap-6">
+<h3 class="text-4xl font-extrabold text-secondary dark:text-white">Our Mission</h3>
+<p class="text-lg leading-relaxed text-secondary/70 dark:text-slate-400">
+                            At PetAdopt, we believe every pet deserves a loving home. We partner with shelters nationwide to make the adoption process transparent, easy, and rewarding.
+                        </p>
+<ul class="flex flex-col gap-6">
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 rounded-full p-1.5 text-xl font-bold">check</span>
+<div>
+<h4 class="font-extrabold text-secondary dark:text-white">Vetted Shelters</h4>
+<p class="text-sm text-secondary/50 dark:text-slate-500 mt-0.5">We only work with reputable, ethical rescue organizations.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 rounded-full p-1.5 text-xl font-bold">check</span>
+<div>
+<h4 class="font-extrabold text-secondary dark:text-white">Seamless Adoption</h4>
+<p class="text-sm text-secondary/50 dark:text-slate-500 mt-0.5">Streamlined paperwork and clear requirements for every pet.</p>
+</div>
+</li>
+</ul>
+<button class="w-fit mt-4 rounded-full border-2 border-primary px-10 py-3.5 font-bold text-primary hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/10">
+                            Learn More About Us
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-secondary text-slate-400 py-16">
+<div class="mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-2 text-primary mb-8">
+<span class="material-symbols-outlined text-3xl font-bold">pets</span>
+<h1 class="text-xl font-extrabold tracking-tight text-white">PetAdopt</h1>
+</div>
+<p class="text-sm leading-relaxed text-slate-400 max-w-xs">Making pet adoption simpler and more accessible for everyone since 2024.</p>
+</div>
+<div>
+<h5 class="font-extrabold text-white mb-6 uppercase tracking-widest text-xs">Find Pets</h5>
+<ul class="flex flex-col gap-4 text-sm font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">Dogs</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Cats</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Other Animals</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Shelters Near Me</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-extrabold text-white mb-6 uppercase tracking-widest text-xs">Company</h5>
+<ul class="flex flex-col gap-4 text-sm font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Our Mission</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Impact Report</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-extrabold text-white mb-6 uppercase tracking-widest text-xs">Support</h5>
+<ul class="flex flex-col gap-4 text-sm font-medium">
+<li><a class="hover:text-primary transition-colors" href="#">FAQ</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Adoption Guide</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="mx-auto max-w-7xl px-6 pt-12 mt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-xs font-medium">© 2024 PetAdopt Platform. All rights reserved.</p>
+<div class="flex gap-8">
+<a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined text-xl">social_leaderboard</span></a>
+<a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined text-xl">camera</span></a>
+<a class="hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined text-xl">alternate_email</span></a>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

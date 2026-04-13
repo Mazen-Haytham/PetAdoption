@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shelter Home Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a79e0",
+                        "secondary": "#2a2f63",
+                        "background-light": "#f7f5ff",
+                        "background-dark": "#1a1c3d",
+                    },
+                    fontFamily: {
+                        "sans": ["Plus Jakarta Sans", "Inter", "sans-serif"],
+                        "display": ["Plus Jakarta Sans", "Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.75rem", "lg": "1.25rem", "xl": "1.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-secondary dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col shrink-0">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-8">
+<div class="h-10 w-10 bg-primary rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined">pets</span>
+</div>
+<div>
+<h1 class="font-extrabold text-lg leading-tight text-secondary dark:text-white">Shelter Home</h1>
+<p class="text-[10px] text-primary font-bold uppercase tracking-widest">Admin Portal</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white font-semibold" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors font-semibold" href="#">
+<span class="material-symbols-outlined">house</span>
+<span>My Pets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors font-semibold" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span>Adoption Requests</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors font-semibold" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span>Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-colors font-semibold" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Profile</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6 space-y-4">
+<div class="bg-primary/5 rounded-2xl p-4 border border-primary/10">
+<p class="text-[10px] font-bold text-primary uppercase mb-2 tracking-wider">Storage Limit</p>
+<div class="w-full bg-primary/20 rounded-full h-2 mb-2">
+<div class="bg-primary h-2 rounded-full" style="width: 65%"></div>
+</div>
+<p class="text-[10px] text-slate-500 font-medium">65 of 100 listings used</p>
+</div>
+<button class="w-full py-4 bg-secondary text-white rounded-xl font-bold text-sm shadow-lg shadow-secondary/20 flex items-center justify-center gap-2 hover:bg-secondary/90 transition-all">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                    Add New Pet
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Top Header -->
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-primary/10 flex items-center justify-between px-8 shrink-0">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-slate-400" placeholder="Search pets, applications..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+</button>
+<div class="h-9 w-9 rounded-full bg-slate-200 ring-2 ring-primary/10" data-alt="Shelter administrator profile photo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDrcwLJlgvl3eht1wWd5JQHYXpm5mlxKilVCBKTT07w2hz5OrwE93J_ULQQPXO5vrDxnz-Fx3_h9oEjIkKwGnDUazVRJtt2lb98x4unmIPO-BgIFNfTuoPopCDrFsAfPUvLMxya7Q6PWhcBRgYIzUI2TjbMKrud-nX1Or6YwYUYtlnJhNsXAU8fRheHTIjYxtQ-ydtuA2eqULSLOddUjXF87UILC0E_9n2DT09Goc5Dwz51ksgY5ISKKLY0loqLvMOlTUe5Yaz_wLLM'); background-size: cover;"></div>
+</div>
+</header>
+<!-- Scrollable Dashboard Content -->
+<div class="flex-1 overflow-y-auto p-8 space-y-8">
+<!-- Welcome Section -->
+<div>
+<h2 class="text-3xl font-black text-secondary dark:text-white tracking-tight">Dashboard Overview</h2>
+<p class="text-slate-500 mt-1 font-medium">Manage your shelter's activity and pet listings efficiently.</p>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2.5 bg-primary/10 text-primary rounded-xl">
+<span class="material-symbols-outlined">pets</span>
+</div>
+<span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+2%</span>
+</div>
+<p class="text-slate-500 text-sm font-semibold">Available Pets</p>
+<p class="text-3xl font-extrabold mt-1 text-secondary dark:text-white">24</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2.5 bg-indigo-50 text-indigo-500 rounded-xl">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+<span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+5%</span>
+</div>
+<p class="text-slate-500 text-sm font-semibold">Pending Adoptions</p>
+<p class="text-3xl font-extrabold mt-1 text-secondary dark:text-white">12</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2.5 bg-primary/10 text-primary rounded-xl">
+<span class="material-symbols-outlined">volunteer_activism</span>
+</div>
+<span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+10%</span>
+</div>
+<p class="text-slate-500 text-sm font-semibold">Total Adopted</p>
+<p class="text-3xl font-extrabold mt-1 text-secondary dark:text-white">158</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2.5 bg-slate-100 text-slate-500 rounded-xl">
+<span class="material-symbols-outlined">group</span>
+</div>
+<span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">Static</span>
+</div>
+<p class="text-slate-500 text-sm font-semibold">Active Volunteers</p>
+<p class="text-3xl font-extrabold mt-1 text-secondary dark:text-white">8</p>
+</div>
+</div>
+<!-- Two Column Layout for Active Posts and Adoption Requests -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<!-- Active Pet Posts -->
+<div class="xl:col-span-2 space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-extrabold text-secondary dark:text-white">Active Pet Posts</h3>
+<button class="text-sm font-bold text-primary hover:text-secondary transition-colors">View All</button>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-primary/10 overflow-hidden shadow-sm">
+<table class="w-full text-left">
+<thead class="bg-primary/5 border-b border-primary/10">
+<tr>
+<th class="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Pet</th>
+<th class="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Species</th>
+<th class="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Status</th>
+<th class="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Date Posted</th>
+<th class="px-6 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-primary/5">
+<tr class="hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-xl overflow-hidden bg-slate-100">
+<img class="h-full w-full object-cover" data-alt="Golden Retriever puppy sitting happily" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvoC9AMFCLch6mXGVzIOJO_uUqWd1uFF0J7UoK3KCR5t2SyPUig-wQ7wm8MatVl1de0wMsCLN_wgET2YmIQBj3oSnwpceE5Mxug2JyBa667BNmihGQvDV9gSsLTMJbM4Atl3jfsnJn1XI4-0KGOT-PdzFusBn1mlCg3q-N9WRqUjX6LQIGMd343PZrxy8-MbhEc2ldiIf8vlVsYIMPn9sLU4_xChJ7eBqZvkdawtwHVvs2yE2xLdho6yoqlEcP0Sxn5JAYWruYjs9b"/>
+</div>
+<span class="font-bold text-secondary dark:text-slate-200">Buddy</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-sm font-medium">Dog</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-extrabold rounded-full">AVAILABLE</span>
+</td>
+<td class="px-6 py-4 text-slate-500 text-sm font-medium">Oct 01, 2023</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-secondary font-bold text-sm">Edit</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-xl overflow-hidden bg-slate-100">
+<img class="h-full w-full object-cover" data-alt="Sleepy calico cat in a basket" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpxQBjdr4O5UjbtUizrz3Hlx8qfrcnY8wGtkwVIhP-ixUKyZiXRDsL-ei4puXJ9sWbNIpCR9Dh7xUXVCvxPxF0uo0R2xu5VRWXv8BTny3JbJO5zrASJ3ECQGKufGx4Rm2k16QHBRzaMadtnnui0OKSyOtTe2jxHuGX3prYSEtaCWb2-bCspuWLziY-ds5kXim1UHBvV57nGHafxYNAKexgvoEzV4tjQwU5itdUqLLYrFOLr0NX9mDPr7O3VJoIWPfyBmy0eyeNZIKV"/>
+</div>
+<span class="font-bold text-secondary dark:text-slate-200">Luna</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-sm font-medium">Cat</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-extrabold rounded-full">PENDING</span>
+</td>
+<td class="px-6 py-4 text-slate-500 text-sm font-medium">Sep 28, 2023</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-secondary font-bold text-sm">Edit</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-xl overflow-hidden bg-slate-100">
+<img class="h-full w-full object-cover" data-alt="Brown dachshund dog looking alert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmI3D4WhB0FK-5kM2gDeaageEsApK2tjWP2yC9QPwtk3sG_Cgm6GM-30iycZlXMleMDTJrdR9-R1sfUefC55jXcrIZfbz8PNNICifTyYekNYdGBF20YJRNZ4q3M0xr5KRWDYWRV4BhpjKfMu03pVuFpd93aMxPKvqbkI8GsrJ3Wf70CfaMVwrSjluKukRluHn3eF7jW5Pagw73EUvmCI0z2C0AelLT7f4opOjADf6rHqrkBicRxIHSWYDz6wThrf4qnnNojVmTz4ys"/>
+</div>
+<span class="font-bold text-secondary dark:text-slate-200">Max</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-sm font-medium">Dog</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-extrabold rounded-full">ADOPTED</span>
+</td>
+<td class="px-6 py-4 text-slate-500 text-sm font-medium">Sep 15, 2023</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-secondary font-bold text-sm">View</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- New Adoption Requests -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-extrabold text-secondary dark:text-white">New Requests</h3>
+<span class="px-2 py-0.5 bg-primary text-white text-[10px] font-extrabold rounded-full">3 NEW</span>
+</div>
+<div class="space-y-4">
+<!-- Request Card -->
+<div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/10 shadow-sm">
+<div class="flex items-start gap-3">
+<div class="h-11 w-11 rounded-full bg-slate-100 shrink-0 border-2 border-primary/5" data-alt="Male user profile for adoption request" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC18tTUcCsFaoCVfuq3CswQWfVpEXTDgeVIxKslA-olqpu5ENTOPla1m_QeBOL24mtchNUSmS8Ok_l3CIAbBUl5p-EFi3zvQY1TwGs2I_0bAHCbOmKx031kDq2AuEpC2ws27xi9vTJeqVMVfHjw8P1EPGVhHI8ZKvHekYHHjH98IbSJGmYHJGDI0KQ6f3Vg7Jvrsh1fgMesE08tEfF2OjBh2muQjxPX1DOuuY6Adm8V6NINrIEB9z8iwXidBV-jYTxFIq_QIyBXY3qY'); background-size: cover;"></div>
+<div class="flex-1">
+<p class="text-sm font-extrabold text-secondary dark:text-slate-200">Johnathan Smith</p>
+<p class="text-xs text-slate-500 font-medium leading-relaxed">wants to adopt <span class="text-primary font-bold underline decoration-2 underline-offset-2">Buddy</span></p>
+<p class="text-[10px] text-slate-400 mt-1 font-semibold">2 hours ago</p>
+</div>
+</div>
+<div class="mt-5 flex gap-2">
+<button class="flex-1 py-2.5 bg-primary text-white rounded-xl text-xs font-extrabold hover:bg-primary/90 transition-all shadow-md shadow-primary/20">Review</button>
+<button class="px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+<!-- Request Card -->
+<div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-primary/10 shadow-sm">
+<div class="flex items-start gap-3">
+<div class="h-11 w-11 rounded-full bg-slate-100 shrink-0 border-2 border-primary/5" data-alt="Female user profile for adoption request" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6TN4vgoDu4xfP9o5FZA9tvxJmoOw0sdnbrCq001WfcRnoL23ZzkuhVzDO_5BhiA1GloEDmtg-hRpHBbeY7KKMzH_Gl_0lrwWfdZ1-mulic7FmEoC8nwC009IqdFDJykSk86aDUWcMaiEQsBe1wDuG6BGvrgcP1IM8Qliguj0g2ZIHT3TNsP1KGaE_YjT_FTYwqw3k5dCftEsgK5Pr_j66Q1iNeCl0wDNXpUfFOu_agLXEFPXKDOWXLtJUqzFisSnvx-oDFgcJvS62'); background-size: cover;"></div>
+<div class="flex-1">
+<p class="text-sm font-extrabold text-secondary dark:text-slate-200">Sarah Williams</p>
+<p class="text-xs text-slate-500 font-medium leading-relaxed">wants to adopt <span class="text-primary font-bold underline decoration-2 underline-offset-2">Luna</span></p>
+<p class="text-[10px] text-slate-400 mt-1 font-semibold">5 hours ago</p>
+</div>
+</div>
+<div class="mt-5 flex gap-2">
+<button class="flex-1 py-2.5 bg-primary text-white rounded-xl text-xs font-extrabold hover:bg-primary/90 transition-all shadow-md shadow-primary/20">Review</button>
+<button class="px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+<!-- Request Card -->
+<div class="bg-white/50 dark:bg-slate-900/50 p-5 rounded-2xl border border-primary/10 shadow-sm">
+<div class="flex items-start gap-3 opacity-60">
+<div class="h-11 w-11 rounded-full bg-slate-100 shrink-0 border-2 border-primary/5" data-alt="User profile for adoption request" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCLhFteAqvEa9uFHdFwPqHUL0e5iV1qhC2zeUCGDh7nl5dwmULZvuNCU-rFtiOShvJGVaGhvh6tnLB5T8pgOzceuRndO2WvJM7BCinZDRDyRc1XUN7hkRSU8H-Q9dXkvB3YLpAAac5N3YHkxRad71DLF7uL5eZqRS1FRv633meiOZzL57Nyi5I0IaCc5fcb5aPgXckRPBS8Mdi0q0oGTnzRIR31EtMDsk2PaO6oD4vA9MF7ig9PnGeGFbYECy3c1RzZVl6mkCXiIaAi'); background-size: cover;"></div>
+<div class="flex-1">
+<p class="text-sm font-extrabold text-secondary dark:text-slate-200">Michael Brown</p>
+<p class="text-xs text-slate-500 font-medium leading-relaxed">wants to adopt <span class="text-primary font-bold underline decoration-2 underline-offset-2">Max</span></p>
+<p class="text-[10px] text-slate-400 mt-1 font-semibold">Yesterday</p>
+</div>
+</div>
+<div class="mt-5">
+<button class="w-full py-2.5 bg-primary/10 text-primary rounded-xl text-xs font-extrabold hover:bg-primary/20 transition-all">View Details</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

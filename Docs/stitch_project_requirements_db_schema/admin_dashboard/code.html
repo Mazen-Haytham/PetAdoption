@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PetAdopt Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#6a79e0",
+                "secondary": "#2a2f63",
+                "background-light": "#f7f5ff",
+                "background-dark": "#131526",
+                "lavender-light": "#eeebff",
+              },
+              fontFamily: {
+                "display": ["Plus Jakarta Sans", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.75rem", "lg": "1.25rem", "xl": "1.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-secondary dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-72 bg-white dark:bg-slate-900 border-r border-primary/10 flex flex-col h-full">
+<div class="p-6 border-b border-primary/10">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary font-bold">pets</span>
+</div>
+<div>
+<h1 class="text-secondary dark:text-white font-bold text-lg leading-tight">PetAdopt</h1>
+<p class="text-primary text-[10px] font-bold uppercase tracking-[0.1em]">Admin Panel</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-lg shadow-primary/25 transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-semibold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-semibold">Manage Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">verified</span>
+<span class="font-semibold">Shelter Verifications</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-semibold">Pet Posts</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-semibold">Adoption Analytics</span>
+</a>
+<div class="pt-4 mt-4 border-t border-primary/10">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-semibold">Settings</span>
+</a>
+</div>
+</nav>
+<div class="p-6 mt-auto">
+<div class="bg-lavender-light dark:bg-primary/10 rounded-xl p-4 flex items-center gap-3 border border-primary/10">
+<div class="size-10 rounded-full bg-cover bg-center bg-primary/20 border-2 border-white dark:border-slate-800 shadow-sm" data-alt="Professional profile headshot of admin user" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCsjhVWLQ8uOGfCN--jHVpCFQK2prNkwg1Y4CMuxCfAvooRMaSD3hB37HQ6pX5sQrduzxxg6u_22XjcFYWgsUif10BYs9bDbqJj-GMSUsk7RhTXXmwpOl6gGwD5epmPrJ-3sfw7euybmBh1i6KEIZR_2kD8JG-W01UZk85ZtM3u5-KYLgJ06DyaLwSW6tmFHz9Q6qLs1vl9bh7HUTgjbG-OyPWyLRQnUho5XhiwhcCHPnciTp6X14zRBD6crWad6uNCh5zeQC4RuShG')"></div>
+<div class="overflow-hidden">
+<p class="text-sm font-bold text-secondary dark:text-white truncate">Sarah Miller</p>
+<p class="text-[11px] text-slate-500 dark:text-slate-400 truncate font-medium">System Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+<!-- Top Header -->
+<header class="h-20 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-primary/10 px-8 flex items-center justify-between sticky top-0 z-10">
+<div class="flex items-center gap-4 flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60">search</span>
+<input class="w-full bg-lavender-light/50 dark:bg-slate-800 border-none rounded-xl pl-12 pr-4 h-11 focus:ring-2 focus:ring-primary/40 placeholder:text-slate-400 text-secondary dark:text-white" placeholder="Search for pets, users or shelters..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3 ml-8">
+<button class="size-11 rounded-xl bg-lavender-light/50 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 size-2 bg-primary rounded-full border-2 border-white dark:border-slate-800"></span>
+</button>
+<button class="size-11 rounded-xl bg-lavender-light/50 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 max-w-7xl mx-auto w-full">
+<div class="mb-8">
+<h2 class="text-2xl font-extrabold text-secondary dark:text-white tracking-tight">System Overview</h2>
+<p class="text-slate-500 dark:text-slate-400 font-medium">Welcome back, here's what's happening on the platform today.</p>
+</div>
+<!-- Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/10 shadow-sm relative overflow-hidden group">
+<div class="absolute -top-2 -right-2 p-6 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all">
+<span class="material-symbols-outlined text-8xl text-primary">favorite</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-wider mb-2">Total Adoptions</p>
+<div class="flex items-end gap-3">
+<h3 class="text-3xl font-extrabold text-secondary dark:text-white">1,284</h3>
+<span class="text-emerald-500 text-xs font-bold flex items-center gap-0.5 mb-1.5 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+<span class="material-symbols-outlined text-xs">trending_up</span> 12%
+                            </span>
+</div>
+<div class="mt-5 h-1.5 w-full bg-lavender-light dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%] rounded-full"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/10 shadow-sm relative overflow-hidden group">
+<div class="absolute -top-2 -right-2 p-6 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all">
+<span class="material-symbols-outlined text-8xl text-primary">verified_user</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-wider mb-2">Pending Verifications</p>
+<div class="flex items-end gap-3">
+<h3 class="text-3xl font-extrabold text-secondary dark:text-white">18</h3>
+<span class="text-rose-500 text-xs font-bold flex items-center gap-0.5 mb-1.5 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
+<span class="material-symbols-outlined text-xs">timer</span> Urgent
+                            </span>
+</div>
+<div class="mt-5 h-1.5 w-full bg-lavender-light dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-indigo-400 w-[40%] rounded-full"></div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-primary/10 shadow-sm relative overflow-hidden group">
+<div class="absolute -top-2 -right-2 p-6 opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all">
+<span class="material-symbols-outlined text-8xl text-primary">add_circle</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-wider mb-2">New Pet Posts Today</p>
+<div class="flex items-end gap-3">
+<h3 class="text-3xl font-extrabold text-secondary dark:text-white">42</h3>
+<span class="text-emerald-500 text-xs font-bold flex items-center gap-0.5 mb-1.5 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+<span class="material-symbols-outlined text-xs">trending_up</span> 8%
+                            </span>
+</div>
+<div class="mt-5 h-1.5 w-full bg-lavender-light dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[60%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Recent Activity & Featured Actions -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Activity List -->
+<div class="lg:col-span-2 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-extrabold text-secondary dark:text-white tracking-tight">Recent Activity</h3>
+<button class="text-primary text-sm font-bold hover:text-secondary transition-colors">View All</button>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-primary/10 shadow-sm overflow-hidden">
+<div class="divide-y divide-primary/5">
+<!-- Activity Item 1 -->
+<div class="flex items-center gap-4 p-5 hover:bg-lavender-light/30 dark:hover:bg-primary/5 transition-colors">
+<div class="size-12 rounded-xl flex-shrink-0 bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">person_add</span>
+</div>
+<div class="flex-1">
+<p class="text-secondary dark:text-white font-bold">New User Registration: <span class="text-primary">Sarah Miller</span></p>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Verified via Email • Adopter Account</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">2 mins ago</p>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="flex items-center gap-4 p-5 hover:bg-lavender-light/30 dark:hover:bg-primary/5 transition-colors">
+<div class="size-12 rounded-xl flex-shrink-0 bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-emerald-600 font-bold">check_circle</span>
+</div>
+<div class="flex-1">
+<p class="text-secondary dark:text-white font-bold">Post Approved: <span class="text-primary">"Buddy" - Golden Retriever</span></p>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Submitted by Sunshine Rescue</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">15 mins ago</p>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="flex items-center gap-4 p-5 hover:bg-lavender-light/30 dark:hover:bg-primary/5 transition-colors">
+<div class="size-12 rounded-xl flex-shrink-0 bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-indigo-600 font-bold">shield_with_heart</span>
+</div>
+<div class="flex-1">
+<p class="text-secondary dark:text-white font-bold">New Shelter Verification Request</p>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Paws &amp; Claws Foundation, Seattle</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">1 hour ago</p>
+</div>
+</div>
+<!-- Activity Item 4 -->
+<div class="flex items-center gap-4 p-5 hover:bg-lavender-light/30 dark:hover:bg-primary/5 transition-colors">
+<div class="size-12 rounded-xl flex-shrink-0 bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary font-bold">campaign</span>
+</div>
+<div class="flex-1">
+<p class="text-secondary dark:text-white font-bold">Emergency Adoption Post: <span class="text-primary">"Mittens"</span></p>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Senior cat requires urgent fostering</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">3 hours ago</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar Widgets -->
+<div class="space-y-6">
+<div class="bg-primary rounded-2xl p-6 text-white shadow-xl shadow-primary/30 relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 opacity-10 rotate-12">
+<span class="material-symbols-outlined text-8xl">auto_awesome</span>
+</div>
+<h4 class="font-bold text-lg mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined">auto_awesome</span>
+                                Quick Tips
+                            </h4>
+<p class="text-white/80 text-sm mb-5 leading-relaxed font-medium">You have 18 pending verifications. Reviewing them within 24 hours increases shelter satisfaction by 40%.</p>
+<button class="w-full bg-white text-primary font-extrabold py-3 rounded-xl hover:bg-lavender-light transition-colors text-sm shadow-sm">Review Now</button>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-primary/10 shadow-sm p-6">
+<h4 class="font-extrabold text-secondary dark:text-white mb-5 tracking-tight">Adoption Velocity</h4>
+<div class="space-y-5">
+<div>
+<div class="flex justify-between text-[11px] font-bold uppercase tracking-wider mb-2">
+<span class="text-slate-400">Dogs</span>
+<span class="text-secondary dark:text-white">85%</span>
+</div>
+<div class="h-2 bg-lavender-light dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%] rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[11px] font-bold uppercase tracking-wider mb-2">
+<span class="text-slate-400">Cats</span>
+<span class="text-secondary dark:text-white">62%</span>
+</div>
+<div class="h-2 bg-lavender-light dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[62%] rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[11px] font-bold uppercase tracking-wider mb-2">
+<span class="text-slate-400">Others</span>
+<span class="text-secondary dark:text-white">24%</span>
+</div>
+<div class="h-2 bg-lavender-light dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[24%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/10 p-6">
+<h4 class="font-bold text-secondary dark:text-white mb-1">Need help?</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-4 font-medium leading-relaxed">Check our developer documentation or contact support.</p>
+<a class="flex items-center gap-2 text-primary font-extrabold text-sm hover:underline" href="#">
+                                Open Knowledge Base
+                                <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
