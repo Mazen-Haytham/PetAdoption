@@ -1,24 +1,85 @@
-# Logs
-logs
+# ========================
+# OS & IDEs
+# ========================
+# macOS / Windows / Linux
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*~
+*.tmp
+
+# JetBrains (Rider, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.dbmdl
+*.jfm
+*.pfx
+*.key
+
+# VS Code
+.vscode
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Other Editors (Vim, Sublime)
+*.sw?
+*.sublime-workspace
+.netrwhist
+
+# ========================
+# Dependencies & Build
+# ========================
+node_modules/
+backend/backend/bin/
+backend/backend/obj/
+dist/
+dist-ssr/
+publish/
+out/
+.vite/
+.cache/
+
+# NuGet & LibMan
+packages/
+!**/packages/build/
+*.nupkg
+*.snupkg
+project.lock.json
+**/wwwroot/lib/
+
+# ========================
+# Environment & Secrets
+# ========================
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# ========================
+# Logs & Testing
+# ========================
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+coverage/
+TestResults/
+*.coverage
+.gitignore
