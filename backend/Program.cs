@@ -1,6 +1,8 @@
 using backend.Data;
 using backend.Pets.Repositories;
 using backend.Pets.Services;
+using backend.Requests.Repositories;
+using backend.Requests.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ── Pets Module ─────────────────────────────────
 builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();
+
+// ── Request Module ─────────────────────────────────
+builder.Services.AddScoped<IRequestRepository, RequestRepository>();
+builder.Services.AddScoped<IRequestService, RequestService>();
 
 // ── General ─────────────────────────────────────
 builder.Services.AddControllers();
