@@ -1,6 +1,7 @@
-// PetRepository.cs
+﻿// PetRepository.cs
 using backend.Data;
 using backend.Models;
+using backend.Pets.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 namespace backend.Pets.Repositories
@@ -28,6 +29,38 @@ namespace backend.Pets.Repositories
                 .Include(pp => pp.Owner)
                 .Include(pp => pp.Images)
                 .Include(pp => pp.PostApprovalRequest)
+                .OrderByDescending(pp => pp.CreatedAt)
+                .ToListAsync();
+        }
+        public async Task<List<PetPost>> SearchPetPostsAsync(PetSearchDto filter)
+        {
+            var query = _context.PetPosts
+                .Where(pp => pp.Status == PetStatus.Available
+                          && pp.PostApprovalRequest != null
+                          && pp.PostApprovalRequest.Status == PostApprovalStatus.Approved)
+                .Include(pp => pp.Pet)
+                .Include(pp => pp.Owner)
+                .Include(pp => pp.Images)
+                .Include(pp => pp.PostApprovalRequest)
+                .AsQueryable();
+
+            // ── Apply filters only if provided ─────────
+            if (!string.IsNullOrEmpty(filter.Type))
+                query = query.Where(pp => pp.Pet.Type.ToLower()
+                             .Contains(filter.Type.ToLower()));
+
+            if (!string.IsNullOrEmpty(filter.Breed))
+                query = query.Where(pp => pp.Pet.Breed.ToLower()
+                             .Contains(filter.Breed.ToLower()));
+
+            if (filter.Age.HasValue)
+                query = query.Where(pp => pp.Pet.Age == filter.Age.Value);
+
+            if (!string.IsNullOrEmpty(filter.Location))
+                query = query.Where(pp => pp.Pet.Location.ToLower()
+                             .Contains(filter.Location.ToLower()));
+
+            return await query
                 .OrderByDescending(pp => pp.CreatedAt)
                 .ToListAsync();
         }

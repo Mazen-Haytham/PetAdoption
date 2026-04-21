@@ -116,5 +116,32 @@ namespace backend.Pets.Controllers
                 });
             }
         }
+        // GET /api/petposts/search?type=dog&breed=husky&age=2&location=cairo
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchPetPosts([FromQuery] PetSearchDto filter)
+        {
+            try
+            {
+                var petPosts = await _petService.SearchPetPostsAsync(filter);
+
+                if (petPosts.Count == 0)
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "No pets found matching your search"
+                    });
+
+                return Ok(new
+                {
+                    success = true,
+                    count = petPosts.Count,
+                    data = petPosts
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

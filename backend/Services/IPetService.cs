@@ -9,5 +9,6 @@ namespace backend.Pets.Services
         Task<Pet> CreatePetAsync(CreatePetDto dto, int ownerId);
         Task<(bool Success, string Message, object? Data)> UpdatePetPostAsync(int petPostId, UpdatePetDto dto, int ownerId);
         Task<(bool Success, string Message)> DeletePetAsync(int petPostId, int ownerId);
+        Task<List<PetPostResponseDto>> SearchPetPostsAsync(PetSearchDto filter);
     }
 }

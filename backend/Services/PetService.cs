@@ -238,5 +238,28 @@ namespace backend.Pets.Services
                 throw;
             }
         }
+        public async Task<List<PetPostResponseDto>> SearchPetPostsAsync(PetSearchDto filter)
+        {
+            var petPosts = await _petRepository.SearchPetPostsAsync(filter);
+
+            return petPosts.Select(pp => new PetPostResponseDto
+            {
+                PetPostId = pp.Id,
+                Description = pp.Description ?? string.Empty,
+                HealthStatus = pp.HealthStatus ?? string.Empty,
+                Status = pp.Status.ToString(),
+                CreatedAt = pp.CreatedAt,
+                PetId = pp.Pet.Id,
+                Name = pp.Pet.Name,
+                Type = pp.Pet.Type,
+                Breed = pp.Pet.Breed,
+                Location = pp.Pet.Location,
+                Age = pp.Pet.Age,
+                OwnerId = pp.Owner.Id,
+                OwnerName = pp.Owner.Name,
+                Images = pp.Images.Select(img => img.ImageUrl).ToList(),
+                PrimaryImage = pp.Images.FirstOrDefault(img => img.IsPrimary)?.ImageUrl
+            }).ToList();
+        }
     }
 }

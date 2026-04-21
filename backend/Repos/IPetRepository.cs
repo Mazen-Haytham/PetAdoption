@@ -1,6 +1,6 @@
 // IPetRepository.cs
 using backend.Models;
-
+using backend.Pets.DTOs;
 using Microsoft.EntityFrameworkCore.Storage;
 namespace backend.Pets.Repositories
 {
@@ -18,6 +18,7 @@ namespace backend.Pets.Repositories
         
         Task DeletePetPostAsync(PetPost petPost);
         Task DeletePetAsync(Pet pet);
+        Task<List<PetPost>> SearchPetPostsAsync(PetSearchDto filter);
         Task SaveChangesAsync();
     }
 }
