@@ -1,0 +1,10 @@
+// PostApprovalStatus.cs
+namespace backend.Data
+{
+    public enum PostApprovalStatus
+    {
+        Pending  = 0,
+        Approved = 1,
+        Rejected = 2
+    }
+}
