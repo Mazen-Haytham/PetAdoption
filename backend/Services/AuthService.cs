@@ -34,26 +34,42 @@ namespace backend.Services
 
             return user;
         }
-        public async Task<string?> LoginAsync(LoginRequest request)
+        public async Task<(string? Token, string? Error)> LoginAsync(LoginRequest request)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user is null)
-            {
-                return null;
-            }
+            if (user is null) return (null, "Invalid credentials.");
+
+            if (user.Status == AccountStatus.Rejected)
+                return (null, "Your account has been rejected.");
+
+            if (user.Status == AccountStatus.Pending)
+                return (null, "Your account is still pending approval.");
 
             if (new PasswordHasher<User>()
                 .VerifyHashedPassword(user, user.Password, request.Password)
-                == PasswordVerificationResult.Failed
-                )
-            {
-                return null;
-            }
+                    == PasswordVerificationResult.Failed)
+                return (null, "Invalid credentials.");
 
-            return CreateToken(user);
+            return (CreateToken(user), null);
         }
 
+        public async Task<bool> UpdateUserStatusAsync(int userId, string decision)
+        {
+            var user = await context.Users.FindAsync(userId);
+
+            if (user is null) return false;
+
+            user.Status = decision.ToLower() switch
+            {
+                "approve" => AccountStatus.Approved,
+                "reject" => AccountStatus.Rejected,
+                _ => throw new ArgumentException($"Invalid decision: {decision}")
+            };
+
+            await context.SaveChangesAsync();
+            return true;
+        }
         private string CreateToken(User user)
         {
             var claims = new List<Claim>

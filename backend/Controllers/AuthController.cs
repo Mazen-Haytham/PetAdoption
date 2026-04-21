@@ -11,8 +11,6 @@ namespace backend.Controllers
     [ApiController]
     public class AuthController(IAuthService authService) : ControllerBase
     {
-        public static User user = new();
-
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(RegisterRequest request)
         {
@@ -20,22 +18,37 @@ namespace backend.Controllers
 
             if (user is null)
             {
-                return BadRequest("Email Already Exists.");
+                return BadRequest(new { error = "Email already exists." });
             }
 
             return Ok(user);
         }
-        [HttpGet("login")]
+        [HttpPost("login")]
         public async Task<ActionResult<string>> Login(LoginRequest request)
         {
-            var token = await authService.LoginAsync(request);
+            var (token, error) = await authService.LoginAsync(request);
 
-            if (token is null)
+            if (error is not null) return Unauthorized(new{error});
+
+            return Ok(new { token });
+        }
+
+        [HttpPatch("users/{userId}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUserStatus(int userId, [FromBody] ApprovalRequest request)
+        {
+            try
             {
-                return BadRequest("Invalid Email Or Password. ");
-            }
+                var result = await authService.UpdateUserStatusAsync(userId, request.Decision);
 
-            return Ok(token);
+                if (!result) return NotFound(new { error = "User not found." });
+
+                return NoContent(); // 204
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // Testing Role Based Authorization
@@ -59,3 +72,6 @@ namespace backend.Controllers
         }
     }
 }
+
+
+// PATCH /api/auth/users/5/status with body { "decision": "approve or reject" }

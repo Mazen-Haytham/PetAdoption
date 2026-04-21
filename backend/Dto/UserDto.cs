@@ -35,5 +35,6 @@ namespace backend.Dto
         [Required]
         public string Password { get; set; } = string.Empty;
     }
+    public record ApprovalRequest(string Decision);
 }
 
