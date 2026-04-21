@@ -21,11 +21,13 @@ namespace backend.Services
             var user = new User();
             var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
 
+            bool isFirstUser = !await context.Users.AnyAsync();
+
             user.Name = request.Name;
             user.Email = request.Email;
             user.Password = hashedPassword;
-            user.Role = request.Role;
-            user.Status = AccountStatus.Pending;
+            user.Role = isFirstUser ? UserRole.Admin : request.Role;
+            user.Status = isFirstUser ? AccountStatus.Approved : AccountStatus.Pending;
 
             context.Users.Add(user);
             await context.SaveChangesAsync();
@@ -57,10 +59,11 @@ namespace backend.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Email),
-                new Claim(ClaimTypes.NameIdentifier,user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")));
+                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
