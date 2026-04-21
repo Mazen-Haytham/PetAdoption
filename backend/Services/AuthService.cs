@@ -11,7 +11,7 @@ namespace backend.Services
 {
     public class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
     {
-        public async Task<User?> RegisterAsync(RegisterRequest request)
+        public async Task<UserInfoResponse?> RegisterAsync(RegisterRequest request)
         {
             if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
@@ -21,37 +21,41 @@ namespace backend.Services
             var user = new User();
             var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
 
-            bool isFirstUser = !await context.Users.AnyAsync();
-
             user.Name = request.Name;
             user.Email = request.Email;
             user.Password = hashedPassword;
-            user.Role = isFirstUser ? UserRole.Admin : request.Role;
-            user.Status = isFirstUser ? AccountStatus.Approved : AccountStatus.Pending;
+            user.Role = request.Role;
+            user.Status = user.Role == UserRole.Adopter ? AccountStatus.Approved : AccountStatus.Pending;
 
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
-            return user;
-        }
-        public async Task<(string? Token, string? Error)> LoginAsync(LoginRequest request)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var response = new UserInfoResponse(user.Name, user.Email, user.Role.ToString(), user.UserFavourites);
 
-            if (user is null) return (null, "Invalid credentials.");
+            return response;
+        }
+        public async Task<(UserInfoResponse? User, string? Token, string? Error)> LoginAsync(LoginRequest request)
+        {
+            var user = await context.Users
+            .Include(u => u.UserFavourites)
+            .FirstOrDefaultAsync(u => u.Email == request.Email);
+
+            if (user is null) return (null, null, "Invalid credentials.");
 
             if (user.Status == AccountStatus.Rejected)
-                return (null, "Your account has been rejected.");
+                return (null, null, "Your account has been rejected.");
 
             if (user.Status == AccountStatus.Pending)
-                return (null, "Your account is still pending approval.");
+                return (null, null, "Your account is still pending approval.");
 
             if (new PasswordHasher<User>()
                 .VerifyHashedPassword(user, user.Password, request.Password)
                     == PasswordVerificationResult.Failed)
-                return (null, "Invalid credentials.");
+                return (null, null, "Invalid credentials.");
 
-            return (CreateToken(user), null);
+            var response = new UserInfoResponse(user.Name, user.Email, user.Role.ToString(),user.UserFavourites);
+
+            return (response, CreateToken(user), null);
         }
 
         public async Task<bool> UpdateUserStatusAsync(int userId, string decision)

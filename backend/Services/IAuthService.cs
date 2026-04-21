@@ -5,8 +5,8 @@ namespace backend.Services
 {
     public interface IAuthService
     {
-        Task<User?> RegisterAsync(RegisterRequest request);
-        Task<(string? Token,string? Error)> LoginAsync(LoginRequest request);
+        Task<UserInfoResponse?> RegisterAsync(RegisterRequest request);
+        Task<(UserInfoResponse? User, string? Token, string? Error)> LoginAsync(LoginRequest request);
         Task<bool> UpdateUserStatusAsync(int userId, string decision);
     }
 }

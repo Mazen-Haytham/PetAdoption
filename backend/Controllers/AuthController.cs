@@ -12,7 +12,7 @@ namespace backend.Controllers
     public class AuthController(IAuthService authService) : ControllerBase
     {
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(RegisterRequest request)
+        public async Task<ActionResult<UserInfoResponse>> Register(RegisterRequest request)
         {
             var user = await authService.RegisterAsync(request);
 
@@ -21,16 +21,16 @@ namespace backend.Controllers
                 return BadRequest(new { error = "Email already exists." });
             }
 
-            return Ok(user);
+            return Ok(new { user });
         }
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(LoginRequest request)
         {
-            var (token, error) = await authService.LoginAsync(request);
+            var (userInfo, token, error) = await authService.LoginAsync(request);
 
-            if (error is not null) return Unauthorized(new{error});
+            if (error is not null) return BadRequest(new { error });
 
-            return Ok(new { token });
+            return Ok(new { token, user = userInfo });
         }
 
         [HttpPatch("users/{userId}/status")]

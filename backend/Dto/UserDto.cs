@@ -1,13 +1,11 @@
 ﻿using backend.Data;
+using backend.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace backend.Dto
 {
     public class RegisterRequest
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
@@ -22,9 +20,6 @@ namespace backend.Dto
 
         [Required]
         public UserRole Role { get; set; }
-
-        [Required]
-        public AccountStatus AccountStatus { get; set; }
     }
     public class LoginRequest
     {
@@ -36,5 +31,11 @@ namespace backend.Dto
         public string Password { get; set; } = string.Empty;
     }
     public record ApprovalRequest(string Decision);
+    public record UserInfoResponse(
+    string Name,
+    string Email,
+    string Role,
+    ICollection<UserFavourite> UserFavourites
+);
 }
 
