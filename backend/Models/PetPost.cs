@@ -31,7 +31,7 @@ namespace backend.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        
+        public PostApprovalRequest? PostApprovalRequest { get; set; }
         public ICollection<PetImage> Images { get; set; } = new List<PetImage>();
         public ICollection<UserFavourite> UserFavourite { get; set; } = new List<UserFavourite>();
         public Adoption? Adoptions { get; set; }
