@@ -47,28 +47,8 @@ namespace backend.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { error = "Invalid decision. Use 'approve' or 'reject'." });
             }
-        }
-
-        // Testing Role Based Authorization
-        [Authorize(Roles = "Admin")]
-        [HttpGet("admin-only")]
-        public IActionResult AuthenticatedOnlyEndpoint()
-        {
-            return Ok("you are admin!");
-        }
-        [Authorize(Roles = "Owner")]
-        [HttpGet("owners-only")]
-        public IActionResult AuthenticatedOnlyEndpoint1()
-        {
-            return Ok("you are owner!");
-        }
-        [Authorize(Roles = "Adopter")]
-        [HttpGet("adopter-only")]
-        public IActionResult AuthenticatedOnlyEndpoint2()
-        {
-            return Ok("you are owner!");
         }
     }
 }

@@ -11,6 +11,7 @@ namespace backend.Services
 {
     public class AuthService(AppDbContext context, IConfiguration configuration) : IAuthService
     {
+        private readonly PasswordHasher<User> _passwordHasher = new();
         public async Task<UserInfoResponse?> RegisterAsync(RegisterRequest request)
         {
             if (await context.Users.AnyAsync(u => u.Email == request.Email))
@@ -19,7 +20,7 @@ namespace backend.Services
             }
 
             var user = new User();
-            var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
+            var hashedPassword = _passwordHasher.HashPassword(user, request.Password);
 
             user.Name = request.Name;
             user.Email = request.Email;
@@ -48,8 +49,8 @@ namespace backend.Services
             if (user.Status == AccountStatus.Pending)
                 return (null, null, "Your account is still pending approval.");
 
-            if (new PasswordHasher<User>()
-                .VerifyHashedPassword(user, user.Password, request.Password)
+            if (_passwordHasher.
+                VerifyHashedPassword(user, user.Password, request.Password)
                     == PasswordVerificationResult.Failed)
                 return (null, null, "Invalid credentials.");
 
@@ -83,7 +84,8 @@ namespace backend.Services
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             };
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
+                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")
+                ?? throw new InvalidOperationException("JWT secret is not configured")));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
@@ -91,7 +93,7 @@ namespace backend.Services
                 issuer: configuration.GetValue<string>("AppSettings:Issuer"),
                 audience: configuration.GetValue<string>("AppSettings:Audience"),
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(1),
+                expires: DateTime.UtcNow.AddDays(configuration.GetValue<int>("AppSettings:TokenExpiryDays")),
                 signingCredentials: creds
                 );
 
