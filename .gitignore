@@ -69,7 +69,7 @@ project.lock.json
 appsettings.Development.json
 appsettings.Local.json
 secrets.json
-backend/appsettings.json
+backend/Migrations
 
 # ========================
 # Logs & Testing

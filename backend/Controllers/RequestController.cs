@@ -1,10 +1,11 @@
-﻿using backend.Requests.Services;
+﻿using backend.Requests.DTOs;
+using backend.Requests.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Requests.Controllers
 {
     [ApiController]
-    [Route("api/adoptionRequests")]
+    [Route("api/adoptions")]
     public class RequestController : ControllerBase
     {
         private readonly IRequestService _requestService;
@@ -14,22 +15,29 @@ namespace backend.Requests.Controllers
             _requestService = requestService;
         }
 
-        // GET /api/requests
-        [HttpGet]
-        public async Task<IActionResult> GetRequests()
+        // POST /api/adoptions
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateAdoptionRequestDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
                 // TODO: replace with JWT claim
-                var ownerId = 1;
+                var adopterId = 1;
 
-                var requests = await _requestService.GetRequestsByOwnerIdAsync(ownerId);
+                var (success, message, requestId) =
+                    await _requestService.CreateAdoptionRequestAsync(adopterId, dto.EffectivePetPostId, dto.Message);
+
+                if (!success)
+                    return BadRequest(new { success, message });
 
                 return Ok(new
                 {
                     success = true,
-                    count = requests.Count,
-                    data = requests
+                    message,
+                    data = new { id = requestId, status = "pending" }
                 });
             }
             catch (Exception ex)
@@ -38,7 +46,72 @@ namespace backend.Requests.Controllers
             }
         }
 
-        // PUT /api/requests/{id}/accept
+        // GET /api/adoptions/received
+        [HttpGet("received")]
+        public async Task<IActionResult> Received()
+        {
+            try
+            {
+                // TODO: replace with JWT claim
+                var ownerId = 1;
+
+                var requests = await _requestService.GetRequestsByOwnerIdAsync(ownerId);
+
+                return Ok(new { success = true, data = requests.Select(r => new
+                {
+                    id = r.RequestId,
+                    pet = new { id = r.PetPostId, name = r.PetName },
+                    adopter = new { id = r.AdopterId, name = r.AdopterName },
+                    message = r.Message,
+                    status = r.Status.ToLowerInvariant(),
+                    createdAt = r.CreatedAt
+                })});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        // GET /api/adoptions/my
+        [HttpGet("my")]
+        public async Task<IActionResult> My()
+        {
+            try
+            {
+                // TODO: replace with JWT claim
+                var adopterId = 1;
+
+                var requests = await _requestService.GetMyRequestsAsync(adopterId);
+
+                return Ok(new { success = true, data = requests });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        // GET /api/adoptions/history
+        [HttpGet("history")]
+        public async Task<IActionResult> History()
+        {
+            try
+            {
+                // TODO: replace with JWT claim
+                var adopterId = 1;
+
+                var history = await _requestService.GetAdoptionHistoryAsync(adopterId);
+
+                return Ok(new { success = true, data = history });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        // PUT /api/adoptions/{id}/accept
         [HttpPut("{id}/accept")]
         public async Task<IActionResult> AcceptRequest(int id)
         {
@@ -60,7 +133,7 @@ namespace backend.Requests.Controllers
             }
         }
 
-        // PUT /api/requests/{id}/reject
+        // PUT /api/adoptions/{id}/reject
         [HttpPut("{id}/reject")]
         public async Task<IActionResult> RejectRequest(int id)
         {
