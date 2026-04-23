@@ -23,6 +23,10 @@ namespace backend.Models
         [ForeignKey(nameof(AdopterId))]
         public User Adopter { get; set; } = null!;
 
+        [Required]
+        [MaxLength(1000)]
+        public string Message { get; set; } = string.Empty;
+
         // ── Status ─────────────────────────────────────
         public RequestStatus Status { get; set; } = RequestStatus.Pending;
 

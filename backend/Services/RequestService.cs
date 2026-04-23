@@ -14,6 +14,34 @@ namespace backend.Requests.Services
             _requestRepository = requestRepository;
         }
 
+        public async Task<(bool Success, string Message, int? RequestId)> CreateAdoptionRequestAsync(int adopterId, int petPostId, string message)
+        {
+            var petPost = await _requestRepository.GetPetPostByIdAsync(petPostId);
+            if (petPost == null)
+                return (false, "Pet post not found", null);
+
+            if (petPost.Status != PetStatus.Available)
+                return (false, "This pet is not available for adoption", null);
+
+            var alreadyPending = await _requestRepository.AdopterHasPendingRequestForPetPostAsync(adopterId, petPostId);
+            if (alreadyPending)
+                return (false, "You already have a pending request for this pet", null);
+
+            var request = new Request
+            {
+                PetPostId = petPostId,
+                AdopterId = adopterId,
+                Message = message,
+                Status = RequestStatus.Pending,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _requestRepository.CreateRequestAsync(request);
+            await _requestRepository.SaveChangesAsync();
+
+            return (true, "Adoption request sent successfully", request.Id);
+        }
+
         public async Task<List<RequestResponseDto>> GetRequestsByOwnerIdAsync(int ownerId)
         {
             var requests = await _requestRepository.GetRequestsByOwnerIdAsync(ownerId);
@@ -28,8 +56,34 @@ namespace backend.Requests.Services
                 PetPostId = r.PetPostId,
                 PetName = r.PetPost.Pet.Name,
                 PetBreed = r.PetPost.Pet.Breed,
+                Message = r.Message,
                 PrimaryImage = r.PetPost.Images
                                 .FirstOrDefault(img => img.IsPrimary)?.ImageUrl
+            }).ToList();
+        }
+
+        public async Task<List<object>> GetMyRequestsAsync(int adopterId)
+        {
+            var requests = await _requestRepository.GetRequestsByAdopterIdAsync(adopterId);
+
+            return requests.Select(r => (object)new
+            {
+                id = r.Id,
+                pet = new { id = r.PetPostId, name = r.PetPost.Pet.Name },
+                status = r.Status.ToString().ToLowerInvariant(),
+                createdAt = r.CreatedAt
+            }).ToList();
+        }
+
+        public async Task<List<object>> GetAdoptionHistoryAsync(int adopterId)
+        {
+            var adoptions = await _requestRepository.GetAdoptionsByAdopterIdAsync(adopterId);
+
+            return adoptions.Select(a => (object)new
+            {
+                pet = new { id = a.PetPostId, name = a.PetPost.Pet.Name },
+                status = a.Status.ToString().ToLowerInvariant(),
+                adoptedAt = a.AdoptedAt
             }).ToList();
         }
 
@@ -56,6 +110,9 @@ namespace backend.Requests.Services
                 // ── 4. Accept Request ───────────────────
                 request.Status = RequestStatus.Accepted;
 
+                // ── 4.1 Reject other pending requests ────
+                await _requestRepository.RejectOtherPendingRequestsForPetPostAsync(request.PetPostId, request.Id);
+
                 // ── 5. Create Adoption ──────────────────
                 var adoption = new Adoption
                 {
@@ -75,7 +132,7 @@ namespace backend.Requests.Services
                 await _requestRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return (true, "Request accepted and adoption created successfully");
+                return (true, "Adoption request approved");
             }
             catch (Exception)
             {
@@ -104,7 +161,7 @@ namespace backend.Requests.Services
 
             await _requestRepository.SaveChangesAsync();
 
-            return (true, "Request rejected successfully");
+            return (true, "Adoption request rejected");
         }
     }
 }
