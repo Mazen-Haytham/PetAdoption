@@ -1,11 +1,14 @@
 ﻿using backend.Requests.DTOs;
 using backend.Requests.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace backend.Requests.Controllers
 {
     [ApiController]
     [Route("api/adoptions")]
+    [Authorize]
     public class RequestController : ControllerBase
     {
         private readonly IRequestService _requestService;
@@ -13,6 +16,13 @@ namespace backend.Requests.Controllers
         public RequestController(IRequestService requestService)
         {
             _requestService = requestService;
+        }
+
+        private bool TryGetUserId(out int userId)
+        {
+            userId = 0;
+            var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return raw is not null && int.TryParse(raw, out userId);
         }
 
         // POST /api/adoptions
@@ -24,8 +34,8 @@ namespace backend.Requests.Controllers
 
             try
             {
-                // TODO: replace with JWT claim
-                var adopterId = 1;
+                if (!TryGetUserId(out var adopterId))
+                    return Unauthorized(new { success = false, message = "Missing or invalid user id claim." });
 
                 var (success, message, requestId) =
                     await _requestService.CreateAdoptionRequestAsync(adopterId, dto.EffectivePetPostId, dto.Message);
@@ -52,8 +62,8 @@ namespace backend.Requests.Controllers
         {
             try
             {
-                // TODO: replace with JWT claim
-                var ownerId = 1;
+                if (!TryGetUserId(out var ownerId))
+                    return Unauthorized(new { success = false, message = "Missing or invalid user id claim." });
 
                 var requests = await _requestService.GetRequestsByOwnerIdAsync(ownerId);
 
@@ -79,8 +89,8 @@ namespace backend.Requests.Controllers
         {
             try
             {
-                // TODO: replace with JWT claim
-                var adopterId = 1;
+                if (!TryGetUserId(out var adopterId))
+                    return Unauthorized(new { success = false, message = "Missing or invalid user id claim." });
 
                 var requests = await _requestService.GetMyRequestsAsync(adopterId);
 
@@ -98,8 +108,8 @@ namespace backend.Requests.Controllers
         {
             try
             {
-                // TODO: replace with JWT claim
-                var adopterId = 1;
+                if (!TryGetUserId(out var adopterId))
+                    return Unauthorized(new { success = false, message = "Missing or invalid user id claim." });
 
                 var history = await _requestService.GetAdoptionHistoryAsync(adopterId);
 
@@ -117,8 +127,8 @@ namespace backend.Requests.Controllers
         {
             try
             {
-                // TODO: replace with JWT claim
-                var ownerId = 1;
+                if (!TryGetUserId(out var ownerId))
+                    return Unauthorized(new { success = false, message = "Missing or invalid user id claim." });
 
                 var (success, message) = await _requestService.AcceptRequestAsync(id, ownerId);
 
@@ -139,8 +149,8 @@ namespace backend.Requests.Controllers
         {
             try
             {
-                // TODO: replace with JWT claim
-                var ownerId = 1;
+                if (!TryGetUserId(out var ownerId))
+                    return Unauthorized(new { success = false, message = "Missing or invalid user id claim." });
 
                 var (success, message) = await _requestService.RejectRequestAsync(id, ownerId);
 
