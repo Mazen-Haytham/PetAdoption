@@ -34,5 +34,17 @@ namespace backend.Repositories
             await context.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var user = await context.Users.FindAsync(id);
+
+            if (user == null)
+                return false;
+
+            context.Users.Remove(user);
+
+            await context.SaveChangesAsync();
+            return true;
+        }
     }
 }
