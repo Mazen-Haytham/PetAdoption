@@ -8,6 +8,7 @@ namespace backend.Services
         Task<AdminUserResponseDto?> GetUserByIdAsync(int id);
         Task<bool> ApproveUserAsync(int id);
         Task<bool> RejectUserAsync(int id);
+        Task<bool> DeleteUserAsync(int id);
 
 
     }

@@ -48,7 +48,7 @@ namespace backend.Controllers
                 data = user
             });
         }
-        [HttpPut("{id}/approve")]
+        [HttpPut("approve/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ApproveUser(int id)
         {
@@ -63,7 +63,7 @@ namespace backend.Controllers
                 message = "User approved successfully"
             });
         }
-        [HttpPut("{id}/reject")]
+        [HttpPut("reject/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RejectUser(int id)
         {
@@ -76,6 +76,25 @@ namespace backend.Controllers
             {
                 success = true,
                 message = "User rejected successfully"
+            });
+        }
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var result = await adminUserService.DeleteUserAsync(id);
+
+            if (!result)
+                return NotFound(new
+                {
+                    success = false,
+                    message = "User not found"
+                });
+
+            return Ok(new
+            {
+                success = true,
+                message = "User deleted successfully"
             });
         }
     }

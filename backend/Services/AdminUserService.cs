@@ -67,6 +67,10 @@ namespace backend.Services
         {
             return await userRepository.UpdateUserStatusAsync(id, AccountStatus.Rejected);
         }
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            return await userRepository.DeleteUserAsync(id);
+        }
 
     }
 }
