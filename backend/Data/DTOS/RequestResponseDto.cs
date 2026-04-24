@@ -14,6 +14,7 @@
         public int PetPostId { get; set; }
         public string PetName { get; set; } = string.Empty;
         public string PetBreed { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
         public string? PrimaryImage { get; set; }
     }
 }
