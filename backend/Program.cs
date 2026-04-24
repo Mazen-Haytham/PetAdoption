@@ -1,9 +1,10 @@
 using backend.Data;
-using backend.Services;
 using backend.Pets.Repositories;
 using backend.Pets.Services;
+using backend.Repositories;
 using backend.Requests.Repositories;
 using backend.Requests.Services;
+using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,6 +23,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // ── Pets Module ───────────────────────────────────
 builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();
+
+// ── Admin Module ───────────────────────────────────
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAdminUserService, AdminUserService>();
 
 // ── Requests Module ───────────────────────────────
 builder.Services.AddScoped<IRequestRepository, RequestRepository>();
