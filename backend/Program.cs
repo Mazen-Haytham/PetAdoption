@@ -1,12 +1,14 @@
 using backend.Data;
-using backend.Services;
 using backend.Pets.Repositories;
 using backend.Pets.Services;
+using backend.Repositories;
 using backend.Requests.Repositories;
 using backend.Requests.Services;
+using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -22,6 +24,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // ── Pets Module ───────────────────────────────────
 builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();
+
+// ── Admin Module ───────────────────────────────────
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAdminUserService, AdminUserService>();
 
 // ── Requests Module ───────────────────────────────
 builder.Services.AddScoped<IRequestRepository, RequestRepository>();
@@ -67,7 +73,35 @@ builder.Services.AddAuthorization(options =>
 
 // ── General ───────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Define the security scheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token. Example: eyJhbGci..."
+    });
+
+    // Apply it globally to all endpoints
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
