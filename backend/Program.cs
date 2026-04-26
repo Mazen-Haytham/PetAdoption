@@ -1,6 +1,7 @@
 using backend.Data;
 using backend.Pets.Repositories;
 using backend.Pets.Services;
+using backend.Repos;
 using backend.Repositories;
 using backend.Requests.Repositories;
 using backend.Requests.Services;
@@ -24,9 +25,13 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<IPetService, PetService>();
 
-// ── Admin Module ───────────────────────────────────
+// ── Admin Users Module ───────────────────────────────────
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+
+// ── Admin Pets Module ───────────────────────────────
+builder.Services.AddScoped<IAdminPetPostRepository, AdminPetPostRepository>();
+builder.Services.AddScoped<IAdminPetPostService, AdminPetPostService>();
 
 // ── Requests Module ───────────────────────────────
 builder.Services.AddScoped<IRequestRepository, RequestRepository>();
