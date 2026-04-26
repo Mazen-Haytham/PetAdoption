@@ -4,6 +4,7 @@ using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -12,46 +13,69 @@ namespace backend.Controllers
     public class AuthController(IAuthService authService) : ControllerBase
     {
         [HttpPost("register")]
-        public async Task<ActionResult<UserInfoResponse>> Register(RegisterRequest request)
+        [AllowAnonymous]
+        public async Task<IActionResult> Register(RegisterRequest request)
         {
-            var user = await authService.RegisterAsync(request);
+            var result = await authService.RegisterAsync(request);
 
-            if (user is null)
+            if (!result)
             {
-                return BadRequest(new { error = "Email already exists." });
+                return BadRequest(new { error = "Email Already Exists" });
             }
 
-            return Ok(new { user });
+            return Created();
         }
+
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<ActionResult<string>> Login(LoginRequest request)
         {
-            var (userInfo, token, error) = await authService.LoginAsync(request);
+            var (userInfo, tokenResponse, error) = await authService.LoginAsync(request);
 
             if (error is not null) return BadRequest(new { error });
 
-            return Ok(new { token, user = userInfo });
+            return Ok(new { tokenResponse, user = userInfo });
         }
 
-        [HttpPatch("users/{userId}/status")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUserStatus(int userId, [FromBody] ApprovalRequest request)
+
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
         {
-            try
-            {
-                var result = await authService.UpdateUserStatusAsync(userId, request.Decision);
+            var response = await authService.RefreshTokensAsync(request);
+            if (response is null || response.AccessToken is null || response.RefreshToken is null)
+                return Unauthorized("Invalid refresh token");
+            return Ok(response);
+        }
 
-                if (!result) return NotFound(new { error = "User not found." });
-
-                return NoContent(); // 204
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { error = "Invalid decision. Use 'approve' or 'reject'." });
-            }
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            await authService.LogoutAsync(userId);
+            return Ok(new { message = "Logged out successfully" });
         }
     }
 }
 
 
 // PATCH /api/auth/users/5/status with body { "decision": "approve or reject" }
+
+
+//[HttpPatch("users/{userId}/status")]
+//[Authorize(Roles = "Admin")]
+//public async Task<IActionResult> UpdateUserStatus(int userId, [FromBody] ApprovalRequest request)
+//{
+//    try
+//    {
+//        var result = await authService.UpdateUserStatusAsync(userId, request.Decision);
+
+//        if (!result) return NotFound(new { error = "User not found." });
+
+//        return NoContent(); // 204
+//    }
+//    catch (ArgumentException ex)
+//    {
+//        return BadRequest(new { error = "Invalid decision. Use 'approve' or 'reject'." });
+//    }
+//}

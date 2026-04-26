@@ -20,6 +20,9 @@ namespace backend.Requests.Services
             if (petPost == null)
                 return (false, "Pet post not found", null);
 
+            if (petPost.OwnerId == adopterId)
+                return (false, "You cannot create an adoption request for a pet you posted yourself", null);
+
             if (petPost.Status != PetStatus.Available)
                 return (false, "This pet is not available for adoption", null);
 
