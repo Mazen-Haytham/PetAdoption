@@ -1,8 +1,8 @@
-import TopNav from "../../components/adopterProfile/TopNav";
+import TopNav from "./../../components/shared/TopNav";
 import ProfileHeaderCard from "../../components/adopterProfile/ProfileHeaderCard";
 import ActiveApplicationsCard from "../../components/adopterProfile/ActiveApplicationsCard";
 import AdoptionHistoryCard from "../../components/adopterProfile/AdoptionHistoryCard";
-import PageFooter from "../../components/adopterProfile/PageFooter";
+import PageFooter from "./../../components/shared/PageFooter";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getAdoptionHistory, getMyAdoptionRequests } from "../../api/api";
