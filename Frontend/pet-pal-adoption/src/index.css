@@ -1,3 +1,71 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 body { font-family: 'Inter', sans-serif; }
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --pa-bg: 246 246 255;
+    --pa-card: 255 255 255;
+    --pa-text: 21 29 77;
+    --pa-muted: 107 114 128;
+    --pa-primary: 93 99 255;
+  }
+
+  body {
+    @apply bg-[rgb(var(--pa-bg))] text-[rgb(var(--pa-text))];
+  }
+}
+
+@layer components {
+  .pa-container {
+    @apply mx-auto w-full max-w-6xl px-4;
+  }
+
+  .pa-card {
+    @apply rounded-2xl bg-[rgb(var(--pa-card))] shadow-sm ring-1 ring-black/5;
+  }
+
+  .pa-section-title {
+    @apply text-lg font-extrabold tracking-tight text-[rgb(var(--pa-text))];
+  }
+
+  .pa-link {
+    @apply text-sm font-semibold text-[rgb(var(--pa-primary))] hover:opacity-90;
+  }
+
+  .pa-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition;
+  }
+
+  .pa-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition bg-[rgb(var(--pa-primary))] text-white hover:brightness-95;
+  }
+
+  .pa-btn-soft {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition bg-[rgb(var(--pa-primary))/10] text-[rgb(var(--pa-primary))] hover:bg-[rgb(var(--pa-primary))/14];
+  }
+
+  .pa-icon-btn {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5 hover:bg-black/5;
+  }
+
+  .pa-pill {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+  }
+
+  .pa-pill-neutral {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-black/5 text-black/60;
+  }
+
+  .pa-pill-pending {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-amber-100 text-amber-700;
+  }
+
+  .pa-pill-accepted {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700;
+  }
+
+  .pa-pill-rejected {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-rose-100 text-rose-700;
+  }
+}

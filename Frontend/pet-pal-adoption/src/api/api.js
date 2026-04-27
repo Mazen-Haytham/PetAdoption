@@ -41,11 +41,17 @@ export async function login(email, password) {
     body: JSON.stringify({ email, password }),
   });
   const data = await handleResponse(res);
-  // returns { token, user: { name, email, role, userFavourites } }
+  // backend returns { tokenResponse: { accessToken, refreshToken }, user: { userId, name, email, role, userFavourites } }
 
- if (data.token) localStorage.setItem("token", data.token);
-  localStorage.setItem("user", JSON.stringify(data.user));
-  return data;
+  const accessToken = data?.tokenResponse?.accessToken ?? data?.tokenResponse?.AccessToken;
+  if (accessToken) localStorage.setItem("token", accessToken);
+  if (data?.user) localStorage.setItem("user", JSON.stringify(data.user));
+
+  return {
+    user: data?.user ?? null,
+    token: accessToken ?? null,
+    tokenResponse: data?.tokenResponse ?? null,
+  };
 }
 
 export function logout() {
@@ -60,6 +66,26 @@ export function getCurrentUser() {
 } catch {
   return null;
 }
+}
+
+// ─── Adoptions (Requests) ─────────────────────────────────────
+
+export async function getMyAdoptionRequests() {
+  const res = await fetch(`${BASE_URL}/adoptions/my`, {
+    method: "GET",
+    headers: authHeaders(),
+  });
+  const json = await handleResponse(res);
+  return json?.data ?? [];
+}
+
+export async function getAdoptionHistory() {
+  const res = await fetch(`${BASE_URL}/adoptions/history`, {
+    method: "GET",
+    headers: authHeaders(),
+  });
+  const json = await handleResponse(res);
+  return json?.data ?? [];
 }
 
 // ─── Admin ───────────────────────────────────────────────────
