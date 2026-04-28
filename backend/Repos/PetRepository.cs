@@ -90,7 +90,15 @@ namespace backend.Pets.Repositories
                 .Include(pp => pp.Pet)
                 .FirstOrDefaultAsync(pp => pp.Id == id);
         }
-
+        public async Task<PetPost?> GetPetPostWithDetailsAsync(int id)
+        {
+            return await _context.PetPosts
+                .Include(pp => pp.Pet)
+                .Include(pp => pp.Owner)
+                .Include(pp => pp.Images)
+                .Include(pp => pp.PostApprovalRequest)
+                .FirstOrDefaultAsync(pp => pp.Id == id);
+        }
         public async Task UpdatePetPostAsync(PetPost petPost)
         {
             _context.PetPosts.Update(petPost);
