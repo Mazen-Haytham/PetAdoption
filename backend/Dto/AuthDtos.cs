@@ -7,7 +7,8 @@ namespace backend.Dto
     public enum RegisterableRole
     {
         Adopter = 1,
-        Owner = 2
+        Owner = 2,
+        Admin =3 
     }
     public class RegisterRequest
     {

@@ -14,6 +14,7 @@ namespace backend.Pets.Repositories
         Task CreateApprovalRequestAsync(PostApprovalRequest approvalRequest);
 
         Task<PetPost?> GetPetPostByIdAsync(int id);
+        Task<PetPost?> GetPetPostWithDetailsAsync(int id);
         Task UpdatePetPostAsync(PetPost petPost);
         
         Task DeletePetPostAsync(PetPost petPost);

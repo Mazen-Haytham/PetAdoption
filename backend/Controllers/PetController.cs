@@ -38,6 +38,25 @@ namespace backend.Pets.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        // GET /api/pets/{id}
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPetPostById(int id)
+        {
+            try
+            {
+                var petPost = await _petService.GetPetPostByIdAsync(id);
+
+                if (petPost == null)
+                    return NotFound(new { success = false, message = "Pet post not found" });
+
+                return Ok(new { success = true, data = petPost });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
 
         // GET /api/pets/search?type=dog&breed=husky&age=2&location=cairo
         [HttpGet("search")]
