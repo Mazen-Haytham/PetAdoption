@@ -1,6 +1,7 @@
 // src/api/api.js
 
 const BASE_URL = "https://localhost:7081/api";
+const ORIGIN_URL = "https://localhost:7081";
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -54,7 +55,7 @@ export async function login(email, password) {
   };
 }
 
-export function logout() {
+export default function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 }
@@ -68,7 +69,35 @@ export function getCurrentUser() {
 }
 }
 
+// ─── Pets ────────────────────────────────────────────────────
+
+export function resolveAssetUrl(path) {
+  if (!path) return null;
+  if (typeof path !== "string") return null;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("/")) return `${ORIGIN_URL}${path}`;
+  return `${ORIGIN_URL}/${path}`;
+}
+
+export async function getMyPetPosts() {
+  const res = await fetch(`${BASE_URL}/pets/mine`, {
+    method: "GET",
+    headers: authHeaders(),
+  });
+  const json = await handleResponse(res);
+  return json?.data ?? [];
+}
+
 // ─── Adoptions (Requests) ─────────────────────────────────────
+
+export async function getReceivedAdoptionRequests() {
+  const res = await fetch(`${BASE_URL}/adoptions/received`, {
+    method: "GET",
+    headers: authHeaders(),
+  });
+  const json = await handleResponse(res);
+  return json?.data ?? [];
+}
 
 export async function getMyAdoptionRequests() {
   const res = await fetch(`${BASE_URL}/adoptions/my`, {

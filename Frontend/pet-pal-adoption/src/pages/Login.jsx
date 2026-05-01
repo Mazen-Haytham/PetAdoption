@@ -3,7 +3,7 @@ import { Mail, Lock, Eye, EyeOff, PawPrint } from 'lucide-react';
 import { login } from '../api/api';
 import ErrorMessage from '../components/ErrorMessage';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/authContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -27,7 +27,7 @@ const Login = () => {
       setAuth(user, token);
 
       if (user?.role === 'Adopter') navigate('/adopter/profile', { replace: true });
-      else if (user?.role === 'Owner') navigate('/owner', { replace: true });
+      else if (user?.role === 'Owner' || user?.role === 'Shelter') navigate('/owner', { replace: true });
       else if (user?.role === 'Admin') navigate('/admin', { replace: true });
       else navigate('/unauthorized', { replace: true });
     } catch (err) {

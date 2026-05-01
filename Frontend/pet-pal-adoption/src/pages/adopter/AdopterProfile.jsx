@@ -4,7 +4,7 @@ import ActiveApplicationsCard from "../../components/adopterProfile/ActiveApplic
 import AdoptionHistoryCard from "../../components/adopterProfile/AdoptionHistoryCard";
 import PageFooter from "./../../components/shared/PageFooter";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/authContext";
 import { getAdoptionHistory, getMyAdoptionRequests } from "../../api/api";
 
 function toTitleCaseStatus(status) {

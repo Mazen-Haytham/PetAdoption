@@ -17,6 +17,29 @@ namespace backend.Pets.Controllers
             _petService = petService;
         }
 
+        // GET /api/pets/mine
+        [HttpGet("mine")]
+        [Authorize(Roles = "Owner,Shelter,Admin")]
+        public async Task<IActionResult> GetMyPetPosts()
+        {
+            try
+            {
+                var ownerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var petPosts = await _petService.GetMyPetPostsAsync(ownerId);
+
+                return Ok(new
+                {
+                    success = true,
+                    count = petPosts.Count,
+                    data = petPosts
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
         // GET /api/pets
         [HttpGet]
         [AllowAnonymous]                            // ← public
@@ -93,7 +116,7 @@ namespace backend.Pets.Controllers
         // POST /api/pets
         [HttpPost]
         [Consumes("multipart/form-data")]
-        [Authorize(Roles = "Owner,Admin")]          // ← protected
+        [Authorize(Roles = "Owner,Shelter,Admin")]          // ← protected
         public async Task<IActionResult> CreatePet([FromForm] CreatePetDto dto)
         {
             if (!ModelState.IsValid)
@@ -125,7 +148,7 @@ namespace backend.Pets.Controllers
 
         // PUT /api/pets/{id}
         [HttpPut("{id}")]
-        [Authorize(Roles = "Owner,Admin")]          // ← protected
+        [Authorize(Roles = "Owner,Shelter,Admin")]          // ← protected
         public async Task<IActionResult> UpdatePetPost(int id, [FromBody] UpdatePetDto dto)
         {
             if (!ModelState.IsValid)
@@ -143,7 +166,7 @@ namespace backend.Pets.Controllers
 
         // DELETE /api/pets/{id}
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Owner,Admin")]          // ← protected
+        [Authorize(Roles = "Owner,Shelter,Admin")]          // ← protected
         public async Task<IActionResult> DeletePet(int id)
         {
             var ownerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

@@ -1,10 +1,13 @@
+import React from "react";
 import { Calendar, MapPin, PawPrint, Camera, Mail } from "lucide-react";
 import Avatar from "./Avatar";
 
-function InfoItem({ icon: Icon, text }) {
+function InfoItem({ icon, text }) {
   return (
     <div className="flex items-center gap-2 text-sm text-black/60">
-      <Icon className="h-4 w-4 text-[rgb(var(--pa-primary))]" />
+      {React.createElement(icon, {
+        className: "h-4 w-4 text-[rgb(var(--pa-primary))]",
+      })}
       <span>{text}</span>
     </div>
   );

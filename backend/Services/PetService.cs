@@ -50,6 +50,12 @@ namespace backend.Pets.Services
             return result;
         }
 
+        public async Task<List<PetPostResponseDto>> GetMyPetPostsAsync(int ownerId)
+        {
+            var posts = await _petRepository.GetPetPostsByOwnerIdAsync(ownerId);
+            return posts.Select(pp => MapToDto(pp)).ToList();
+        }
+
         // ── GET BY ID ───────────────────────────────
         public async Task<PetPostResponseDto?> GetPetPostByIdAsync(int petPostId)
         {
