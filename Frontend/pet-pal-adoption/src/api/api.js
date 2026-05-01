@@ -117,6 +117,24 @@ export async function getAdoptionHistory() {
   return json?.data ?? [];
 }
 
+export async function acceptAdoptionRequest(requestId) {
+  const res = await fetch(`${BASE_URL}/adoptions/${requestId}/accept`, {
+    method: "PUT",
+    headers: authHeaders(),
+  });
+  if (res.status === 204) return;
+  return handleResponse(res);
+}
+
+export async function rejectAdoptionRequest(requestId) {
+  const res = await fetch(`${BASE_URL}/adoptions/${requestId}/reject`, {
+    method: "PUT",
+    headers: authHeaders(),
+  });
+  if (res.status === 204) return;
+  return handleResponse(res);
+}
+
 // ─── Admin ───────────────────────────────────────────────────
 
 export async function updateUserStatus(userId, decision) {

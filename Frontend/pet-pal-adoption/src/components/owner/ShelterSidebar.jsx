@@ -11,7 +11,6 @@ import logout from "../../api/api";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { key: "pets", label: "My Pets", icon: PawPrint },
   { key: "requests", label: "Adoption Requests", icon: ClipboardList },
   { key: "profile", label: "Profile", icon: User },
 ];
@@ -24,7 +23,7 @@ export default function ShelterSidebar({ activeKey = "dashboard", onSelect }) {
     navigate("/login");
   };
   return (
-    <aside className="flex h-full w-[260px] shrink-0 flex-col border-2 border-[rgb(var(--pa-primary))]/20 px-5 py-6 ring-1 ring-black/5 rounded-br-2xl">
+    <aside className="flex h-full w-[260px] shrink-0 flex-col border-1 border-[rgb(var(--pa-primary))]/20 px-5 py-6 ring-1 ring-black/5 rounded-br-2xl">
       <div className="flex items-center gap-3 px-2">
         <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgb(var(--pa-primary))/12]">
           <PawPrint className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
