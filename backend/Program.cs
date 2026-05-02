@@ -52,6 +52,9 @@ builder.Services.AddScoped<IReviewsService, ReviewsService>();
 // ── Controllers ───────────────────────────────────
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
+    // Prevent System.Text.Json from throwing when EF navigation properties form cycles
+    // (e.g., User -> UserFavourites -> Adopter -> UserFavourites -> ...)
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
