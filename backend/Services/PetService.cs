@@ -1,3 +1,4 @@
+// Services/PetService.cs  ← add UpdatePetAsync
 using backend.Data;
 using backend.Models;
 using backend.Pets.DTOs;
@@ -78,14 +79,49 @@ namespace backend.Pets.Services
             return result;
         }
 
+        // ── GET BY ID (Detail DTO) ──────────────────
+        public async Task<PetPostDetailDto?> GetPetPostByIdDTOAsync(int petPostId)
+        {
+            var post = await _petRepository.GetPetPostByIdAsync(petPostId);
+
+            if (post is null) return null;
+
+            return new PetPostDetailDto
+            {
+                Id = post.Id,
+                Name = post.Pet.Name,
+                Age = post.Pet.Age,
+                Breed = post.Pet.Breed,
+                Type = post.Pet.Type,
+                HealthStatus = post.HealthStatus,
+                Description = post.Description,
+                Location = post.Pet.Location,
+                Status = post.Status.ToString(),
+                Images = post.Images
+                                   .OrderByDescending(img => img.IsPrimary)
+                                   .Select(img => img.ImageUrl)
+                                   .ToList(),
+                Owner = new OwnerSummaryDto
+                {
+                    Id = post.Owner.Id,
+                    Name = post.Owner.Name
+                },
+                CreatedAt = post.CreatedAt
+            };
+        }
+
         // ── CREATE ──────────────────────────────────
         public async Task<Pet> CreatePetAsync(CreatePetDto dto, int ownerId)
         {
+            // ── Start Transaction ───────────────────────
             using var transaction = await _petRepository.BeginTransactionAsync();
+
+            // keep track of saved image paths for cleanup if something fails
             var savedImagePaths = new List<string>();
 
             try
             {
+                // ── 1. Create & save Pet ────────────────────
                 var pet = new Pet
                 {
                     Name = dto.Name,
@@ -101,6 +137,7 @@ namespace backend.Pets.Services
                 await _petRepository.CreatePetAsync(pet);
                 await _petRepository.SaveChangesAsync();
 
+                // ── 2. Create & save PetPost ────────────────
                 var petPost = new PetPost
                 {
                     PetId = pet.Id,
@@ -125,6 +162,7 @@ namespace backend.Pets.Services
                 await _petRepository.CreateApprovalRequestAsync(approvalRequest);
                 await _petRepository.SaveChangesAsync();
 
+                // ── 3. Save Images linked to PetPost ────────
                 if (dto.Images == null || dto.Images.Count == 0)
                     throw new Exception("At least one image is required");
 
@@ -146,6 +184,7 @@ namespace backend.Pets.Services
                             await image.CopyToAsync(stream);
                         }
 
+                        // track saved files in case we need to delete them on failure
                         savedImagePaths.Add(filePath);
 
                         petImages.Add(new PetImage
@@ -163,6 +202,7 @@ namespace backend.Pets.Services
                 await _petRepository.AddPetImagesAsync(petImages);
                 await _petRepository.SaveChangesAsync();
 
+                // ── Commit Transaction ──────────────────────
                 await transaction.CommitAsync();
 
                 // ── Invalidate petPosts:all only ────────
@@ -172,10 +212,16 @@ namespace backend.Pets.Services
             }
             catch (Exception)
             {
+                // ── Rollback DB ─────────────────────────────
                 await transaction.RollbackAsync();
 
+                // ── Delete saved image files ─────────────────
+                // (DB rolled back but files were already saved to disk)
                 foreach (var path in savedImagePaths)
-                    if (File.Exists(path)) File.Delete(path);
+                {
+                    if (File.Exists(path))
+                        File.Delete(path);
+                }
 
                 throw;
             }
@@ -184,16 +230,21 @@ namespace backend.Pets.Services
         // ── UPDATE ──────────────────────────────────
         public async Task<(bool Success, string Message, object? Data)> UpdatePetPostAsync(int petPostId, UpdatePetDto dto, int ownerId)
         {
+            // ── 1. Find PetPost ─────────────────────────
             var petPost = await _petRepository.GetPetPostByIdAsync(petPostId);
 
             if (petPost == null)
                 return (false, "Pet post not found", null);
 
+            // ── 2. Check ownership ──────────────────────
             if (petPost.OwnerId != ownerId)
                 return (false, "You are not allowed to update this post", null);
 
+            // ── 3. Update PetPost fields ────────────────
             if (dto.HealthStatus != null) petPost.HealthStatus = dto.HealthStatus;
             if (dto.Description != null) petPost.Description = dto.Description;
+
+            // ── 4. Update Pet fields via navigation ─────
             if (dto.Name != null) petPost.Pet.Name = dto.Name;
             if (dto.Age != null) petPost.Pet.Age = dto.Age.Value;
             if (dto.Breed != null) petPost.Pet.Breed = dto.Breed;
@@ -219,31 +270,42 @@ namespace backend.Pets.Services
 
             try
             {
+                // ── 1. Find PetPost with Pet and Images ─────
                 var petPost = await _petRepository.GetPetPostByIdAsync(petPostId);
 
                 if (petPost == null)
                     return (false, "Pet post not found");
 
+                // ── 2. Check ownership ──────────────────────
                 if (petPost.OwnerId != ownerId)
                     return (false, "You are not allowed to delete this post");
 
+                // ── 3. Collect image paths before deletion ──
                 var imagePaths = petPost.Images
                     .Select(img => Path.Combine(_env.WebRootPath, img.ImageUrl.TrimStart('/')))
                     .ToList();
 
+                // ── 4. Delete PetPost (cascade deletes images from DB) ──
                 await _petRepository.DeletePetPostAsync(petPost);
                 await _petRepository.SaveChangesAsync();
 
+                // ── 5. Delete Pet ───────────────────────────
                 await _petRepository.DeletePetAsync(petPost.Pet);
                 await _petRepository.SaveChangesAsync();
 
+                // ── 6. Commit Transaction ───────────────────
                 await transaction.CommitAsync();
 
+                // ── 7. Delete image files from disk ─────────
+                // (done after commit so DB is safe first)
                 // ── Invalidate this post cache only ─────
                 await _cache.RemoveAsync(SinglePetPostCacheKey(petPostId));
 
                 foreach (var path in imagePaths)
-                    if (File.Exists(path)) File.Delete(path);
+                {
+                    if (File.Exists(path))
+                        File.Delete(path);
+                }
 
                 return (true, "Pet deleted successfully");
             }

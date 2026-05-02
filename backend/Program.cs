@@ -1,10 +1,12 @@
 using backend.Data;
+using backend.Favorites.Services;
 using backend.Pets.Repositories;
 using backend.Pets.Services;
 using backend.Repos;
 using backend.Repositories;
 using backend.Requests.Repositories;
 using backend.Requests.Services;
+using backend.Reviews.Services;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -44,9 +46,15 @@ builder.Services.AddScoped<IAdminPetPostService, AdminPetPostService>();
 builder.Services.AddScoped<IRequestRepository, RequestRepository>();
 builder.Services.AddScoped<IRequestService, RequestService>();
 
+builder.Services.AddScoped<IFavoritesService, FavoritesService>();
+builder.Services.AddScoped<IReviewsService, ReviewsService>();
+
 // ── Controllers ───────────────────────────────────
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
+    // Prevent System.Text.Json from throwing when EF navigation properties form cycles
+    // (e.g., User -> UserFavourites -> Adopter -> UserFavourites -> ...)
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
