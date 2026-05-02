@@ -38,6 +38,9 @@ namespace backend.Pets.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+
+
         // GET /api/pets/{id}
         [HttpGet("{id}")]
         [AllowAnonymous]

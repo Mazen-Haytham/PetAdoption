@@ -1,10 +1,12 @@
 using backend.Data;
+using backend.Favorites.Services;
 using backend.Pets.Repositories;
 using backend.Pets.Services;
 using backend.Repos;
 using backend.Repositories;
 using backend.Requests.Repositories;
 using backend.Requests.Services;
+using backend.Reviews.Services;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +45,9 @@ builder.Services.AddScoped<IAdminPetPostService, AdminPetPostService>();
 // ── Requests Module ───────────────────────────────
 builder.Services.AddScoped<IRequestRepository, RequestRepository>();
 builder.Services.AddScoped<IRequestService, RequestService>();
+
+builder.Services.AddScoped<IFavoritesService, FavoritesService>();
+builder.Services.AddScoped<IReviewsService, ReviewsService>();
 
 // ── Controllers ───────────────────────────────────
 builder.Services.AddControllers().AddJsonOptions(options =>
