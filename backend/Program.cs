@@ -27,6 +27,9 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
 });
 
+//InMemory Cache
+builder.Services.AddMemoryCache(); 
+
 // ── Auth Module ───────────────────────────────────
 builder.Services.AddScoped<IAuthService, AuthService>();
 
