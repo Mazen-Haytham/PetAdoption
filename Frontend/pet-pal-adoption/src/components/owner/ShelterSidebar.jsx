@@ -1,0 +1,84 @@
+import {
+  BarChart3,
+  ClipboardList,
+  LayoutDashboard,
+  PawPrint,
+  User,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import logout from "../../api/api";
+
+
+const navItems = [
+  { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { key: "requests", label: "Adoption Requests", icon: ClipboardList },
+  { key: "profile", label: "Profile", icon: User },
+];
+
+export default function ShelterSidebar({ activeKey = "dashboard", onSelect }) {
+  const navigate = useNavigate();
+  const postLogout = () => {
+    logout();
+    // Redirect to the login page
+    navigate("/login");
+  };
+  return (
+    <aside className="flex h-full w-[260px] shrink-0 flex-col border-1 border-[rgb(var(--pa-primary))]/20 px-5 py-6 ring-1 ring-black/5 rounded-br-2xl">
+      <div className="flex items-center gap-3 px-2">
+        <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgb(var(--pa-primary))/12]">
+          <PawPrint className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
+        </div>
+        <div className="leading-tight">
+          <div className="text-base font-extrabold tracking-tight">Shelter Home</div>
+          <div className="text-[11px] font-bold tracking-wide text-black/40">
+            ADMIN PORTAL
+          </div>
+        </div>
+      </div>
+
+      <nav className="mt-7 flex flex-col gap-2">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = item.key === activeKey;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => onSelect?.(item.key)}
+              className={[
+                "group flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold transition",
+                active
+                  ? "bg-[rgb(var(--pa-primary))] text-white shadow-sm"
+                  : "text-black/55 hover:bg-black/5",
+              ].join(" ")}
+            >
+              <Icon
+                className={[
+                  "h-5 w-5",
+                  active ? "text-white" : "text-black/45 group-hover:text-black/60",
+                ].join(" ")}
+              />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+
+        <button
+          type="button"
+          className="hover:cursor-pointer mt-5 w-full transition-all rounded-2xl border-2 text-[rgb(var(--pa-primary))] hover:bg-[rgb(var(--pa-primary))] px-5 py-3 text-sm font-extrabold hover:text-white hover:border-transparent shadow-lg shadow-black/10 hover:brightness-95"
+        >
+          Create a new post
+        </button>
+        <button
+          type="button"
+          className="hover:cursor-pointer mt-5 w-full rounded-2xl transition-all border-2 text-red-500 hover:bg-red-500 px-5 py-3 text-sm font-extrabold hover:text-white hover:border-transparent shadow-lg shadow-black/10 hover:brightness-95"
+          onClick={postLogout}
+        >
+          Logout
+        </button>
+    </aside>
+  );
+}
+

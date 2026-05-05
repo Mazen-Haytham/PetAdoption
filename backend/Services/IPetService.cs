@@ -6,9 +6,12 @@ namespace backend.Pets.Services
     public interface IPetService
     {
         Task<List<PetPostResponseDto>> GetAvailablePetPostsAsync();
+        Task<List<PetPostResponseDto>> GetMyPetPostsAsync(int ownerId);
+        Task<PetPostResponseDto?> GetPetPostByIdAsync(int petPostId);
         Task<Pet> CreatePetAsync(CreatePetDto dto, int ownerId);
         Task<(bool Success, string Message, object? Data)> UpdatePetPostAsync(int petPostId, UpdatePetDto dto, int ownerId);
         Task<(bool Success, string Message)> DeletePetAsync(int petPostId, int ownerId);
         Task<List<PetPostResponseDto>> SearchPetPostsAsync(PetSearchDto filter);
+        Task<PetPostDetailDto?> GetPetPostByIdDTOAsync(int petPostId);
     }
 }

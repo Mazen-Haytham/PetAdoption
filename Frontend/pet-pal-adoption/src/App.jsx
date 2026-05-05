@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from "./context/AuthContext"; 
+import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AdopterProfile from './pages/adopter/AdopterProfile';
+import ShelterHome from './pages/owner/ShelterHome';
 
 // Placeholder pages
-const AdopterDashboard = () => <h1>Adopter Dashboard</h1>;
-const OwnerDashboard = () => <h1>Owner Dashboard</h1>;
 const AdminDashboard = () => <h1>Admin Dashboard</h1>;
 const Unauthorized = () => <h1>Unauthorized</h1>;
 
@@ -21,16 +21,20 @@ export default function App() {
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           {/* Adopter */}
-          <Route path="/adopter/*" element={
+          <Route path="/adopter/profile" element={
             <ProtectedRoute allowedRoles={['Adopter']}>
-              <AdopterDashboard />
+              <AdopterProfile />
             </ProtectedRoute>
           } />
+          <Route
+            path="/adopter"
+            element={<Navigate to="/adopter/profile" replace />}
+          />
 
           {/* Owner */}
           <Route path="/owner/*" element={
-            <ProtectedRoute allowedRoles={['Owner']}>
-              <OwnerDashboard />
+            <ProtectedRoute allowedRoles={['Owner', 'Shelter']}>
+              <ShelterHome />
             </ProtectedRoute>
           } />
 

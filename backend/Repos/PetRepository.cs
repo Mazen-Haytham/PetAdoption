@@ -32,6 +32,18 @@ namespace backend.Pets.Repositories
                 .OrderByDescending(pp => pp.CreatedAt)
                 .ToListAsync();
         }
+
+        public async Task<List<PetPost>> GetPetPostsByOwnerIdAsync(int ownerId)
+        {
+            return await _context.PetPosts
+                .Where(pp => pp.OwnerId == ownerId)
+                .Include(pp => pp.Pet)
+                .Include(pp => pp.Owner)
+                .Include(pp => pp.Images)
+                .Include(pp => pp.PostApprovalRequest)
+                .OrderByDescending(pp => pp.CreatedAt)
+                .ToListAsync();
+        }
         public async Task<List<PetPost>> SearchPetPostsAsync(PetSearchDto filter)
         {
             var query = _context.PetPosts
@@ -90,7 +102,15 @@ namespace backend.Pets.Repositories
                 .Include(pp => pp.Pet)
                 .FirstOrDefaultAsync(pp => pp.Id == id);
         }
-
+        public async Task<PetPost?> GetPetPostWithDetailsAsync(int id)
+        {
+            return await _context.PetPosts
+                .Include(pp => pp.Pet)
+                .Include(pp => pp.Owner)
+                .Include(pp => pp.Images)
+                .Include(pp => pp.PostApprovalRequest)
+                .FirstOrDefaultAsync(pp => pp.Id == id);
+        }
         public async Task UpdatePetPostAsync(PetPost petPost)
         {
             _context.PetPosts.Update(petPost);
