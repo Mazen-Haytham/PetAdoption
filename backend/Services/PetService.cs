@@ -137,7 +137,7 @@ namespace backend.Pets.Services
                     OwnerId = ownerId,
                     Description = dto.Description,
                     HealthStatus = dto.HealthStatus,
-                    Status = PetStatus.Available,
+                    Status = PetStatus.Pending,
                     CreatedAt = DateTime.UtcNow
                 };
 
