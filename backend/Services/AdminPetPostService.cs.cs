@@ -35,19 +35,10 @@ namespace backend.Services
             request.ReviewedByAdminId = adminId;
             request.ReviewedAt = DateTime.UtcNow;
 
-            var petPost = new PetPost
-            {
-                PetId = request.PetPost.PetId,
-                OwnerId = request.OwnerId,
-                Description = request.PetPost.Description,
-                HealthStatus = request.PetPost.HealthStatus,
-                Status = PetStatus.Available,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.PetPosts.Add(petPost);
+            request.PetPost.Status = PetStatus.Available;
 
             await _context.SaveChangesAsync();
+
             return true;
         }
 

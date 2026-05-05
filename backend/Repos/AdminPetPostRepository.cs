@@ -33,6 +33,7 @@ namespace backend.Repos
                 .Select(x => new AdminPetPostDto
                 {
                     Id = x.PetPost.Id,
+                    ApprovalRequestId=x.Id,
                     Name = x.PetPost.Pet.Name,
                     Owner = x.Owner.Name,
                     Status = x.Status.ToString()
