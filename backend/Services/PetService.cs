@@ -1,9 +1,9 @@
-// Services/PetService.cs  ← add UpdatePetAsync
 using backend.Data;
 using backend.Models;
 using backend.Pets.DTOs;
 using backend.Pets.Repositories;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 
 namespace backend.Pets.Services
@@ -12,122 +12,110 @@ namespace backend.Pets.Services
     {
         private readonly IPetRepository _petRepository;
         private readonly IWebHostEnvironment _env;
-        private readonly IDistributedCache _cache;
+        private readonly IDistributedCache _redis;
+        private readonly IMemoryCache _memory;
 
         // ── Cache keys ──────────────────────────────
         private const string AllPetPostsCacheKey = "petPosts:all";
         private static string SinglePetPostCacheKey(int id) => $"petPosts:{id}";
+        private static string OwnerPetPostsCacheKey(int ownerId) => $"petPosts:owner:{ownerId}";
 
-        public PetService(IPetRepository petRepository, IWebHostEnvironment env, IDistributedCache cache)
+        // ── Cache duration ──────────────────────────
+        private static readonly TimeSpan MemoryExpiry = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan RedisExpiry = TimeSpan.FromMinutes(10);
+
+        public PetService(
+            IPetRepository petRepository,
+            IWebHostEnvironment env,
+            IDistributedCache redis,
+            IMemoryCache memory)
         {
             _petRepository = petRepository;
             _env = env;
-            _cache = cache;
+            _redis = redis;
+            _memory = memory;
         }
 
         // ── GET ALL ─────────────────────────────────
         public async Task<List<PetPostResponseDto>> GetAvailablePetPostsAsync()
         {
-            var cached = await _cache.GetStringAsync(AllPetPostsCacheKey);
-
-            if (cached != null)
-            {
-                Console.WriteLine("CACHE HIT ");
-                return JsonSerializer.Deserialize<List<PetPostResponseDto>>(cached)!;
-            }
-
-            var petPosts = await _petRepository.GetAvailablePetPostsAsync();
-
-            var result = petPosts.Select(pp => MapToDto(pp)).ToList();
-
-            await _cache.SetStringAsync(AllPetPostsCacheKey,
-                JsonSerializer.Serialize(result),
-                new DistributedCacheEntryOptions
+            return await GetOrSetCacheAsync(
+                AllPetPostsCacheKey,
+                async () =>
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                    var petPosts = await _petRepository.GetAvailablePetPostsAsync();
+                    return petPosts.Select(pp => MapToDto(pp)).ToList();
                 });
-
-            return result;
-        }
-
-        public async Task<List<PetPostResponseDto>> GetMyPetPostsAsync(int ownerId)
-        {
-            var posts = await _petRepository.GetPetPostsByOwnerIdAsync(ownerId);
-            return posts.Select(pp => MapToDto(pp)).ToList();
         }
 
         // ── GET BY ID ───────────────────────────────
         public async Task<PetPostResponseDto?> GetPetPostByIdAsync(int petPostId)
         {
-            var cacheKey = SinglePetPostCacheKey(petPostId);
-            var cached = await _cache.GetStringAsync(cacheKey);
-
-            if (cached != null)
-            {
-                Console.WriteLine("CACHE HIT ");
-                return JsonSerializer.Deserialize<PetPostResponseDto>(cached)!;
-            }
-
-            var petPost = await _petRepository.GetPetPostWithDetailsAsync(petPostId);
-
-            if (petPost == null)
-                return null;
-
-            var result = MapToDto(petPost);
-
-            await _cache.SetStringAsync(cacheKey,
-                JsonSerializer.Serialize(result),
-                new DistributedCacheEntryOptions
+            return await GetOrSetCacheAsync(
+                SinglePetPostCacheKey(petPostId),
+                async () =>
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                    var petPost = await _petRepository.GetPetPostWithDetailsAsync(petPostId);
+                    return petPost == null ? null : MapToDto(petPost);
                 });
-
-            return result;
         }
 
         // ── GET BY ID (Detail DTO) ──────────────────
         public async Task<PetPostDetailDto?> GetPetPostByIdDTOAsync(int petPostId)
         {
-            var post = await _petRepository.GetPetPostByIdAsync(petPostId);
-
-            if (post is null) return null;
-
-            return new PetPostDetailDto
-            {
-                Id = post.Id,
-                Name = post.Pet.Name,
-                Age = post.Pet.Age,
-                Breed = post.Pet.Breed,
-                Type = post.Pet.Type,
-                HealthStatus = post.HealthStatus,
-                Description = post.Description,
-                Location = post.Pet.Location,
-                Status = post.Status.ToString(),
-                Images = post.Images
-                                   .OrderByDescending(img => img.IsPrimary)
-                                   .Select(img => img.ImageUrl)
-                                   .ToList(),
-                Owner = new OwnerSummaryDto
+            return await GetOrSetCacheAsync(
+                $"petPosts:detail:{petPostId}",
+                async () =>
                 {
-                    Id = post.Owner.Id,
-                    Name = post.Owner.Name
-                },
-                CreatedAt = post.CreatedAt
-            };
+                    var post = await _petRepository.GetPetPostByIdAsync(petPostId);
+
+                    if (post is null) return null;
+
+                    return new PetPostDetailDto
+                    {
+                        Id = post.Id,
+                        Name = post.Pet.Name,
+                        Age = post.Pet.Age,
+                        Breed = post.Pet.Breed,
+                        Type = post.Pet.Type,
+                        HealthStatus = post.HealthStatus,
+                        Description = post.Description,
+                        Location = post.Pet.Location,
+                        Status = post.Status.ToString(),
+                        Images = post.Images
+                                           .OrderByDescending(img => img.IsPrimary)
+                                           .Select(img => img.ImageUrl)
+                                           .ToList(),
+                        Owner = new OwnerSummaryDto
+                        {
+                            Id = post.Owner.Id,
+                            Name = post.Owner.Name
+                        },
+                        CreatedAt = post.CreatedAt
+                    };
+                });
+        }
+
+        // ── GET MY POSTS ────────────────────────────
+        public async Task<List<PetPostResponseDto>> GetMyPetPostsAsync(int ownerId)
+        {
+            return await GetOrSetCacheAsync(
+                OwnerPetPostsCacheKey(ownerId),
+                async () =>
+                {
+                    var posts = await _petRepository.GetPetPostsByOwnerIdAsync(ownerId);
+                    return posts.Select(pp => MapToDto(pp)).ToList();
+                });
         }
 
         // ── CREATE ──────────────────────────────────
         public async Task<Pet> CreatePetAsync(CreatePetDto dto, int ownerId)
         {
-            // ── Start Transaction ───────────────────────
             using var transaction = await _petRepository.BeginTransactionAsync();
-
-            // keep track of saved image paths for cleanup if something fails
             var savedImagePaths = new List<string>();
 
             try
             {
-                // ── 1. Create & save Pet ────────────────────
                 var pet = new Pet
                 {
                     Name = dto.Name,
@@ -143,7 +131,6 @@ namespace backend.Pets.Services
                 await _petRepository.CreatePetAsync(pet);
                 await _petRepository.SaveChangesAsync();
 
-                // ── 2. Create & save PetPost ────────────────
                 var petPost = new PetPost
                 {
                     PetId = pet.Id,
@@ -168,7 +155,6 @@ namespace backend.Pets.Services
                 await _petRepository.CreateApprovalRequestAsync(approvalRequest);
                 await _petRepository.SaveChangesAsync();
 
-                // ── 3. Save Images linked to PetPost ────────
                 if (dto.Images == null || dto.Images.Count == 0)
                     throw new Exception("At least one image is required");
 
@@ -190,7 +176,6 @@ namespace backend.Pets.Services
                             await image.CopyToAsync(stream);
                         }
 
-                        // track saved files in case we need to delete them on failure
                         savedImagePaths.Add(filePath);
 
                         petImages.Add(new PetImage
@@ -208,26 +193,16 @@ namespace backend.Pets.Services
                 await _petRepository.AddPetImagesAsync(petImages);
                 await _petRepository.SaveChangesAsync();
 
-                // ── Commit Transaction ──────────────────────
                 await transaction.CommitAsync();
 
-                // ── Invalidate petPosts:all only ────────
-                await _cache.RemoveAsync(AllPetPostsCacheKey);
-
-                return pet;
+                return pet;  // ← no cache invalidation
             }
             catch (Exception)
             {
-                // ── Rollback DB ─────────────────────────────
                 await transaction.RollbackAsync();
 
-                // ── Delete saved image files ─────────────────
-                // (DB rolled back but files were already saved to disk)
                 foreach (var path in savedImagePaths)
-                {
-                    if (File.Exists(path))
-                        File.Delete(path);
-                }
+                    if (File.Exists(path)) File.Delete(path);
 
                 throw;
             }
@@ -236,31 +211,23 @@ namespace backend.Pets.Services
         // ── UPDATE ──────────────────────────────────
         public async Task<(bool Success, string Message, object? Data)> UpdatePetPostAsync(int petPostId, UpdatePetDto dto, int ownerId)
         {
-            // ── 1. Find PetPost ─────────────────────────
             var petPost = await _petRepository.GetPetPostByIdAsync(petPostId);
 
             if (petPost == null)
                 return (false, "Pet post not found", null);
 
-            // ── 2. Check ownership ──────────────────────
             if (petPost.OwnerId != ownerId)
                 return (false, "You are not allowed to update this post", null);
 
-            // ── 3. Update PetPost fields ────────────────
             if (dto.HealthStatus != null) petPost.HealthStatus = dto.HealthStatus;
             if (dto.Description != null) petPost.Description = dto.Description;
-
-            // ── 4. Update Pet fields via navigation ─────
             if (dto.Name != null) petPost.Pet.Name = dto.Name;
             if (dto.Age != null) petPost.Pet.Age = dto.Age.Value;
             if (dto.Breed != null) petPost.Pet.Breed = dto.Breed;
             if (dto.Location != null) petPost.Pet.Location = dto.Location;
 
             await _petRepository.UpdatePetPostAsync(petPost);
-            await _petRepository.SaveChangesAsync();
-
-            // ── Invalidate this post cache only ─────
-            await _cache.RemoveAsync(SinglePetPostCacheKey(petPostId));
+            await _petRepository.SaveChangesAsync();  // ← DB only, no cache invalidation
 
             return (true, "Pet updated successfully", new
             {
@@ -276,42 +243,28 @@ namespace backend.Pets.Services
 
             try
             {
-                // ── 1. Find PetPost with Pet and Images ─────
                 var petPost = await _petRepository.GetPetPostByIdAsync(petPostId);
 
                 if (petPost == null)
                     return (false, "Pet post not found");
 
-                // ── 2. Check ownership ──────────────────────
                 if (petPost.OwnerId != ownerId)
                     return (false, "You are not allowed to delete this post");
 
-                // ── 3. Collect image paths before deletion ──
                 var imagePaths = petPost.Images
                     .Select(img => Path.Combine(_env.WebRootPath, img.ImageUrl.TrimStart('/')))
                     .ToList();
 
-                // ── 4. Delete PetPost (cascade deletes images from DB) ──
                 await _petRepository.DeletePetPostAsync(petPost);
                 await _petRepository.SaveChangesAsync();
 
-                // ── 5. Delete Pet ───────────────────────────
                 await _petRepository.DeletePetAsync(petPost.Pet);
                 await _petRepository.SaveChangesAsync();
 
-                // ── 6. Commit Transaction ───────────────────
-                await transaction.CommitAsync();
-
-                // ── 7. Delete image files from disk ─────────
-                // (done after commit so DB is safe first)
-                // ── Invalidate this post cache only ─────
-                await _cache.RemoveAsync(SinglePetPostCacheKey(petPostId));
+                await transaction.CommitAsync();  // ← DB only, no cache invalidation
 
                 foreach (var path in imagePaths)
-                {
-                    if (File.Exists(path))
-                        File.Delete(path);
-                }
+                    if (File.Exists(path)) File.Delete(path);
 
                 return (true, "Pet deleted successfully");
             }
@@ -329,7 +282,52 @@ namespace backend.Pets.Services
             return petPosts.Select(pp => MapToDto(pp)).ToList();
         }
 
-        // ── Shared mapping helper ───────────────────
+        // ── Cache helper: Memory → Redis → DB ───────
+        private async Task<T?> GetOrSetCacheAsync<T>(
+            string cacheKey,
+            Func<Task<T?>> fetchFromDb)
+        {
+            // ── 1. Check Memory cache ───────────────
+            if (_memory.TryGetValue(cacheKey, out T? memoryResult))
+            {
+                Console.WriteLine($"MEMORY HIT: {cacheKey}");
+                return memoryResult;
+            }
+
+            // ── 2. Check Redis cache ────────────────
+            var redisResult = await _redis.GetStringAsync(cacheKey);
+
+            if (redisResult != null)
+            {
+                Console.WriteLine($"REDIS HIT: {cacheKey}");
+                var deserialized = JsonSerializer.Deserialize<T>(redisResult)!;
+
+                // backfill memory from Redis
+                _memory.Set(cacheKey, deserialized, MemoryExpiry);
+
+                return deserialized;
+            }
+
+            // ── 3. Fetch from DB ────────────────────
+            Console.WriteLine($"DB HIT: {cacheKey}");
+            var result = await fetchFromDb();
+
+            if (result == null) return default;
+
+            // ── 4. Save to both caches ──────────────
+            _memory.Set(cacheKey, result, MemoryExpiry);
+
+            await _redis.SetStringAsync(cacheKey,
+                JsonSerializer.Serialize(result),
+                new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = RedisExpiry
+                });
+
+            return result;
+        }
+
+        // ── Mapping helper ───────────────────────────
         private static PetPostResponseDto MapToDto(PetPost pp) => new PetPostResponseDto
         {
             PetPostId = pp.Id,

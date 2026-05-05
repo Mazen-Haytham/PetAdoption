@@ -27,12 +27,10 @@ namespace backend.Pets.Controllers
                 var ownerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var petPosts = await _petService.GetMyPetPostsAsync(ownerId);
 
-                return Ok(new
-                {
-                    success = true,
-                    count = petPosts.Count,
-                    data = petPosts
-                });
+                if (petPosts == null || petPosts.Count == 0)
+                    return NotFound(new { success = false, message = "No pet posts found" });
+
+                return Ok(new { success = true, count = petPosts.Count, data = petPosts });
             }
             catch (Exception ex)
             {
@@ -42,27 +40,23 @@ namespace backend.Pets.Controllers
 
         // GET /api/pets
         [HttpGet]
-        [AllowAnonymous]                            // ← public
+        [AllowAnonymous]
         public async Task<IActionResult> GetAvailablePetPosts()
         {
             try
             {
                 var petPosts = await _petService.GetAvailablePetPostsAsync();
 
-                return Ok(new
-                {
-                    success = true,
-                    count = petPosts.Count,
-                    data = petPosts
-                });
+                if (petPosts == null || petPosts.Count == 0)
+                    return NotFound(new { success = false, message = "No available pet posts found" });
+
+                return Ok(new { success = true, count = petPosts.Count, data = petPosts });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
-
 
         // GET /api/pets/{id}
         [HttpGet("{id}")]
@@ -86,26 +80,17 @@ namespace backend.Pets.Controllers
 
         // GET /api/pets/search?type=dog&breed=husky&age=2&location=cairo
         [HttpGet("search")]
-        [AllowAnonymous]                            // ← public
+        [AllowAnonymous]
         public async Task<IActionResult> SearchPetPosts([FromQuery] PetSearchDto filter)
         {
             try
             {
                 var petPosts = await _petService.SearchPetPostsAsync(filter);
 
-                if (petPosts.Count == 0)
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = "No pets found matching your search"
-                    });
+                if (petPosts == null || petPosts.Count == 0)
+                    return NotFound(new { success = false, message = "No pets found matching your search" });
 
-                return Ok(new
-                {
-                    success = true,
-                    count = petPosts.Count,
-                    data = petPosts
-                });
+                return Ok(new { success = true, count = petPosts.Count, data = petPosts });
             }
             catch (Exception ex)
             {
@@ -116,7 +101,7 @@ namespace backend.Pets.Controllers
         // POST /api/pets
         [HttpPost]
         [Consumes("multipart/form-data")]
-        [Authorize(Roles = "Owner,Shelter,Admin")]          // ← protected
+        [Authorize(Roles = "Owner,Shelter,Admin")]
         public async Task<IActionResult> CreatePet([FromForm] CreatePetDto dto)
         {
             if (!ModelState.IsValid)
@@ -127,6 +112,9 @@ namespace backend.Pets.Controllers
             try
             {
                 var pet = await _petService.CreatePetAsync(dto, ownerId);
+
+                if (pet == null)
+                    return StatusCode(500, new { success = false, message = "Failed to create pet" });
 
                 return CreatedAtAction(nameof(CreatePet), new { id = pet.Id }, new
                 {
@@ -148,7 +136,7 @@ namespace backend.Pets.Controllers
 
         // PUT /api/pets/{id}
         [HttpPut("{id}")]
-        [Authorize(Roles = "Owner,Shelter,Admin")]          // ← protected
+        [Authorize(Roles = "Owner,Shelter,Admin")]
         public async Task<IActionResult> UpdatePetPost(int id, [FromBody] UpdatePetDto dto)
         {
             if (!ModelState.IsValid)
@@ -166,7 +154,7 @@ namespace backend.Pets.Controllers
 
         // DELETE /api/pets/{id}
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Owner,Shelter,Admin")]          // ← protected
+        [Authorize(Roles = "Owner,Shelter,Admin")]
         public async Task<IActionResult> DeletePet(int id)
         {
             var ownerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
