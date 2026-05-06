@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { register } from '../api/api';
+import { register } from '../../api/api';
 import { User, Mail, Lock, RotateCcw, ShieldCheck, ArrowLeft, PawPrint } from 'lucide-react';
-import SuccessScreen from '../components/SuccessScreen';
-import ErrorMessage from '../components/ErrorMessage';
+import SuccessScreen from '../../components/auth/SuccessScreen';
+import ErrorMessage from '../../components/auth/ErrorMessage';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
@@ -60,7 +60,6 @@ const Register = () => {
     
     {/* Left Side: Branding (Takes exactly 50% width on large screens) */}
     <div className="hidden lg:flex flex-col justify-between p-20 bg-[#6a79e0] text-white relative overflow-hidden">
-      {/* Background Decorative Blurs */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-white/10 blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-900/20 blur-[120px] pointer-events-none"></div>
 

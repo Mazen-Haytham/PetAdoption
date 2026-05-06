@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, PawPrint } from 'lucide-react';
-import { login } from '../api/api';
-import ErrorMessage from '../components/ErrorMessage';
+import { login } from '../../api/api';
+import ErrorMessage from '../../components/auth/ErrorMessage';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/authContext';
+import { useAuth } from '../../context/authContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
