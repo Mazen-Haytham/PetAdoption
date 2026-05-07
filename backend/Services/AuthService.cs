@@ -48,17 +48,17 @@ namespace backend.Services
             .FirstOrDefaultAsync(u => u.Email == request.Email);
 
             if (user is null)
-                return new LoginResponse(null, null, "Invalid credentials.");
+                return new LoginResponse(null, "Invalid credentials.");
 
             if (user.Status == AccountStatus.Rejected)
-                return new LoginResponse(null, null, "Your account has been rejected.");
+                return new LoginResponse(null, "Your account has been rejected.");
 
             if (user.Status == AccountStatus.Pending)
-                return new LoginResponse(null, null, "Your account is still pending approval.");
+                return new LoginResponse(null, "Your account is still pending approval.");
 
             if (_passwordHasher.VerifyHashedPassword(user, user.Password, request.Password)
                     == PasswordVerificationResult.Failed)
-                return new LoginResponse(null, null, "Invalid credentials.");
+                return new LoginResponse(null, "Invalid credentials.");
 
             var userInfo = new UserInfoResponse(
                 user.Id, 
@@ -69,12 +69,12 @@ namespace backend.Services
                 );
             var tokenResponse = await CreateTokenResponse(user);
 
-            return new LoginResponse(userInfo,tokenResponse, null);
+            return new LoginResponse(tokenResponse, null);
         }
 
         public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
         {
-            var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
+            var user = await ValidateRefreshTokenAsync(request.RefreshToken);
             if (user is null)
                 return null;
             return await CreateTokenResponse(user);
@@ -103,19 +103,12 @@ namespace backend.Services
                 RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
         }
-        private async Task<User?> ValidateRefreshTokenAsync(int userId, string refreshToken)
+        private async Task<User?> ValidateRefreshTokenAsync(string refreshToken)
         {
-            var user = await context.Users.FindAsync(userId);
-            
+            var user = await context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
             if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow || user.Status != AccountStatus.Approved) return null;
 
-            if (user.RefreshToken != refreshToken)
-            {
-                user.RefreshToken = null;
-                user.RefreshTokenExpiryTime = null;
-                await context.SaveChangesAsync();
-                return null;
-            }
             return user;
         }
         private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)

@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import AdopterProfile from './pages/adopter/AdopterProfile';
 import ShelterHome from './pages/owner/ShelterHome';
 

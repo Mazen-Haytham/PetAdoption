@@ -39,7 +39,7 @@ namespace backend.Dto
         public string Password { get; set; } = string.Empty;
     }
     public record LoginResponse(
-    UserInfoResponse? User,
+    //UserInfoResponse? User,
     TokenResponseDto? TokenResponse,
     string? Error
 );
@@ -51,7 +51,6 @@ namespace backend.Dto
     }
     public class RefreshTokenRequestDto
     {
-        public int UserId { get; set; }
         public required string RefreshToken { get; set; }
     }
 

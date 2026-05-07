@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, PawPrint } from 'lucide-react';
-import { login } from '../../api/api';
+// import { login } from '../../api/api';
 import ErrorMessage from '../../components/auth/ErrorMessage';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/authContext';
+// import { Link, useNavigate } from 'react-router-dom';
+// import { useAuth } from '../../context/authContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login: setAuth } = useAuth();
+  // const navigate = useNavigate();
+  // const { login: setAuth } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,21 +20,21 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      const { user, token } = await login(formData.email, formData.password);
-      setAuth(user, token);
+    // setError(null);
+    // setLoading(true);
+    // try {
+    //   const { user, token } = await login(formData.email, formData.password);
+    //   setAuth(user, token);
 
-      if (user?.role === 'Adopter') navigate('/adopter/profile', { replace: true });
-      else if (user?.role === 'Owner' || user?.role === 'Shelter') navigate('/owner', { replace: true });
-      else if (user?.role === 'Admin') navigate('/admin', { replace: true });
-      else navigate('/unauthorized', { replace: true });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    //   if (user?.role === 'Adopter') navigate('/adopter/profile', { replace: true });
+    //   else if (user?.role === 'Owner' || user?.role === 'Shelter') navigate('/owner', { replace: true });
+    //   else if (user?.role === 'Admin') navigate('/admin', { replace: true });
+    //   else navigate('/unauthorized', { replace: true });
+    // } catch (err) {
+    //   setError(err.message);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (

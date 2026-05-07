@@ -30,30 +30,67 @@ namespace backend.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(LoginRequest request)
         {
-            var (userInfo, tokenResponse, error) = await authService.LoginAsync(request);
+            var (tokenResponse, error) = await authService.LoginAsync(request);
 
-            if (error is not null) return BadRequest(new { error });
+            if (error is not null || tokenResponse is null ) return BadRequest(new { error });
 
-            return Ok(new { tokenResponse, user = userInfo });
+            SetRefreshTokenCookie(tokenResponse.RefreshToken);
+
+            return Ok(new
+            {
+                tokenResponse = new { tokenResponse.AccessToken }
+            });
         }
 
 
         [HttpPost("refresh-token")]
         [AllowAnonymous]
-        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken()
         {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized("No refresh token found");
+
+            var request = new RefreshTokenRequestDto { RefreshToken = refreshToken };
+
             var response = await authService.RefreshTokensAsync(request);
+
             if (response is null || response.AccessToken is null || response.RefreshToken is null)
                 return Unauthorized("Invalid refresh token");
-            return Ok(response);
+
+            SetRefreshTokenCookie(response.RefreshToken);
+
+            return Ok(new { response.AccessToken });
         }
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            Response.Cookies.Delete("refreshToken");
+
+            if (userIdClaim is null)
+                return Unauthorized("User not found in token");
+
+            var userId = int.Parse(userIdClaim);
+
             await authService.LogoutAsync(userId);
+
+
             return Ok(new { message = "Logged out successfully" });
+        }
+
+        private void SetRefreshTokenCookie(string refreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,                      // JS cannot read it
+                Secure = true,                        // HTTPS only
+                SameSite = SameSiteMode.Strict,       // CSRF protection
+                Expires = DateTime.UtcNow.AddDays(7)  // match your token expiry
+            };
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
         }
     }
 }
