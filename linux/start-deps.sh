@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -70,17 +69,29 @@ if docker ps -q --filter "name=^${CONTAINER_NAME}$" | grep -q .; then
   echo -e "${GREEN}✓ Container '${CONTAINER_NAME}' is already running${NC}"
 elif docker ps -aq --filter "name=^${CONTAINER_NAME}$" | grep -q .; then
   echo -e "${YELLOW}⚠ Container '${CONTAINER_NAME}' exists but is stopped — restarting it${NC}"
-  docker start "${CONTAINER_NAME}"
-  echo -e "${GREEN}✓ Container restarted${NC}"
+  if ! docker start "${CONTAINER_NAME}" 2>/dev/null; then
+    echo -e "${YELLOW}⚠ Restart failed (stale shim) — removing and recreating container${NC}"
+    docker rm -f "${CONTAINER_NAME}" > /dev/null
+    docker run \
+      -e "ACCEPT_EULA=Y" \
+      -e "MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}" \
+      -p "${MSSQL_PORT}:1433" \
+      -v "${MSSQL_DATA_VOLUME}:/var/opt/mssql" \
+      --name "${CONTAINER_NAME}" \
+      -d mcr.microsoft.com/mssql/server:2022-latest
+    echo -e "${GREEN}✓ Container recreated${NC}"
+  else
+    echo -e "${GREEN}✓ Container restarted${NC}"
+  fi
 else
   echo -e "${BLUE}No existing container found — creating a new one${NC}"
   docker run \
-  -e "ACCEPT_EULA=Y" \
-  -e "MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}" \
-  -p "${MSSQL_PORT}:1433" \
-  -v "${MSSQL_DATA_VOLUME}:/var/opt/mssql" \
-  --name "${CONTAINER_NAME}" \
-  -d mcr.microsoft.com/mssql/server:2022-latest
+    -e "ACCEPT_EULA=Y" \
+    -e "MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}" \
+    -p "${MSSQL_PORT}:1433" \
+    -v "${MSSQL_DATA_VOLUME}:/var/opt/mssql" \
+    --name "${CONTAINER_NAME}" \
+    -d mcr.microsoft.com/mssql/server:2022-latest
 fi
 
 echo ""
@@ -150,14 +161,23 @@ if docker ps -q --filter "name=^${REDIS_CONTAINER_NAME}$" | grep -q .; then
   echo -e "${GREEN}✓ Container '${REDIS_CONTAINER_NAME}' is already running${NC}"
 elif docker ps -aq --filter "name=^${REDIS_CONTAINER_NAME}$" | grep -q .; then
   echo -e "${YELLOW}⚠ Container '${REDIS_CONTAINER_NAME}' exists but is stopped — restarting it${NC}"
-  docker start "${REDIS_CONTAINER_NAME}"
-  echo -e "${GREEN}✓ Container restarted${NC}"
+  if ! docker start "${REDIS_CONTAINER_NAME}" 2>/dev/null; then
+    echo -e "${YELLOW}⚠ Restart failed (stale shim) — removing and recreating container${NC}"
+    docker rm -f "${REDIS_CONTAINER_NAME}" > /dev/null
+    docker run \
+      -p "${REDIS_PORT}:6379" \
+      --name "${REDIS_CONTAINER_NAME}" \
+      -d redis:7-alpine
+    echo -e "${GREEN}✓ Container recreated${NC}"
+  else
+    echo -e "${GREEN}✓ Container restarted${NC}"
+  fi
 else
   echo -e "${BLUE}No existing Redis container found — creating a new one${NC}"
   docker run \
-  -p "${REDIS_PORT}:6379" \
-  --name "${REDIS_CONTAINER_NAME}" \
-  -d redis:7-alpine
+    -p "${REDIS_PORT}:6379" \
+    --name "${REDIS_CONTAINER_NAME}" \
+    -d redis:7-alpine
 fi
 
 echo ""
