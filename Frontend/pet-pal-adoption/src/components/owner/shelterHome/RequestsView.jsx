@@ -108,11 +108,12 @@ export default function RequestsView({
                       </button>
                       <button
                         type="button"
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-black/35 shadow-sm ring-1 ring-black/5 hover:bg-black/5 disabled:opacity-60"
+                        className="pa-btn border text-red-500 hover:bg-red-500 hover:text-white"
                         aria-label="Reject"
                         onClick={() => onReject?.(r)}
                         disabled={!id || actingId === id}
                       >
+                        <p className="mr-2">Reject</p>
                         <Trash2 className="h-5 w-5" />
                       </button>
                     </div>

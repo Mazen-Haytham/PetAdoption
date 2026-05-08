@@ -2,16 +2,20 @@
 using backend.Models;
 using backend.Requests.DTOs;
 using backend.Requests.Repositories;
+using backend.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace backend.Requests.Services
 {
     public class RequestService : IRequestService
     {
         private readonly IRequestRepository _requestRepository;
+        private readonly IHubContext<NotificationsHub> _hub;
 
-        public RequestService(IRequestRepository requestRepository)
+        public RequestService(IRequestRepository requestRepository, IHubContext<NotificationsHub> hub)
         {
             _requestRepository = requestRepository;
+            _hub = hub;
         }
 
         public async Task<(bool Success, string Message, int? RequestId)> CreateAdoptionRequestAsync(int adopterId, int petPostId, string message)
@@ -41,6 +45,19 @@ namespace backend.Requests.Services
 
             await _requestRepository.CreateRequestAsync(request);
             await _requestRepository.SaveChangesAsync();
+
+            // Notify the pet post owner (shelter/owner) in real-time.
+            var ownerId = petPost.OwnerId;
+            var petName = petPost.Pet?.Name ?? "—";
+            await _hub.Clients
+                .Group(NotificationsHub.OwnerGroup(ownerId))
+                .SendAsync("AdoptionRequestCreated", new
+                {
+                    requestId = request.Id,
+                    petPostId = petPost.Id,
+                    petName,
+                    createdAt = request.CreatedAt
+                });
 
             return (true, "Adoption request sent successfully", request.Id);
         }

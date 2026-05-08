@@ -12,7 +12,6 @@ import logout from "../../api/api";
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "requests", label: "Adoption Requests", icon: ClipboardList },
-  { key: "profile", label: "Profile", icon: User },
 ];
 
 export default function ShelterSidebar({ activeKey = "dashboard", onSelect }) {

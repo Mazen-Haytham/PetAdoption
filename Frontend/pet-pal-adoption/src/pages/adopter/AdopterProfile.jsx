@@ -28,6 +28,7 @@ export default function AdopterProfile() {
   const { user } = useAuth();
   const [requests, setRequests] = useState([]);
   const [history, setHistory] = useState([]);
+  const [showAllHistory, setShowAllHistory] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -70,7 +71,8 @@ export default function AdopterProfile() {
   }, [user, history.length]);
 
   const activeApplications = useMemo(() => {
-    return requests.map((r) => ({
+    const pending = requests.filter((r) => String(r?.status ?? "").toLowerCase() === "pending");
+    return pending.map((r) => ({
       id: String(r.id ?? r.requestId ?? `${r?.pet?.id ?? ""}-${r?.createdAt ?? ""}`),
       petName: r?.pet?.name ?? r?.petName ?? "Unknown Pet",
       subtitle: r?.createdAt ? `Applied ${formatDate(r.createdAt)}` : null,
@@ -80,13 +82,60 @@ export default function AdopterProfile() {
   }, [requests]);
 
   const adoptionHistoryItems = useMemo(() => {
-    return history.map((h) => ({
-      id: String(h?.pet?.id ?? `${h?.adoptedAt ?? ""}-${h?.status ?? ""}`),
+    const decided = requests
+      .filter((r) => {
+        const s = String(r?.status ?? "").toLowerCase();
+        return s && s !== "pending";
+      })
+      .map((r) => {
+        const status = String(r?.status ?? "").toLowerCase();
+        const petName = r?.pet?.name ?? r?.petName ?? "Unknown Pet";
+        const when = r?.createdAt ? formatDate(r.createdAt) : null;
+        const secondary =
+          status === "accepted"
+            ? (when ? `Accepted ${when}` : "Accepted")
+            : status === "rejected"
+              ? (when ? `Rejected ${when}` : "Rejected")
+              : (when ? `${toTitleCaseStatus(status)} ${when}` : toTitleCaseStatus(status));
+
+        return {
+          id: `req-${String(r.id ?? r.requestId ?? `${petName}-${r?.createdAt ?? ""}`)}`,
+          petName,
+          secondary,
+          note: "Refresh or check your requests for details.",
+          _sortDate: r?.createdAt ?? null,
+        };
+      });
+
+    const completed = history.map((h) => ({
+      id: `hist-${String(h?.pet?.id ?? `${h?.adoptedAt ?? ""}-${h?.status ?? ""}`)}`,
       petName: h?.pet?.name ?? "Unknown Pet",
       secondary: h?.adoptedAt ? `Adopted ${formatDate(h.adoptedAt)}` : "Adopted",
       note: h?.status ? `Status: ${toTitleCaseStatus(h.status)}` : null,
+      _sortDate: h?.adoptedAt ?? null,
     }));
-  }, [history]);
+
+    const merged = [...decided, ...completed].sort((a, b) => {
+      const ta = a._sortDate ? new Date(a._sortDate).getTime() : 0;
+      const tb = b._sortDate ? new Date(b._sortDate).getTime() : 0;
+      return tb - ta;
+    });
+
+    const seen = new Set();
+    const deduped = [];
+    for (const item of merged) {
+      const key = `${item.petName}__${item.secondary}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      deduped.push(item);
+    }
+
+    return deduped.map(({ _sortDate, ...rest }) => rest);
+  }, [history, requests]);
+
+  const visibleAdoptionHistoryItems = useMemo(() => {
+    return showAllHistory ? adoptionHistoryItems : adoptionHistoryItems.slice(0, 4);
+  }, [adoptionHistoryItems, showAllHistory]);
 
   return (
     <div className="min-h-dvh">
@@ -106,7 +155,12 @@ export default function AdopterProfile() {
         <section className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-10">
             <ActiveApplicationsCard items={activeApplications} />
-            <AdoptionHistoryCard items={adoptionHistoryItems} />
+            <AdoptionHistoryCard
+              items={visibleAdoptionHistoryItems}
+              canToggle={adoptionHistoryItems.length > 4}
+              toggleLabel={showAllHistory ? "Show Recent" : "Show All"}
+              onToggle={() => setShowAllHistory((v) => !v)}
+            />
           </div>
 
           <div className="space-y-6" />
