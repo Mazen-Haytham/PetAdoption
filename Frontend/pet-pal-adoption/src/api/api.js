@@ -50,6 +50,17 @@ api.interceptors.response.use(
 
 export default api;
 
+
+// ─── user ────────────────────────────────────────────────────
+export async function getMe() {
+  try {
+    const res = await api.get("/auth/me");
+    return res.data;
+  } catch (error) {
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
+
 // // ─── Pets ────────────────────────────────────────────────────
 
 // export function resolveAssetUrl(path) {

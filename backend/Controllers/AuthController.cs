@@ -62,6 +62,23 @@ namespace backend.Controllers
             return Ok(new { response.AccessToken });
         }
 
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<UserInfoResponse>> GetMe()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim is null)
+                return Unauthorized("User not found in token");
+
+            var userId = int.Parse(userIdClaim);
+            var userInfo = await authService.GetUserInfoAsync(userId);
+
+            if (userInfo is null)
+                return NotFound(new { error = "User not found" });
+
+            return Ok(userInfo);
+        }
+
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
