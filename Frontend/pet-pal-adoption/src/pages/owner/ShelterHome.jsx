@@ -20,6 +20,7 @@ import {
 
 export default function ShelterHome() {
   const [active, setActive] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -167,7 +168,21 @@ export default function ShelterHome() {
 
   const petRows = useMemo(() => {
     const visible = showAllPets ? pets : pets.slice(0, 3);
-    return visible.map((p) => ({
+    
+    // Separate into available and adopted
+    const available = visible.filter((p) => String(p?.status).toLowerCase() === "available");
+    const adopted = visible.filter((p) => String(p?.status).toLowerCase() === "adopted");
+    
+    // Sort each group by date (newest first)
+    const sortByDate = (a, b) => {
+      const dateA = new Date(a?.createdAt || 0).getTime();
+      const dateB = new Date(b?.createdAt || 0).getTime();
+      return dateB - dateA;
+    };
+    
+    const sorted = [...available.sort(sortByDate), ...adopted.sort(sortByDate)];
+    
+    return sorted.map((p) => ({
       key: p?.petPostId ?? p?.petPostID ?? p?.petId ?? p?.id ?? p?.name,
       name: p?.name ?? "—",
       species: p?.type ?? "—",
@@ -226,7 +241,15 @@ export default function ShelterHome() {
       </div>
 
       <div className="flex min-h-screen">
-        <ShelterSidebar activeKey={active} onSelect={setActive} />
+        <ShelterSidebar 
+          activeKey={active} 
+          onSelect={(key) => {
+            setActive(key);
+            setSidebarOpen(false);
+          }}
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
 
         <main className="flex-1">
           <header className="border-[rgb(var(--pa-primary))]/20 top-0 z-10 border-b backdrop-blur">
@@ -311,20 +334,21 @@ export default function ShelterHome() {
                     </button>
                   </div>
 
-                  <div className="pa-card mt-4 overflow-hidden">
-                    <div className="grid grid-cols-5 gap-2 bg-[rgb(var(--pa-primary))/4] px-6 py-4 text-[11px] font-extrabold tracking-wider text-black/40">
-                      <div className="col-span-2">PET</div>
-                      <div>SPECIES</div>
-                      <div>STATUS</div>
-                      <div className="text-right">DATE POSTED</div>
-                    </div>
+                  <div className="pa-card mt-4 overflow-x-auto lg:overflow-hidden">
+                    <div className="min-w-[600px] lg:min-w-0">
+                      <div className="grid grid-cols-5 gap-2 bg-[rgb(var(--pa-primary))/4] px-6 py-4 text-[11px] font-extrabold tracking-wider text-black/40">
+                        <div className="col-span-2">PET</div>
+                        <div>SPECIES</div>
+                        <div>STATUS</div>
+                        <div className="text-right">DATE POSTED</div>
+                      </div>
 
-                    <div className="divide-y divide-black/5">
-                      {petRows.length ? petRows.map((row) => (
-                        <div
-                          key={row.key}
-                          className="grid grid-cols-5 items-center gap-2 px-6 py-5"
-                        >
+                      <div className="divide-y divide-black/5">
+                        {petRows.length ? petRows.map((row) => (
+                          <div
+                            key={row.key}
+                            className="grid grid-cols-5 items-center gap-2 px-6 py-5"
+                          >
                           <div className="col-span-2 flex items-center gap-4">
                             <div className="h-10 w-10 overflow-hidden rounded-full bg-black/10">
                               {row.avatar ? (
@@ -355,6 +379,7 @@ export default function ShelterHome() {
                           {loading ? "Loading pets…" : "No pet posts yet."}
                         </div>
                       )}
+                    </div>
                     </div>
                   </div>
                 </div>

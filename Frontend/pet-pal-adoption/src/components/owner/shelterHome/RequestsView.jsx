@@ -93,7 +93,7 @@ export default function RequestsView({
                     <div className="flex flex-wrap items-center justify-end gap-3">
                       <button
                         type="button"
-                        className="pa-btn"
+                        className="pa-btn border hover:bg-black hover:text-white hover:border-transparent"
                         onClick={() => onViewDetails?.(r)}
                       >
                         View Details
