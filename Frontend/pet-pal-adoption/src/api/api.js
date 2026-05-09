@@ -11,6 +11,10 @@ const api = axios.create({
   timeout: 5000,
 });
 
+const refreshApi = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true,
+});
 
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
@@ -20,33 +24,70 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// api.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const original = error.config
+
+//     if (error.response?.status !== 401 || original._retry) {
+//       return Promise.reject(error.response ? error.response.data : error.message)
+//     }
+
+//     original._retry = true
+
+//     try {
+//       const res = await api.post("/Auth/refresh-token")
+//       const newToken = res.data.accessToken
+
+//       useAuthStore.getState().setAccessToken(newToken)
+
+//       original.headers.Authorization = `Bearer ${newToken}`
+//       return api(original)
+
+//     } catch {
+//       useAuthStore.getState().clearAuth()
+//       window.location.href = "/login"
+//       return Promise.reject(error.response ? error.response.data : error.message)
+//     }
+//   }
+// )
+
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const original = error.config
+    const original = error.config;
 
-    if (error.response?.status !== 401 || original._retry) {
-      return Promise.reject(error.response ? error.response.data : error.message)
+    // ─── 403 Forbidden ───────────────────────────────────────────
+    if (error.response?.status === 403) {
+      window.location.href = "/unauthorized";
+      return Promise.reject(error.response ? error.response.data : error.message);
     }
 
-    original._retry = true
+    // ─── 401 Unauthorized ─────────────────────────────────────────
+    if (error.response?.status !== 401 || original._retry) {
+      return Promise.reject(error.response ? error.response.data : error.message);
+    }
+
+    original._retry = true;
 
     try {
-      const res = await api.post("/auth/refresh-token")
-      const newToken = res.data.accessToken
+      // 👇 uses refreshApi, completely bypasses the interceptor above
+      const res = await refreshApi.post("/Auth/refresh-token");
+      const newToken = res.data.accessToken;
 
-      useAuthStore.getState().setAccessToken(newToken)
+      useAuthStore.getState().setAccessToken(newToken);
 
-      original.headers.Authorization = `Bearer ${newToken}`
-      return api(original)
+      original.headers.Authorization = `Bearer ${newToken}`;
+      return api(original);
 
     } catch {
-      useAuthStore.getState().clearAuth()
-      window.location.href = "/login"
-      return Promise.reject(error.response ? error.response.data : error.message)
+      useAuthStore.getState().clearAuth();
+      window.location.href = "/login";
+      return Promise.reject(error.response ? error.response.data : error.message);
     }
   }
-)
+);
 
 export default api;
 
@@ -55,21 +96,32 @@ export default api;
 export async function getMe() {
   try {
     const res = await api.get("/auth/me");
+    console.log("getMe response:", res);
     return res.data;
   } catch (error) {
     return Promise.reject(error.response ? error.response.data : error.message);
   }
 }
 
-export function logout() {
-  useAuthStore.getState().clearAuth();
+// export function logout() {
+//   useAuthStore.getState().clearAuth();
+// }
+
+export async function logout() {
+  try {
+    await api.post("/auth/logout");
+  } catch(err) {
+    console.error("Logout failed:", err.response ? err.response.data : err.message);
+  } finally {
+    useAuthStore.getState().clearAuth();
+    window.location.href = "/login";
+  }
 }
 
 // ─── Pets ────────────────────────────────────────────────────
 
 export function resolveAssetUrl(path) {
-  if (!path) return null;
-  if (typeof path !== "string") return null;
+  if (!path || typeof path !== "string" || path.trim() === "") return null;
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
   if (path.startsWith("/")) return `${ORIGIN_URL}${path}`;
   return `${ORIGIN_URL}/${path}`;
@@ -78,7 +130,8 @@ export function resolveAssetUrl(path) {
 export async function getMyPetPosts() {
   try {
     const res = await api.get("/pets/mine");
-    return res.data ?? [];
+    console.log("getMyPetPosts response:", res);
+    return res.data.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
     return Promise.reject(error.response ? error.response.data : error.message);
@@ -90,7 +143,8 @@ export async function getMyPetPosts() {
 export async function getReceivedAdoptionRequests() {
   try {
     const res = await api.get("/adoptions/received");
-    return res.data ?? [];
+    console.log("getReceivedAdoptionRequests response:", res);
+    return res.data.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
     return Promise.reject(error.response ? error.response.data : error.message);
@@ -100,6 +154,7 @@ export async function getReceivedAdoptionRequests() {
 export async function getMyAdoptionRequests() {
   try {
     const res = await api.get("/adoptions/my");
+    console.log("getMyAdoptionRequests response:", res);
     return res.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
