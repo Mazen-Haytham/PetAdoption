@@ -2,8 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-// import AdopterProfile from './pages/adopter/AdopterProfile';
-// import ShelterHome from './pages/owner/ShelterHome';
+import AdopterProfile from './pages/adopter/AdopterProfile';
+import ShelterHome from './pages/owner/ShelterHome';
 
 // Placeholder pages
 const AdminDashboard = () => <h1>Admin Dashboard</h1>;
@@ -19,29 +19,29 @@ export default function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* Adopter */}
-        {/* <Route path="/adopter/profile" element={
-          <ProtectedRoute allowedRoles={['Adopter']}>
+        <Route path="/adopter/profile" element={
+          // <ProtectedRoute allowedRoles={['Adopter']}>
             <AdopterProfile />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         } />
         <Route
           path="/adopter"
           element={<Navigate to="/adopter/profile" replace />}
-        /> */}
+        /> 
 
         {/* Owner */}
-        {/* <Route path="/owner/*" element={
-          <ProtectedRoute allowedRoles={['Owner', 'Shelter']}>
+        <Route path="/owner/*" element={
+          // <ProtectedRoute allowedRoles={['Owner', 'Shelter']}>
             <ShelterHome />
-          </ProtectedRoute>
-        } /> */}
+          // </ProtectedRoute>
+        } /> 
 
         {/* Admin */}
-        {/* <Route path="/admin/*" element={
-          <ProtectedRoute allowedRoles={['Admin']}>
+        <Route path="/admin/*" element={
+          // <ProtectedRoute allowedRoles={['Admin']}>
             <AdminDashboard />
-          </ProtectedRoute>
-        } /> */}
+          // </ProtectedRoute>
+        } /> 
 
         {/* Default */}
         <Route path="/" element={<Navigate to="/login" replace />} />

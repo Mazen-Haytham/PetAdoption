@@ -4,8 +4,7 @@ import ActiveApplicationsCard from "../../components/adopterProfile/ActiveApplic
 import AdoptionHistoryCard from "../../components/adopterProfile/AdoptionHistoryCard";
 import PageFooter from "./../../components/shared/PageFooter";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../../context/authContext";
-import { getAdoptionHistory, getMyAdoptionRequests } from "../../api/api";
+import { getAdoptionHistory, getMe, getMyAdoptionRequests } from "../../api/api";
 
 function toTitleCaseStatus(status) {
   if (!status) return "Unknown";
@@ -25,7 +24,7 @@ function formatDate(value) {
 }
 
 export default function AdopterProfile() {
-  const { user } = useAuth();
+  const [user, setUser] = useState(null);
   const [requests, setRequests] = useState([]);
   const [history, setHistory] = useState([]);
   const [showAllHistory, setShowAllHistory] = useState(false);
@@ -38,11 +37,13 @@ export default function AdopterProfile() {
       setLoading(true);
       setError(null);
       try {
-        const [myReq, myHistory] = await Promise.all([
+        const [me, myReq, myHistory] = await Promise.all([
+          getMe(),
           getMyAdoptionRequests(),
           getAdoptionHistory(),
         ]);
         if (cancelled) return;
+        setUser(me ?? null);
         setRequests(Array.isArray(myReq) ? myReq : []);
         setHistory(Array.isArray(myHistory) ? myHistory : []);
       } catch (e) {
