@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import AuthProvider from "./context/AuthContext";
+import AuthProvider from "./context/AuthContext.jsx";
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdopterProfile from './pages/adopter/AdopterProfile';
 import ShelterHome from './pages/owner/ShelterHome';
+import ListPetPage from './pages/ListPetPage';
 
 // Placeholder pages
 const AdminDashboard = () => <h1>Admin Dashboard</h1>;
@@ -32,6 +33,11 @@ export default function App() {
           />
 
           {/* Owner */}
+          <Route path="/owner/pets/new" element={
+            <ProtectedRoute allowedRoles={['Owner', 'Shelter']}>
+              <ListPetPage />
+            </ProtectedRoute>
+          } />
           <Route path="/owner/*" element={
             <ProtectedRoute allowedRoles={['Owner', 'Shelter']}>
               <ShelterHome />

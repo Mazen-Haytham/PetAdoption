@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Bell, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Bell, Plus, Search } from "lucide-react";
 import ShelterSidebar from "../../components/owner/ShelterSidebar";
 import AvatarButton from "../../components/owner/shelterHome/AvatarButton";
 import { ClipboardIcon, HandshakeIcon, PawIcon } from "../../components/owner/shelterHome/OwnerIcons";
@@ -16,6 +17,7 @@ import {
 } from "../../api/api";
 
 export default function ShelterHome() {
+  const navigate = useNavigate();
   const [active, setActive] = useState("dashboard");
 
   const [loading, setLoading] = useState(true);
@@ -229,14 +231,24 @@ export default function ShelterHome() {
                 <div className="lg:col-span-2">
                   <div className="flex items-center justify-between">
                     <h2 className="pa-section-title">Active Pet Posts</h2>
-                    <button
-                      type="button"
-                      className="pa-link"
-                      onClick={() => setShowAllPets((v) => !v)}
-                      disabled={loading || pets.length <= 3}
-                    >
-                      {showAllPets ? "View Less" : "View All"}
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => navigate("/owner/pets/new")}
+                        className="flex items-center gap-1.5 rounded-full bg-[rgb(var(--pa-primary))] px-4 py-2 text-xs font-extrabold text-white shadow-sm hover:opacity-90 transition-opacity"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        List a Pet
+                      </button>
+                      <button
+                        type="button"
+                        className="pa-link"
+                        onClick={() => setShowAllPets((v) => !v)}
+                        disabled={loading || pets.length <= 3}
+                      >
+                        {showAllPets ? "View Less" : "View All"}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="pa-card mt-4 overflow-hidden">
