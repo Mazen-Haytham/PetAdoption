@@ -72,6 +72,23 @@ namespace backend.Services
             return new LoginResponse(tokenResponse, null);
         }
 
+        public async Task<UserInfoResponse?> GetUserInfoAsync(int userId)
+        {
+            var user = await context.Users
+                .Include(u => u.UserFavourites)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user is null) return null;
+
+            return new UserInfoResponse(
+                user.Id,
+                user.Name,
+                user.Email,
+                user.Role.ToString(),
+                user.UserFavourites ?? new List<UserFavourite>()
+            );
+        }
+
         public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
         {
             var user = await ValidateRefreshTokenAsync(request.RefreshToken);
