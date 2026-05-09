@@ -22,11 +22,16 @@ function StoryCard({ item }) {
   );
 }
 
-export default function AdoptionHistoryCard({ items }) {
+export default function AdoptionHistoryCard({ items, canToggle = false, toggleLabel = "Show All", onToggle }) {
   return (
     <section>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="pa-section-title">My Adoption History</h2>
+        {canToggle ? (
+          <button type="button" className="pa-link font-bold" onClick={onToggle}>
+            {toggleLabel}
+          </button>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

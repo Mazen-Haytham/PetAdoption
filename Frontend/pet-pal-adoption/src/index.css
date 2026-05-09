@@ -34,15 +34,15 @@ body { font-family: 'Inter', sans-serif; }
   }
 
   .pa-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition;
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:cursor-pointer;
   }
 
   .pa-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition bg-[rgb(var(--pa-primary))] text-white hover:brightness-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition bg-[rgb(var(--pa-primary))] hover:cursor-pointer text-white hover:brightness-95;
   }
 
   .pa-btn-soft {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition bg-[rgb(var(--pa-primary))/10] text-[rgb(var(--pa-primary))] hover:bg-[rgb(var(--pa-primary))/14];
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition bg-[rgb(var(--pa-primary))/10] hover:cursor-pointer text-[rgb(var(--pa-primary))] hover:bg-[rgb(var(--pa-primary))/14];
   }
 
   .pa-icon-btn {

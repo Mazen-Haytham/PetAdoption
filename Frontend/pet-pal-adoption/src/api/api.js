@@ -1,7 +1,7 @@
 // src/api/api.js
 
 const BASE_URL = "https://localhost:7081/api";
-const ORIGIN_URL = "https://localhost:7081";
+export const ORIGIN_URL = "https://localhost:7081";
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -84,6 +84,7 @@ export async function getMyPetPosts() {
     method: "GET",
     headers: authHeaders(),
   });
+  if (res.status === 404) return []; // No pet posts found is not an error
   const json = await handleResponse(res);
   return json?.data ?? [];
 }
@@ -95,6 +96,7 @@ export async function getReceivedAdoptionRequests() {
     method: "GET",
     headers: authHeaders(),
   });
+  if (res.status === 404) return []; // No adoption requests found is not an error
   const json = await handleResponse(res);
   return json?.data ?? [];
 }
@@ -104,6 +106,7 @@ export async function getMyAdoptionRequests() {
     method: "GET",
     headers: authHeaders(),
   });
+  if (res.status === 404) return []; // No adoption requests found is not an error
   const json = await handleResponse(res);
   return json?.data ?? [];
 }
@@ -113,6 +116,7 @@ export async function getAdoptionHistory() {
     method: "GET",
     headers: authHeaders(),
   });
+  if (res.status === 404) return []; // No adoption history found is not an error
   const json = await handleResponse(res);
   return json?.data ?? [];
 }

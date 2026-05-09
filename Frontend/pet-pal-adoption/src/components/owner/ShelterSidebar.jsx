@@ -12,10 +12,9 @@ import logout from "../../api/api";
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "requests", label: "Adoption Requests", icon: ClipboardList },
-  { key: "profile", label: "Profile", icon: User },
 ];
 
-export default function ShelterSidebar({ activeKey = "dashboard", onSelect }) {
+export default function ShelterSidebar({ activeKey = "dashboard", onSelect, isOpen = false, onToggle }) {
   const navigate = useNavigate();
   const postLogout = () => {
     logout();
@@ -23,7 +22,31 @@ export default function ShelterSidebar({ activeKey = "dashboard", onSelect }) {
     navigate("/login");
   };
   return (
-    <aside className="flex h-full w-[260px] shrink-0 flex-col border-1 border-[rgb(var(--pa-primary))]/20 px-5 py-6 ring-1 ring-black/5 rounded-br-2xl">
+    <>
+      {/* Mobile toggle button */}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg bg-[rgb(var(--pa-primary))] text-white hover:brightness-90 transition"
+      >
+        <LayoutDashboard className="h-5 w-5" />
+      </button>
+
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={[
+        "bg-white flex h-full w-[260px] shrink-0 flex-col border border-[rgb(var(--pa-primary))]/20 px-5 py-6 ring-1 ring-black/5 rounded-br-2xl",
+        "transition-transform duration-300 ease-in-out",
+        "fixed left-0 top-0 z-40 lg:static lg:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      ].join(" ")}>
       <div className="flex items-center gap-3 px-2">
         <div className="grid h-10 w-10 place-items-center rounded-xl bg-[rgb(var(--pa-primary))/12]">
           <PawPrint className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
@@ -78,7 +101,8 @@ export default function ShelterSidebar({ activeKey = "dashboard", onSelect }) {
         >
           Logout
         </button>
-    </aside>
+      </aside>
+    </>
   );
 }
 

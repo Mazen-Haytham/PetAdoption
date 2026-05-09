@@ -15,6 +15,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
+using backend.Hubs;
+using Microsoft.AspNetCore.SignalR;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Database ─────────────────────────────────────
@@ -61,6 +63,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
+// ── SignalR ────────────────────────────────────────
+builder.Services.AddSignalR();
+
 // ── CORS ──────────────────────────────────────────
 builder.Services.AddCors(options =>
 {
@@ -75,16 +80,34 @@ builder.Services.AddCors(options =>
 
 // ── JWT Authentication ────────────────────────────
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["AppSettings:Issuer"],
-        ValidateAudience = true,
-        ValidAudience = builder.Configuration["AppSettings:Audience"],
-        ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
-        ValidateIssuerSigningKey = true
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["AppSettings:Audience"],
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
+            ValidateIssuerSigningKey = true
+        };
+
+        // Allow SignalR connections to send the JWT via query string (?access_token=...)
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/notifications"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddAuthorization(options =>
 {
@@ -129,6 +152,20 @@ var app = builder.Build();
 
 app.UseCors("AllowFrontend");
 
+var seedOnly = args.Contains("--seed");
+
+// Seed database (development by default, or when --seed is passed)
+if (app.Environment.IsDevelopment() || seedOnly)
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbSeeder.MigrateAndSeedAsync(db);
+}
+
+// When running in seed-only mode, exit without binding ports.
+if (seedOnly)
+    return;
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -144,4 +181,5 @@ app.UseHttpsRedirection();
 app.UseAuthentication(); // ← was missing in auth-feature, must come before Authorization
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<NotificationsHub>("/hubs/notifications");
 app.Run();

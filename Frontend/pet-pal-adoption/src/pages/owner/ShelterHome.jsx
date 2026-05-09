@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Bell, Search } from "lucide-react";
+import * as signalR from "@microsoft/signalr";
 import ShelterSidebar from "../../components/owner/ShelterSidebar";
 import AvatarButton from "../../components/owner/shelterHome/AvatarButton";
 import { ClipboardIcon, HandshakeIcon, PawIcon } from "../../components/owner/shelterHome/OwnerIcons";
@@ -11,12 +12,15 @@ import {
   acceptAdoptionRequest,
   getMyPetPosts,
   getReceivedAdoptionRequests,
+  getCurrentUser,
+  ORIGIN_URL,
   rejectAdoptionRequest,
   resolveAssetUrl,
 } from "../../api/api";
 
 export default function ShelterHome() {
   const [active, setActive] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -26,6 +30,22 @@ export default function ShelterHome() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [actingId, setActingId] = useState(null);
+
+  const [notifications, setNotifications] = useState([]);
+
+  const pushNotification = ({ petName }) => {
+    const id =
+      (typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID()) ||
+      `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    setNotifications((prev) => [
+      ...prev,
+      {
+        id,
+        petName: petName ?? "—",
+        createdAt: Date.now(),
+      },
+    ]);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -49,6 +69,47 @@ export default function ShelterHome() {
     run();
     return () => {
       alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let connection;
+
+    const start = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      // ShelterHome is owner-only, but even if role mismatches we can no-op.
+      const user = getCurrentUser();
+      if (!user) return;
+
+      connection = new signalR.HubConnectionBuilder()
+        .withUrl(`${ORIGIN_URL}/hubs/notifications`, {
+          accessTokenFactory: () => token,
+          withCredentials: true,
+        })
+        .withAutomaticReconnect()
+        .build();
+
+      connection.on("AdoptionRequestCreated", (payload) => {
+        const petName = payload?.petName ?? payload?.PetName;
+        pushNotification({ petName });
+      });
+
+      try {
+        await connection.start();
+      } catch {
+        // If it fails (server down / cert / etc.), we just skip realtime.
+      }
+    };
+
+    start();
+
+    return () => {
+      if (connection) {
+        connection.off("AdoptionRequestCreated");
+        connection.stop().catch(() => {});
+      }
     };
   }, []);
 
@@ -107,7 +168,21 @@ export default function ShelterHome() {
 
   const petRows = useMemo(() => {
     const visible = showAllPets ? pets : pets.slice(0, 3);
-    return visible.map((p) => ({
+    
+    // Separate into available and adopted
+    const available = visible.filter((p) => String(p?.status).toLowerCase() === "available");
+    const adopted = visible.filter((p) => String(p?.status).toLowerCase() === "adopted");
+    
+    // Sort each group by date (newest first)
+    const sortByDate = (a, b) => {
+      const dateA = new Date(a?.createdAt || 0).getTime();
+      const dateB = new Date(b?.createdAt || 0).getTime();
+      return dateB - dateA;
+    };
+    
+    const sorted = [...available.sort(sortByDate), ...adopted.sort(sortByDate)];
+    
+    return sorted.map((p) => ({
       key: p?.petPostId ?? p?.petPostID ?? p?.petId ?? p?.id ?? p?.name,
       name: p?.name ?? "—",
       species: p?.type ?? "—",
@@ -153,8 +228,28 @@ export default function ShelterHome() {
 
   return (
     <div className="min-h-screen bg-[rgb(var(--pa-bg))]">
+      <div className="pointer-events-none fixed left-1/2 top-4 z-[60] w-[min(560px,calc(100vw-2rem))] -translate-x-1/2">
+        <div className="flex flex-col gap-3">
+          {notifications.map((n) => (
+            <AdoptionToast
+              key={n.id}
+              petName={n.petName}
+              onClose={() => setNotifications((prev) => prev.filter((x) => x.id !== n.id))}
+            />
+          ))}
+        </div>
+      </div>
+
       <div className="flex min-h-screen">
-        <ShelterSidebar activeKey={active} onSelect={setActive} />
+        <ShelterSidebar 
+          activeKey={active} 
+          onSelect={(key) => {
+            setActive(key);
+            setSidebarOpen(false);
+          }}
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
 
         <main className="flex-1">
           <header className="border-[rgb(var(--pa-primary))]/20 top-0 z-10 border-b backdrop-blur">
@@ -239,20 +334,21 @@ export default function ShelterHome() {
                     </button>
                   </div>
 
-                  <div className="pa-card mt-4 overflow-hidden">
-                    <div className="grid grid-cols-5 gap-2 bg-[rgb(var(--pa-primary))/4] px-6 py-4 text-[11px] font-extrabold tracking-wider text-black/40">
-                      <div className="col-span-2">PET</div>
-                      <div>SPECIES</div>
-                      <div>STATUS</div>
-                      <div className="text-right">DATE POSTED</div>
-                    </div>
+                  <div className="pa-card mt-4 overflow-x-auto lg:overflow-hidden">
+                    <div className="min-w-[600px] lg:min-w-0">
+                      <div className="grid grid-cols-5 gap-2 bg-[rgb(var(--pa-primary))/4] px-6 py-4 text-[11px] font-extrabold tracking-wider text-black/40">
+                        <div className="col-span-2">PET</div>
+                        <div>SPECIES</div>
+                        <div>STATUS</div>
+                        <div className="text-right">DATE POSTED</div>
+                      </div>
 
-                    <div className="divide-y divide-black/5">
-                      {petRows.length ? petRows.map((row) => (
-                        <div
-                          key={row.key}
-                          className="grid grid-cols-5 items-center gap-2 px-6 py-5"
-                        >
+                      <div className="divide-y divide-black/5">
+                        {petRows.length ? petRows.map((row) => (
+                          <div
+                            key={row.key}
+                            className="grid grid-cols-5 items-center gap-2 px-6 py-5"
+                          >
                           <div className="col-span-2 flex items-center gap-4">
                             <div className="h-10 w-10 overflow-hidden rounded-full bg-black/10">
                               {row.avatar ? (
@@ -283,6 +379,7 @@ export default function ShelterHome() {
                           {loading ? "Loading pets…" : "No pet posts yet."}
                         </div>
                       )}
+                    </div>
                     </div>
                   </div>
                 </div>
@@ -331,13 +428,7 @@ export default function ShelterHome() {
                           >
                             {r.primary}
                           </button>
-                          <button
-                            type="button"
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-black/35 shadow-sm ring-1 ring-black/5 hover:bg-black/5"
-                            aria-label="Dismiss"
-                          >
-                            ×
-                          </button>
+                          
                         </div>
                       </div>
                     )) : (
@@ -358,6 +449,52 @@ export default function ShelterHome() {
         request={selectedRequest}
         onClose={closeDetails}
       />
+    </div>
+  );
+}
+
+function AdoptionToast({ petName, onClose }) {
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setEntered(true));
+    const t = setTimeout(() => onClose?.(), 9000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className={[
+        "pointer-events-auto rounded-2xl border border-black/10 bg-white/95 px-4 py-3 shadow-lg backdrop-blur",
+        "transition-all duration-300 ease-out",
+        entered ? "translate-y-0 opacity-100" : "-translate-y-6 opacity-0",
+      ].join(" ")}
+      role="status"
+      aria-live="polite"
+    >
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-[rgb(var(--pa-primary))]" />
+        <div className="min-w-0">
+          <div className="text-sm font-extrabold text-black/80">
+            A new Adoption Request has been made on{" "}
+            <span className="text-[rgb(var(--pa-primary))]">{petName}</span>.
+          </div>
+          <div className="mt-0.5 text-xs font-semibold text-black/50">
+            Refresh or go the Adoptions tab to view the request
+          </div>
+        </div>
+        <button
+          type="button"
+          className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full text-black/35 hover:bg-black/5"
+          onClick={onClose}
+          aria-label="Dismiss notification"
+        >
+          ×
+        </button>
+      </div>
     </div>
   );
 }
