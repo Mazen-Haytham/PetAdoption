@@ -44,7 +44,6 @@ namespace backend.Controllers
 
 
         [HttpPost("refresh-token")]
-        [AllowAnonymous]
         public async Task<ActionResult<TokenResponseDto>> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];

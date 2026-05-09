@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { register } from '../../api/api';
-import { User, Mail, Lock, RotateCcw, ShieldCheck, ArrowLeft, PawPrint } from 'lucide-react';
-import SuccessScreen from '../../components/auth/SuccessScreen';
-import ErrorMessage from '../../components/auth/ErrorMessage';
+import { User, Mail, Lock, PawPrint } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { register } from '../../api/auth.api';
 
 const Register = () => {
   const navigate = useNavigate();
   const [role, setRole] = useState('Owner');
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -28,31 +25,26 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      toast.error("Passwords do not match");
       return;
     }
-
     setLoading(true);
     try {
       await register(formData.name, formData.email, formData.password, role);
-      setSubmitted(true);
+      if (role === 'Adopter') {
+        toast.success("Registration successful! Please log in.");
+        navigate('/login');
+      } else {
+        toast.success("request submitted! Please wait for shelter approval.");
+      }
     } catch (err) {
-      setError(err.message);
+      toast.error(err.error || "Registration failed: An unexpected error occurred");
     } finally {
       setLoading(false);
     }
   };
 
-  if (submitted) {
-    return (
-      <SuccessScreen
-      type={role}
-    />
-    );
-  }
 
   return (
   /* Main Wrapper: Full viewport width and height, no rounded corners, no shadows */
@@ -197,7 +189,6 @@ const Register = () => {
           </div>
 
           <div className="pt-4">
-            <ErrorMessage error={error} />
             <button
               type="submit"
               disabled={loading}
