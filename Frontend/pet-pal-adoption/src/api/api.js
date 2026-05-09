@@ -61,75 +61,81 @@ export async function getMe() {
   }
 }
 
-// // ─── Pets ────────────────────────────────────────────────────
+export function logout() {
+  useAuthStore.getState().clearAuth();
+}
 
-// export function resolveAssetUrl(path) {
-//   if (!path) return null;
-//   if (typeof path !== "string") return null;
-//   if (path.startsWith("http://") || path.startsWith("https://")) return path;
-//   if (path.startsWith("/")) return `${ORIGIN_URL}${path}`;
-//   return `${ORIGIN_URL}/${path}`;
-// }
+// ─── Pets ────────────────────────────────────────────────────
 
-// export async function getMyPetPosts() {
-//   const res = await fetch(`${BASE_URL}/pets/mine`, {
-//     method: "GET",
-//     headers: authHeaders(),
-//   });
-//   if (res.status === 404) return []; // No pet posts found is not an error
-//   const json = await handleResponse(res);
-//   return json?.data ?? [];
-// }
+export function resolveAssetUrl(path) {
+  if (!path) return null;
+  if (typeof path !== "string") return null;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("/")) return `${ORIGIN_URL}${path}`;
+  return `${ORIGIN_URL}/${path}`;
+}
 
-// // ─── Adoptions (Requests) ─────────────────────────────────────
+export async function getMyPetPosts() {
+  try {
+    const res = await api.get("/pets/mine");
+    return res.data ?? [];
+  } catch (error) {
+    if (error?.response?.status === 404) return [];
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
 
-// export async function getReceivedAdoptionRequests() {
-//   const res = await fetch(`${BASE_URL}/adoptions/received`, {
-//     method: "GET",
-//     headers: authHeaders(),
-//   });
-//   if (res.status === 404) return []; // No adoption requests found is not an error
-//   const json = await handleResponse(res);
-//   return json?.data ?? [];
-// }
+// ─── Adoptions (Requests) ─────────────────────────────────────
 
-// export async function getMyAdoptionRequests() {
-//   const res = await fetch(`${BASE_URL}/adoptions/my`, {
-//     method: "GET",
-//     headers: authHeaders(),
-//   });
-//   if (res.status === 404) return []; // No adoption requests found is not an error
-//   const json = await handleResponse(res);
-//   return json?.data ?? [];
-// }
+export async function getReceivedAdoptionRequests() {
+  try {
+    const res = await api.get("/adoptions/received");
+    return res.data ?? [];
+  } catch (error) {
+    if (error?.response?.status === 404) return [];
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
 
-// export async function getAdoptionHistory() {
-//   const res = await fetch(`${BASE_URL}/adoptions/history`, {
-//     method: "GET",
-//     headers: authHeaders(),
-//   });
-//   if (res.status === 404) return []; // No adoption history found is not an error
-//   const json = await handleResponse(res);
-//   return json?.data ?? [];
-// }
+export async function getMyAdoptionRequests() {
+  try {
+    const res = await api.get("/adoptions/my");
+    return res.data ?? [];
+  } catch (error) {
+    if (error?.response?.status === 404) return [];
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
 
-// export async function acceptAdoptionRequest(requestId) {
-//   const res = await fetch(`${BASE_URL}/adoptions/${requestId}/accept`, {
-//     method: "PUT",
-//     headers: authHeaders(),
-//   });
-//   if (res.status === 204) return;
-//   return handleResponse(res);
-// }
+export async function getAdoptionHistory() {
+  try {
+    const res = await api.get("/adoptions/history");
+    return res.data ?? [];
+  } catch (error) {
+    if (error?.response?.status === 404) return [];
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
 
-// export async function rejectAdoptionRequest(requestId) {
-//   const res = await fetch(`${BASE_URL}/adoptions/${requestId}/reject`, {
-//     method: "PUT",
-//     headers: authHeaders(),
-//   });
-//   if (res.status === 204) return;
-//   return handleResponse(res);
-// }
+export async function acceptAdoptionRequest(requestId) {
+  try {
+    const res = await api.put(`/adoptions/${requestId}/accept`);
+    if (res.status === 204) return;
+    return res.data;
+  } catch (error) {
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
+
+export async function rejectAdoptionRequest(requestId) {
+  try {
+    const res = await api.put(`/adoptions/${requestId}/reject`);
+    if (res.status === 204) return;
+    return res.data;
+  } catch (error) {
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
 
 // // ─── Admin ───────────────────────────────────────────────────
 

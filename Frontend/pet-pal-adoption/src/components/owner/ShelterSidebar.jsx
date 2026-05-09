@@ -6,7 +6,7 @@ import {
   User,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import logout from "../../api/api";
+import { logout } from "../../api/api";
 
 
 const navItems = [

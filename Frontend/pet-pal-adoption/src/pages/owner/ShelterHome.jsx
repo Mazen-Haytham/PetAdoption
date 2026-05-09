@@ -12,11 +12,12 @@ import {
   acceptAdoptionRequest,
   getMyPetPosts,
   getReceivedAdoptionRequests,
-  getCurrentUser,
+  getMe,
   ORIGIN_URL,
   rejectAdoptionRequest,
   resolveAssetUrl,
 } from "../../api/api";
+import { useAuthStore } from "../../store/authStore";
 
 export default function ShelterHome() {
   const [active, setActive] = useState("dashboard");
@@ -32,6 +33,7 @@ export default function ShelterHome() {
   const [actingId, setActingId] = useState(null);
 
   const [notifications, setNotifications] = useState([]);
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   const pushNotification = ({ petName }) => {
     const id =
@@ -76,12 +78,15 @@ export default function ShelterHome() {
     let connection;
 
     const start = async () => {
-      const token = localStorage.getItem("token");
+      const token = accessToken;
       if (!token) return;
 
-      // ShelterHome is owner-only, but even if role mismatches we can no-op.
-      const user = getCurrentUser();
-      if (!user) return;
+      // ShelterHome is owner-only; ensure token is valid (and has identity).
+      try {
+        await getMe();
+      } catch {
+        return;
+      }
 
       connection = new signalR.HubConnectionBuilder()
         .withUrl(`${ORIGIN_URL}/hubs/notifications`, {
@@ -111,7 +116,7 @@ export default function ShelterHome() {
         connection.stop().catch(() => {});
       }
     };
-  }, []);
+  }, [accessToken]);
 
   const refreshRequests = async () => {
     const requests = await getReceivedAdoptionRequests();
