@@ -41,7 +41,7 @@ export default function RequestDetailsModal({ open, request, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-black/45 shadow-sm ring-1 ring-black/5 hover:bg-black/5"
+            className="pa-btn inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-black/45 shadow-sm ring-1 ring-black/5 hover:bg-black/5"
             aria-label="Close"
           >
             ×
@@ -76,12 +76,6 @@ export default function RequestDetailsModal({ open, request, onClose }) {
               <InfoRow label="Message" value={request?.message} />
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center justify-end gap-3 border-t border-black/5 px-6 py-5">
-          <button type="button" className="pa-btn" onClick={onClose}>
-            Close
-          </button>
         </div>
       </div>
     </div>

@@ -1,5 +1,19 @@
 # API Endpoints
 
+## Reviews Controller
+**Base Route:** `api/reviews`
+
+### `POST /api/reviews`
+**Action:** AddReview
+**Request Body:** `CreateReviewDto dto`
+**Response:** `IActionResult`
+
+### `GET /api/reviews/{ownerId}`
+**Action:** GetReviews
+**Route Params:**
+  - `int ownerId`
+**Response:** `IActionResult`
+
 ## AdminPetPost Controller
 **Base Route:** `api/admin/pets`
 
@@ -53,13 +67,12 @@
 ## Pet Controller
 **Base Route:** `api/pets`
 
-### `GET /api/pets`
-**Action:** GetAvailablePetPosts
-**Response:** `IActionResult`
-
 ### `GET /api/pets/mine`
 **Action:** GetMyPetPosts
-**Auth:** Owner/Shelter/Admin
+**Response:** `IActionResult`
+
+### `GET /api/pets`
+**Action:** GetAvailablePetPosts
 **Response:** `IActionResult`
 
 ### `GET /api/pets/{id}`
@@ -98,6 +111,25 @@
 
 ### `GET /api/Test`
 **Action:** Get
+**Response:** `IActionResult`
+
+## Favorites Controller
+**Base Route:** `api/favorites`
+
+### `POST /api/favorites/{petPostId}`
+**Action:** AddFavorite
+**Route Params:**
+  - `int petPostId`
+**Response:** `IActionResult`
+
+### `DELETE /api/favorites/{petPostId}`
+**Action:** RemoveFavorite
+**Route Params:**
+  - `int petPostId`
+**Response:** `IActionResult`
+
+### `GET /api/favorites`
+**Action:** GetFavorites
 **Response:** `IActionResult`
 
 ## Request Controller
