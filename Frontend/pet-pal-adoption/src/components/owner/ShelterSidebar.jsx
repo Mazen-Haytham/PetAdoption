@@ -1,15 +1,15 @@
-import {
-  ClipboardList,
-  LayoutDashboard,
-  PawPrint,
-} from "lucide-react";
+import { ClipboardList, LayoutDashboard, PawPrint } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "../../api/api";
 
-
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/owner" },
-  { key: "requests", label: "Adoption Requests", icon: ClipboardList, to: "/owner/requests" },
+  {
+    key: "requests",
+    label: "Adoption Requests",
+    icon: ClipboardList,
+    to: "/owner/requests",
+  },
 ];
 
 export default function ShelterSidebar({
@@ -70,7 +70,9 @@ export default function ShelterSidebar({
             <PawPrint className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
           </div>
           <div className="leading-tight">
-            <div className="text-base font-extrabold tracking-tight">Shelter Home</div>
+            <div className="text-base font-extrabold tracking-tight">
+              Shelter Home
+            </div>
             <div className="text-[11px] font-bold tracking-wide text-black/40">
               ADMIN PORTAL
             </div>
@@ -101,6 +103,10 @@ export default function ShelterSidebar({
 
         <button
           type="button"
+          onClick={() => {
+            navigate("/owner/pets/new");
+            onNavigate?.();
+          }}
           className="hover:cursor-pointer mt-5 w-full transition-all rounded-2xl border-2 text-[rgb(var(--pa-primary))] hover:bg-[rgb(var(--pa-primary))] px-5 py-3 text-sm font-extrabold hover:text-white hover:border-transparent shadow-lg shadow-black/10 hover:brightness-95"
         >
           Create a new post
