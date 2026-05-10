@@ -3,7 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdopterProfile from './pages/adopter/AdopterProfile';
-import ShelterHome from './pages/owner/ShelterHome';
+import ShelterOwnerLayout from './pages/owner/ShelterOwnerLayout';
+import ShelterDashboardPage from './pages/owner/ShelterDashboardPage';
+import ShelterRequestsPage from './pages/owner/ShelterRequestsPage';
 
 // Placeholder pages
 const AdminDashboard = () => <h1>Admin Dashboard</h1>;
@@ -30,11 +32,17 @@ export default function App() {
         /> 
 
         {/* Owner */}
-        <Route path="/owner/*" element={
-          // <ProtectedRoute allowedRoles={['Owner', 'Shelter']}>
-            <ShelterHome />
-          // </ProtectedRoute>
-        } /> 
+        <Route
+          path="/owner"
+          element={
+            // <ProtectedRoute allowedRoles={['Owner', 'Shelter']}>
+            <ShelterOwnerLayout />
+            // </ProtectedRoute>
+          }
+        >
+          <Route index element={<ShelterDashboardPage />} />
+          <Route path="requests" element={<ShelterRequestsPage />} />
+        </Route>
 
         {/* Admin */}
         <Route path="/admin/*" element={
