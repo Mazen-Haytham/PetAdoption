@@ -58,19 +58,48 @@ namespace backend.Services
                 Status = user.Status.ToString()
             };
         }
+        /* public async Task<bool> ApproveUserAsync(int id)
+         {
+             return await userRepository.UpdateUserStatusAsync(id, AccountStatus.Approved);
+         }
+
+         public async Task<bool> RejectUserAsync(int id)
+         {
+             return await userRepository.UpdateUserStatusAsync(id, AccountStatus.Rejected);
+         }*/
+
         public async Task<bool> ApproveUserAsync(int id)
         {
-            return await userRepository.UpdateUserStatusAsync(id, AccountStatus.Approved);
+            var user = await userRepository.GetByIdAsync(id);
+            if (user == null) return false;
+            user.Status = AccountStatus.Approved;
+            userRepository.Update(user);
+            return await userRepository.SaveChangesAsync();
         }
 
         public async Task<bool> RejectUserAsync(int id)
         {
-            return await userRepository.UpdateUserStatusAsync(id, AccountStatus.Rejected);
+            var user = await userRepository.GetByIdAsync(id);
+            if (user == null) return false;
+            user.Status = AccountStatus.Rejected;
+            userRepository.Update(user);
+            return await userRepository.SaveChangesAsync();
         }
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task<List<AdminUserResponseDto>> GetAllUsersAsync()
         {
-            return await userRepository.DeleteUserAsync(id);
+            var users = await userRepository.GetAllAsync(); // .
+
+            return users.Select(u => new AdminUserResponseDto
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Email = u.Email,
+                Role = u.Role.ToString(),
+                Status = u.Status.ToString()
+            }).ToList();
         }
+
+
 
     }
 }

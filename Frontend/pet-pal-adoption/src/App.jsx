@@ -4,10 +4,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdopterProfile from './pages/adopter/AdopterProfile';
-import ShelterHome from './pages/owner/ShelterHome';
 import { useAuthStore } from './store/authStore';
 import PublicRoute from './components/PublicRoute';
-
+import ShelterOwnerLayout from './pages/owner/ShelterOwnerLayout';
+import ShelterDashboardPage from './pages/owner/ShelterDashboardPage';
+import ShelterRequestsPage from './pages/owner/ShelterRequestsPage';
 
 // Placeholder pages
 const AdminDashboard = () => <h1>Admin Dashboard</h1>;
