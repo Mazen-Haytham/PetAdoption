@@ -25,7 +25,7 @@ const Login = () => {
 		const data = await login(formData.email, formData.password);
 		setAccessToken(data.tokenResponse.accessToken);
 		toast.success("Login successful!");
-		navigate("/home");
+		navigate("/owner");
 	} catch (error) {
 		console.error("Login error:", error);
 		toast.error(error.error || "Login failed: An unexpected error occurred");
