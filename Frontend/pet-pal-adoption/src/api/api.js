@@ -24,47 +24,18 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const original = error.config
-
-//     if (error.response?.status !== 401 || original._retry) {
-//       return Promise.reject(error.response ? error.response.data : error.message)
-//     }
-
-//     original._retry = true
-
-//     try {
-//       const res = await api.post("/Auth/refresh-token")
-//       const newToken = res.data.accessToken
-
-//       useAuthStore.getState().setAccessToken(newToken)
-
-//       original.headers.Authorization = `Bearer ${newToken}`
-//       return api(original)
-
-//     } catch {
-//       useAuthStore.getState().clearAuth()
-//       window.location.href = "/login"
-//       return Promise.reject(error.response ? error.response.data : error.message)
-//     }
-//   }
-// )
-
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config;
 
-    // ─── 403 Forbidden ───────────────────────────────────────────
+    // 403
     if (error.response?.status === 403) {
       window.location.href = "/unauthorized";
       return Promise.reject(error.response ? error.response.data : error.message);
     }
 
-    // ─── 401 Unauthorized ─────────────────────────────────────────
+    // 401
     if (error.response?.status !== 401 || original._retry) {
       return Promise.reject(error.response ? error.response.data : error.message);
     }
@@ -72,7 +43,6 @@ api.interceptors.response.use(
     original._retry = true;
 
     try {
-      // 👇 uses refreshApi, completely bypasses the interceptor above
       const res = await refreshApi.post("/Auth/refresh-token");
       const newToken = res.data.accessToken;
 
@@ -91,7 +61,6 @@ api.interceptors.response.use(
 
 export default api;
 
-
 // ─── user ────────────────────────────────────────────────────
 export async function getMe() {
   try {
@@ -103,9 +72,6 @@ export async function getMe() {
   }
 }
 
-// export function logout() {
-//   useAuthStore.getState().clearAuth();
-// }
 
 export async function logout() {
   try {

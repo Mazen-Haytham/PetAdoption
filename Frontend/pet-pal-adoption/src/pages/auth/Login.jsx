@@ -24,8 +24,16 @@ const Login = () => {
 		setLoading(true);
 		const data = await login(formData.email, formData.password);
 		setAccessToken(data.tokenResponse.accessToken);
+
+		const role = useAuthStore.getState().role;
+		const destination = {
+		Adopter: "/adopter/profile",
+		Owner: "/owner/dashboard",
+		Admin: "/admin/dashboard",
+		}[role] ?? "/login";
+		
 		toast.success("Login successful!");
-		navigate("/owner");
+		navigate(destination);
 	} catch (error) {
 		console.error("Login error:", error);
 		toast.error(error.error || "Login failed: An unexpected error occurred");

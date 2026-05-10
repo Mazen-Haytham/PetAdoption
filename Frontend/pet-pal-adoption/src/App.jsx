@@ -1,28 +1,50 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdopterProfile from './pages/adopter/AdopterProfile';
 import ShelterHome from './pages/owner/ShelterHome';
+import { useAuthStore } from './store/authStore';
+import PublicRoute from './components/PublicRoute';
+
 
 // Placeholder pages
 const AdminDashboard = () => <h1>Admin Dashboard</h1>;
 const Unauthorized = () => <h1>Unauthorized</h1>;
 
+
+
 export default function App() {
+  const initAuth = useAuthStore((s) => s.initAuth);
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
+
+
   return (
     <BrowserRouter>
       <Routes>
         {/* Public */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+
+        <Route path="/register" element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* Adopter */}
         <Route path="/adopter/profile" element={
-          // <ProtectedRoute allowedRoles={['Adopter']}>
+          <ProtectedRoute allowedRoles={['Adopter']}>
             <AdopterProfile />
-          // </ProtectedRoute>
+          </ProtectedRoute>
         } />
         <Route
           path="/adopter"
@@ -31,16 +53,16 @@ export default function App() {
 
         {/* Owner */}
         <Route path="/owner/*" element={
-          // <ProtectedRoute allowedRoles={['Owner', 'Shelter']}>
+          <ProtectedRoute allowedRoles={['Owner']}>
             <ShelterHome />
-          // </ProtectedRoute>
+          </ProtectedRoute>
         } /> 
 
         {/* Admin */}
         <Route path="/admin/*" element={
-          // <ProtectedRoute allowedRoles={['Admin']}>
+          <ProtectedRoute allowedRoles={['Admin']}>
             <AdminDashboard />
-          // </ProtectedRoute>
+          </ProtectedRoute>
         } /> 
 
         {/* Default */}
