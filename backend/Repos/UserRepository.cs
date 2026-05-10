@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories
 {
-    public class UserRepository(AppDbContext context) : IUserRepository
+    public class UserRepository(AppDbContext context) : GenericRepository<User>(context) , IUserRepository
     {
         public async Task<List<User>> GetUsersAsync(UserRole? role, AccountStatus? status)
         {
@@ -18,33 +18,23 @@ namespace backend.Repositories
 
             return await query.ToListAsync();
         }
-        public async Task<User?> GetByIdAsync(int id)
+       /* public async Task<User?> GetByIdAsync(int id)
         {
             return await context.Users.FindAsync(id);
-        }
-        public async Task<bool> UpdateUserStatusAsync(int id, AccountStatus status)
+        }*/
+
+        /*public async Task<bool> UpdateUserStatusAsync(int id, AccountStatus status)
         {
-            var user = await context.Users.FindAsync(id);
+            var user = await GetByIdAsync(id);
 
             if (user == null)
                 return false;
 
             user.Status = status;
 
-            await context.SaveChangesAsync();
-            return true;
-        }
-        public async Task<bool> DeleteUserAsync(int id)
-        {
-            var user = await context.Users.FindAsync(id);
-
-            if (user == null)
-                return false;
-
-            context.Users.Remove(user);
-
-            await context.SaveChangesAsync();
-            return true;
-        }
+           return await SaveChangesAsync();
+           
+        }*/
+      
     }
 }

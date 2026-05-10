@@ -78,25 +78,14 @@ namespace backend.Controllers
                 message = "User rejected successfully"
             });
         }
-        [HttpDelete("{id}")]
+        [HttpGet("all")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> GetAllUsers()
         {
-            var result = await adminUserService.DeleteUserAsync(id);
-
-            if (!result)
-                return NotFound(new
-                {
-                    success = false,
-                    message = "User not found"
-                });
-
-            return Ok(new
-            {
-                success = true,
-                message = "User deleted successfully"
-            });
+            var users = await adminUserService.GetAllUsersAsync();
+            return Ok(new { success = true, data = users });
         }
+
     }
 
 
