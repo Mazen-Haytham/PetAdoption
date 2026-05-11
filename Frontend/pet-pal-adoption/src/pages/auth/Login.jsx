@@ -28,7 +28,7 @@ const Login = () => {
 		const role = useAuthStore.getState().role;
 		const destination = {
 		Adopter: "/adopter/profile",
-		Owner: "/owner/dashboard",
+		Owner: "/owner",
 		Admin: "/admin/dashboard",
 		}[role] ?? "/login";
 		

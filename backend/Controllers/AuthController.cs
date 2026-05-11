@@ -81,19 +81,18 @@ namespace backend.Controllers
         }
 
         [HttpPost("logout")]
+        [AllowAnonymous]
         public async Task<IActionResult> Logout()
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             Response.Cookies.Delete("refreshToken");
 
-            if (userIdClaim is null)
-                return Unauthorized("User not found in token");
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var userId = int.Parse(userIdClaim);
-
-            await authService.LogoutAsync(userId);
-
+            if (userIdClaim is not null)
+            {
+                var userId = int.Parse(userIdClaim);
+                await authService.LogoutAsync(userId);
+            }
 
             return Ok(new { message = "Logged out successfully" });
         }
