@@ -1,0 +1,87 @@
+// src/store/usePetStore.js
+
+import { create } from "zustand";
+import api from "../api/api"; // ← shared axios instance (interceptors handle auth + refresh)
+
+const usePetStore = create((set) => ({
+  // ── State ──────────────────────────────────────────────────
+  createdPet: null,
+  isCreating: false,
+  createError: null,
+  createSuccess: false,
+
+  // ── Actions ────────────────────────────────────────────────
+
+  /**
+   * Create a new pet post.
+   *
+   * @param {Object} petData
+   * @param {string}   petData.name
+   * @param {number}   petData.age
+   * @param {string}   petData.breed
+   * @param {string}   petData.gender
+   * @param {string}   petData.location
+   * @param {string}   petData.type
+   * @param {string}   petData.description
+   * @param {string}   petData.healthStatus  - comma-separated string
+   * @param {File[]}   petData.images        - at least 1 required
+   */
+  createPetPost: async (petData) => {
+    set({ isCreating: true, createError: null, createSuccess: false, createdPet: null });
+
+    try {
+      // Build FormData — backend expects multipart/form-data
+      const formData = new FormData();
+      formData.append("name",         petData.name);
+      formData.append("age",          petData.age);
+      formData.append("breed",        petData.breed);
+      formData.append("gender",       petData.gender);
+      formData.append("location",     petData.location);
+      formData.append("type",         petData.type);
+      formData.append("description",  petData.description ?? "");
+      formData.append("healthStatus", petData.healthStatus ?? "");
+
+      if (!petData.images || petData.images.length === 0) {
+        throw new Error("At least one image is required.");
+      }
+
+      petData.images.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      // api instance automatically:
+      //   - attaches Bearer token via request interceptor
+      //   - retries once with refreshed token on 401
+      //   - redirects to /unauthorized on 403
+      // Do NOT set Content-Type — axios sets multipart boundary automatically with FormData
+      const response = await api.post("/pets", formData);
+
+      // Controller returns 201 { Id, Name, Breed, Age, Location, Type, Status, CreatedAt }
+      set({ createdPet: response.data, isCreating: false, createSuccess: true });
+
+      return { success: true, data: response.data };
+
+    } catch (error) {
+      // api interceptor normalises errors to response.data or message string
+      const message =
+        error?.message ||
+        error?.title ||
+        "Failed to create pet post.";
+
+      set({ createError: message, isCreating: false, createSuccess: false });
+
+      return { success: false, error: message };
+    }
+  },
+
+  // Reset when unmounting the form or after navigation
+  resetCreateState: () =>
+    set({
+      createdPet: null,
+      isCreating: false,
+      createError: null,
+      createSuccess: false,
+    }),
+}));
+
+export default usePetStore;

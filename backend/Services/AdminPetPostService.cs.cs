@@ -45,6 +45,7 @@ namespace backend.Services
         public async Task<bool> RejectPetAsync(int approvalId, int adminId)
         {
             var request = await _context.PostApprovalRequests
+                .Include(x => x.PetPost)
                 .FirstOrDefaultAsync(x => x.Id == approvalId);
 
             if (request == null)
@@ -54,7 +55,10 @@ namespace backend.Services
             request.ReviewedByAdminId = adminId;
             request.ReviewedAt = DateTime.UtcNow;
 
+            request.PetPost.Status = PetStatus.Available;
+
             await _context.SaveChangesAsync();
+
             return true;
         }
     }

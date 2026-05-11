@@ -21,8 +21,8 @@ namespace backend.Pets.Services
         private static string OwnerPetPostsCacheKey(int ownerId) => $"petPosts:owner:{ownerId}";
 
         // ── Cache duration ──────────────────────────
-        private static readonly TimeSpan MemoryExpiry = TimeSpan.FromMinutes(5);
-        private static readonly TimeSpan RedisExpiry = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan MemoryExpiry = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan RedisExpiry = TimeSpan.FromMinutes(3);
 
         public PetService(
             IPetRepository petRepository,
