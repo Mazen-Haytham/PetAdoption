@@ -18,8 +18,8 @@ export default function ShelterSidebar({
   onNavigate,
 }) {
   const navigate = useNavigate();
-  const postLogout = () => {
-    logout();
+  const postLogout = async () => {
+    await logout();
     navigate("/login");
   };
 

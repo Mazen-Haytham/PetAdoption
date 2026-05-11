@@ -52,8 +52,8 @@ api.interceptors.response.use(
       return api(original);
 
     } catch {
+      await refreshApi.post("/auth/logout"); // refreshApi = no interceptors
       useAuthStore.getState().clearAuth();
-      window.location.href = "/login";
       return Promise.reject(error.response ? error.response.data : error.message);
     }
   }
@@ -65,7 +65,7 @@ export default api;
 export async function getMe() {
   try {
     const res = await api.get("/auth/me");
-    console.log("getMe response:", res);
+    // console.log("getMe response:", res);
     return res.data;
   } catch (error) {
     return Promise.reject(error.response ? error.response.data : error.message);
@@ -80,7 +80,6 @@ export async function logout() {
     console.error("Logout failed:", err.response ? err.response.data : err.message);
   } finally {
     useAuthStore.getState().clearAuth();
-    window.location.href = "/login";
   }
 }
 
@@ -96,7 +95,7 @@ export function resolveAssetUrl(path) {
 export async function getMyPetPosts() {
   try {
     const res = await api.get("/pets/mine");
-    console.log("getMyPetPosts response:", res);
+    // console.log("getMyPetPosts response:", res);
     return res.data.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
@@ -109,7 +108,7 @@ export async function getMyPetPosts() {
 export async function getReceivedAdoptionRequests() {
   try {
     const res = await api.get("/adoptions/received");
-    console.log("getReceivedAdoptionRequests response:", res);
+    // console.log("getReceivedAdoptionRequests response:", res);
     return res.data.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
@@ -120,7 +119,7 @@ export async function getReceivedAdoptionRequests() {
 export async function getMyAdoptionRequests() {
   try {
     const res = await api.get("/adoptions/my");
-    console.log("getMyAdoptionRequests response:", res);
+    // console.log("getMyAdoptionRequests response:", res);
     return res.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
