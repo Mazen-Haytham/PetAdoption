@@ -1,7 +1,10 @@
 using backend.Data;
+using backend.Dto;
+using backend.Hubs;
 using backend.Models;
 using backend.Pets.DTOs;
 using backend.Pets.Repositories;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
@@ -14,6 +17,7 @@ namespace backend.Pets.Services
         private readonly IWebHostEnvironment _env;
         private readonly IDistributedCache _redis;
         private readonly IMemoryCache _memory;
+        private readonly IHubContext<NotificationsHub> _hubContext;
 
         // ── Cache keys ──────────────────────────────
         private const string AllPetPostsCacheKey = "petPosts:all";
@@ -28,12 +32,14 @@ namespace backend.Pets.Services
             IPetRepository petRepository,
             IWebHostEnvironment env,
             IDistributedCache redis,
-            IMemoryCache memory)
+            IMemoryCache memory,
+            IHubContext<NotificationsHub> hubContext)
         {
             _petRepository = petRepository;
             _env = env;
             _redis = redis;
             _memory = memory;
+            _hubContext = hubContext;
         }
 
         // ── GET ALL ─────────────────────────────────
@@ -194,6 +200,18 @@ namespace backend.Pets.Services
                 await _petRepository.SaveChangesAsync();
 
                 await transaction.CommitAsync();
+
+
+                // ── Notify Admins ────────────────────────────
+                await _hubContext.Clients.Group("Admins").SendAsync("NewPostCreated", new NotificationDto
+                {
+                    Message = "New pet post waiting for approval",
+                    PostId = petPost.Id,
+                    OwnerId = ownerId, 
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                
 
                 return pet;  // ← no cache invalidation
             }
