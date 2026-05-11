@@ -60,6 +60,7 @@ export default function App() {
         />
 
         {/* Owner */}
+        {/* Extracted so "Shelter" role can also access this route */}
         <Route
           path="/owner/pets/new"
           element={
@@ -68,14 +69,20 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* All other owner routes, Owner-only */}
         <Route
-          path="/owner/*"
+          path="/owner"
           element={
             <ProtectedRoute allowedRoles={["Owner"]}>
               <ShelterOwnerLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<ShelterDashboardPage />} />
+          <Route path="dashboard" element={<Navigate to="/owner" replace />} />
+          <Route path="requests" element={<ShelterRequestsPage />} />
+        </Route>
 
         {/* Admin */}
         <Route

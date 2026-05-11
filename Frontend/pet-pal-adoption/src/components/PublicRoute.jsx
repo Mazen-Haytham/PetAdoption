@@ -4,7 +4,7 @@ import { useAuthStore } from "../store/authStore";
 
 const ROLE_DESTINATIONS = {
   Adopter: "/adopter/profile",
-  Owner: "/owner/dashboard",
+  Owner: "/owner",
   Admin: "/admin/dashboard",
 };
 
