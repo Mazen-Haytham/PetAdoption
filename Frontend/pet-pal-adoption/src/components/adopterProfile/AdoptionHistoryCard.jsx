@@ -1,11 +1,25 @@
-import Avatar from "./Avatar";
+import PetAvatar from "./PetAvatar";
 
 function StoryCard({ item }) {
+  const bg = (() => {
+    if(item.note?.includes("Rejected")) return "bg-red-200";
+    if(item.note?.includes("Adopted") || 
+       item.note?.includes("Completed") || 
+       item.note?.includes("Accepted")) return "bg-green-200";
+
+    return "bg-gray-200";
+  })();
   return (
     <article className="pa-card p-6">
       <div className="flex items-start gap-4">
         <div className="rounded-full bg-[rgb(var(--pa-primary))/10] p-1">
-          <Avatar name={item.petName} size="sm" />
+          <PetAvatar
+            seed={item.petName}
+            size={44}
+            src={item.imageUrl}
+            alt={item.petName ? `Photo of ${item.petName}` : "Pet"}
+            roundedClass="rounded-full"
+          />
         </div>
         <div className="min-w-0">
           <div className="text-sm font-extrabold">{item.petName}</div>
@@ -16,7 +30,7 @@ function StoryCard({ item }) {
       </div>
 
       {item.note ? (
-        <p className="mt-4 text-sm leading-6 text-black/55">{item.note}</p>
+        <p className={`rounded-full ${bg} text-center mt-4 text-sm leading-6 text-black/70`}>{item.note}</p>
       ) : null}
     </article>
   );
