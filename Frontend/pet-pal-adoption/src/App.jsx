@@ -4,6 +4,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import AdopterProfile from "./pages/adopter/AdopterProfile";
+import Favorites from "./pages/adopter/Favorites";
+import Reviews from "./pages/adopter/Reviews";
 import { useAuthStore } from "./store/authStore";
 import PublicRoute from "./components/PublicRoute";
 import ShelterOwnerLayout from "./pages/owner/ShelterOwnerLayout";
@@ -34,7 +36,6 @@ export default function App() {
             </PublicRoute>
           }
         />
-
         <Route
           path="/register"
           element={
@@ -55,12 +56,27 @@ export default function App() {
           }
         />
         <Route
+          path="/adopter/favorites"
+          element={
+            <ProtectedRoute allowedRoles={["Adopter"]}>
+              <Favorites />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/adopter/reviews"
+          element={
+            <ProtectedRoute allowedRoles={["Adopter"]}>
+              <Reviews />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/adopter"
           element={<Navigate to="/adopter/profile" replace />}
         />
 
         {/* Owner */}
-        {/* Extracted so "Shelter" role can also access this route */}
         <Route
           path="/owner/pets/new"
           element={
@@ -69,8 +85,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* All other owner routes, Owner-only */}
         <Route
           path="/owner"
           element={
