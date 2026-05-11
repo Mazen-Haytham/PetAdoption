@@ -1,19 +1,23 @@
 import { create } from "zustand";
 import * as adminApi from "../api/Admin.api";
-import { DASHBOARD_PETS_QUERY, DEFAULT_PETS_QUERY } from "../admin/adminConstants";
-import { adminApprovalRequestId, apiErrorMessage } from "../admin/adminHelpers";
+import {
+  adminApprovalRequestId,
+  apiErrorMessage,
+  DASHBOARD_PETS_QUERY,
+  DEFAULT_PETS_QUERY,
+} from "../admin/adminShared";
+
+function newId() {
+  return typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
 
 /**
- * All admin UI reads/writes here (one store = easy to find).
- *
- * Blocks:
- * 1) Dashboard — load users + many pets for stats
- * 2) Users     — list + approve/reject
- * 3) Pets      — list + approve/reject + SignalR refresh uses lastPetsQuery
- * 4) Bell      — new post counter for SignalR
+ * All admin UI state + server calls.
+ * Notifications = list from SignalR (bell panel reads this).
  */
 export default create((set, get) => ({
-  // --- Dashboard ---
   dashboardLoading: false,
   dashboardError: null,
 
@@ -37,7 +41,6 @@ export default create((set, get) => ({
     }
   },
 
-  // --- Users ---
   users: [],
   usersLoading: false,
   usersError: null,
@@ -74,7 +77,6 @@ export default create((set, get) => ({
     }
   },
 
-  // --- Pets ---
   pets: [],
   petsLoading: false,
   petsError: null,
@@ -129,15 +131,22 @@ export default create((set, get) => ({
     }
   },
 
-  // --- SignalR (new owner post) ---
-  newPostNotificationCount: 0,
+  /** New posts from SignalR — shown in the bell panel (max 10). */
+  postNotifications: [],
 
-  bumpNewPostNotification() {
-    set((s) => ({ newPostNotificationCount: s.newPostNotificationCount + 1 }));
+  bumpNewPostNotification(payload) {
+    const message =
+      payload?.message ??
+      payload?.Message ??
+      "New pet post waiting for approval";
+    const item = { id: newId(), message, createdAt: Date.now() };
+    set((s) => ({
+      postNotifications: [item, ...s.postNotifications].slice(0, 10),
+    }));
   },
 
-  clearNewPostNotifications() {
-    set({ newPostNotificationCount: 0 });
+  clearPostNotifications() {
+    set({ postNotifications: [] });
   },
 
   async refreshPetsAfterHubEvent() {
@@ -146,7 +155,7 @@ export default create((set, get) => ({
       const pets = await adminApi.getAdminPets(q);
       set({ pets });
     } catch {
-      /* leave list as-is */
+      /* keep list */
     }
   },
 }));

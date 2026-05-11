@@ -1,8 +1,6 @@
-import TopNav from "./../../components/shared/TopNav";
 import ProfileHeaderCard from "../../components/adopterProfile/ProfileHeaderCard";
 import ActiveApplicationsCard from "../../components/adopterProfile/ActiveApplicationsCard";
 import AdoptionHistoryCard from "../../components/adopterProfile/AdoptionHistoryCard";
-import PageFooter from "./../../components/shared/PageFooter";
 import { useEffect, useMemo, useState } from "react";
 import {
   getAdoptionHistory,
@@ -11,7 +9,6 @@ import {
   resolveAssetUrl,
 } from "../../api/api";
 
-/** Same shape as each element of `GET /api/pets/mine` when present on adoption rows. */
 function petPostSnapshot(row) {
   return row?.petPost ?? row?.PetPost ?? null;
 }
@@ -170,37 +167,30 @@ export default function AdopterProfile() {
   }, [adoptionHistoryItems, showAllHistory]);
 
   return (
-    <div className="min-h-dvh">
-      <TopNav brand="PawAdopt" />
+    <main className="pa-container pb-12 pt-8">
+      <ProfileHeaderCard adopter={adopter} />
 
-      <main className="pa-container pb-12 pt-8">
-        <ProfileHeaderCard adopter={adopter} />
+      {loading ? (
+        <div className="mt-8 pa-card p-6 text-sm text-black/55">Loading…</div>
+      ) : error ? (
+        <div className="mt-8 pa-card p-6 text-sm text-rose-700 bg-rose-50 ring-1 ring-rose-200">
+          {error}
+        </div>
+      ) : null}
 
-        {loading ? (
-          <div className="mt-8 pa-card p-6 text-sm text-black/55">Loading…</div>
-        ) : error ? (
-          <div className="mt-8 pa-card p-6 text-sm text-rose-700 bg-rose-50 ring-1 ring-rose-200">
-            {error}
-          </div>
-        ) : null}
+      <section className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-10">
+          <ActiveApplicationsCard items={activeApplications} />
+          <AdoptionHistoryCard
+            items={visibleAdoptionHistoryItems}
+            canToggle={adoptionHistoryItems.length > 4}
+            toggleLabel={showAllHistory ? "Show Recent" : "Show All"}
+            onToggle={() => setShowAllHistory((v) => !v)}
+          />
+        </div>
 
-        <section className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-10">
-            <ActiveApplicationsCard items={activeApplications} />
-            <AdoptionHistoryCard
-              items={visibleAdoptionHistoryItems}
-              canToggle={adoptionHistoryItems.length > 4}
-              toggleLabel={showAllHistory ? "Show Recent" : "Show All"}
-              onToggle={() => setShowAllHistory((v) => !v)}
-            />
-          </div>
-
-          <div className="space-y-6" />
-        </section>
-      </main>
-
-      <PageFooter brand="PawAdopt" />
-    </div>
+        <div className="space-y-6" />
+      </section>
+    </main>
   );
 }
-

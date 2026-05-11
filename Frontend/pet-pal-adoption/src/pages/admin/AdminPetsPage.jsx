@@ -1,10 +1,9 @@
 import AdminPetsModeration from "../../components/admin/AdminPetsModeration";
-import AdminPageShell from "../../components/admin/AdminPageShell";
 
 export default function AdminPetsPage() {
   return (
-    <AdminPageShell>
+    <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <AdminPetsModeration />
-    </AdminPageShell>
+    </div>
   );
 }

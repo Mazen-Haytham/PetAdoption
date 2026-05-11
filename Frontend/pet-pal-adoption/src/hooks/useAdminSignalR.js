@@ -6,13 +6,7 @@ import { useAuthStore } from "../store/authStore";
 import useAdminStore from "../store/useAdminStore";
 import { toast } from "sonner";
 
-/**
- * Runs inside AdminLayout only.
- *
- * 1) Wait for Admin JWT.
- * 2) Open hub (server puts this user in group "Admins").
- * 3) On `NewPostCreated`: toast + bell; if URL is pets page, refresh pet list quietly.
- */
+/** Admin layout only: hub → toast + store notification + refresh pets list on pets page. */
 export function useAdminSignalR() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const role = useAuthStore((s) => s.role);
@@ -50,7 +44,7 @@ export function useAdminSignalR() {
           payload?.Message ??
           "New pet post waiting for approval";
         toast.info(text);
-        useAdminStore.getState().bumpNewPostNotification();
+        useAdminStore.getState().bumpNewPostNotification(payload);
         if (pathRef.current.startsWith("/admin/pets")) {
           useAdminStore.getState().refreshPetsAfterHubEvent();
         }

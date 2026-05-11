@@ -1,13 +1,9 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "../../components/admin/AdminSidebar";
-import AdminTopBar from "../../components/admin/AdminTopBar";
+import AdminNotificationBell from "../../components/admin/AdminNotificationBell";
 import { useAdminSignalR } from "../../hooks/useAdminSignalR";
 
-/**
- * Admin area shell (matches owner layout idea):
- * sidebar | (top bar + routed page)
- */
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   useAdminSignalR();
@@ -22,7 +18,9 @@ export default function AdminLayout() {
         />
 
         <main className="flex min-w-0 flex-1 flex-col">
-          <AdminTopBar />
+          <header className="sticky top-0 z-20 flex justify-end border-b border-[rgb(var(--pa-primary))]/20 bg-[rgb(var(--pa-bg))]/80 px-6 py-3 backdrop-blur">
+            <AdminNotificationBell />
+          </header>
           <Outlet />
         </main>
       </div>
