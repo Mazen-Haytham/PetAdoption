@@ -13,6 +13,7 @@ Routing is declared in `src/App.jsx` inside a single `<BrowserRouter>` wrapping 
 | `/adopter` | `Navigate` → `/adopter/profile` | Convenience redirect |
 | `/owner` | `ShelterOwnerLayout` | **Parent layout** with nested children |
 | `/owner` (index) | `ShelterDashboardPage` | Default child when path is exactly `/owner` |
+| `/owner/dashboard` | `Navigate` → `/owner` | Compatibility redirect for older links/bookmarks |
 | `/owner/requests` | `ShelterRequestsPage` | Adoption requests full view |
 | `/admin/*` | `AdminDashboard` | Placeholder |
 | `/` | `Navigate` → `/login` | Root redirect |
@@ -25,6 +26,7 @@ This uses React Router **nested routes**:
 ```jsx
 <Route path="/owner" element={<ShelterOwnerLayout />}>
   <Route index element={<ShelterDashboardPage />} />
+  <Route path="dashboard" element={<Navigate to="/owner" replace />} />
   <Route path="requests" element={<ShelterRequestsPage />} />
 </Route>
 ```
@@ -49,7 +51,7 @@ Mobile drawer closes via **`onNavigate`** callback from the parent (`setSidebarO
 
 ### Programmatic navigation
 
-- **Login:** on success calls `navigate("/owner")` — see limitations doc for role mismatch.
+- **Login:** on success redirects based on role (Owner → `/owner`, Adopter → `/adopter/profile`).
 - **Register:** navigates to `/login` only when role is **Adopter**; shelter path shows success toast without redirect.
 
 ### Declarative redirects
@@ -58,4 +60,4 @@ Mobile drawer closes via **`onNavigate`** callback from the parent (`setSidebarO
 
 ## What is *not* protected yet
 
-`ProtectedRoute` exists in `components/ProtectedRoute.jsx` but is **commented out** in `App.jsx`. Routes are reachable without enforcing login or role checks on the frontend (backend may still enforce — explain defense in depth).
+`ProtectedRoute` is used for `/adopter/profile`, `/owner/*`, and `/admin/*`. This is **not** a security boundary (the backend must still enforce authorization), but it prevents accidental navigation in the SPA.

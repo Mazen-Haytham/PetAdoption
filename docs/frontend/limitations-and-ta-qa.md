@@ -4,21 +4,22 @@ Use this file to answer “what’s missing / what would you improve” honestly
 
 ## Security and auth UX
 
-### Routes are not gated in `App.jsx`
+### Frontend route gating is present (but not a security boundary)
 
-`ProtectedRoute` is **commented out**. Anyone can navigate to `/owner` or `/adopter/profile` in the URL bar.
+`App.jsx` wraps role-specific pages in `ProtectedRoute` for **UX**:
 
-**Correct engineering answer:** Authorization must be enforced by the **API** (401/403). The SPA should also gate routes for UX, but that layer is incomplete here.
+- Unauthenticated → redirected to `/login`
+- Authenticated but wrong role → redirected to `/unauthorized`
 
-### `ProtectedRoute.jsx` is broken if enabled as-is
+**Correct engineering answer:** authorization must still be enforced by the **API** (401/403). The SPA only improves UX and reduces accidental navigation.
 
-It imports `useAuth` from `../context/authContext`, but **no auth context module exists** in `src/`. Enabling `<ProtectedRoute>` without implementing that provider would **throw at runtime**.
+### Login redirect uses role → destination mapping
 
-### Login always navigates to `/owner`
+After a successful login, `Login.jsx` redirects based on decoded JWT role:
 
-`Login.jsx` calls `navigate("/owner")` after success **regardless of role**. If an **Adopter** logs in, they land on the **shelter dashboard** unless manually visiting `/adopter/profile`.
-
-**Improvement:** branch on `data.user.role` (or equivalent) after login, or fetch `getMe()` then redirect.
+- `Adopter` → `/adopter/profile`
+- `Owner` → `/owner`
+- `Admin` → `/admin/dashboard` (placeholder)
 
 ### Register flow for Owner/Shelter
 
@@ -41,6 +42,10 @@ Browser must trust the dev cert for `https://localhost:7081`. SignalR and Axios 
 ### Unknown paths → login
 
 `<Route path="*">` sends **everything** unmatched to `/login`, including possibly mistyped `/adopter/foo`. That may confuse users; an **NotFound** page is often clearer.
+
+### Legacy owner URL compatibility
+
+Older links used `/owner/dashboard`. The app now treats `/owner` as the canonical dashboard URL and redirects `/owner/dashboard` → `/owner` to avoid falling into the `*` route (which would otherwise bounce back to `/login` and can cause redirect loops).
 
 ### Admin area
 
@@ -81,7 +86,7 @@ A: Push notification when a new adoption request is created so the shelter UI up
 A: `useEffect` cleanup flags (`alive` / `cancelled`) and SignalR `stop()` + `off()` on unmount.
 
 **Q: What would you refactor next?**  
-A: Role-based redirect after login, wire or remove `ProtectedRoute`, environment-based API base URL, consolidate toast systems or document when to use which, add tests for API helpers and hooks.
+A: Environment-based API base URL, consolidate toast systems or document when to use which, add tests for API helpers and hooks, and replace the aggressive `* → /login` fallback with a `NotFound` page.
 
 **Q: How is the project organized for scalability?**  
 A: Pages vs components vs hooks vs api modules; owner area already split by route + layout. Further scaling might add feature folders with colocated tests and `msw` for API mocking.
