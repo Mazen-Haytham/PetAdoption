@@ -103,6 +103,12 @@ A: Frontend routes are not a security boundary. Emphasize **server-side authoriz
 **Q: Why hard redirect on 401 refresh failure?**  
 A: Guarantees user leaves protected views and cannot keep firing failing requests with stale assumptions.
 
-## `ProtectedRoute.jsx` mismatch
+## `ProtectedRoute.jsx` (frontend gating)
 
-`ProtectedRoute` imports `useAuth` from `../context/authContext`, but **no `context` folder exists** in `src/`. The component is **not used** in `App.jsx`. If enabled without adding a provider, the app would crash — document as **work in progress**.
+`ProtectedRoute` reads auth state from Zustand (`useAuthStore`) and gates routes for UX:
+
+- If auth is still initializing (`isAuthLoading`) → render nothing (prevents flicker)
+- If missing `accessToken` → redirect to `/login`
+- If role does not match `allowedRoles` → redirect to `/unauthorized`
+
+This is complementary to (not a replacement for) server-side authorization.
