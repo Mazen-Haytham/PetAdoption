@@ -60,7 +60,22 @@ On hub event, client **refetches** requests. If refetch fails silently, list cou
 ### Mixed response shapes
 
 Helpers sometimes use `res.data.data` vs `res.data`. This reflects API evolution; it’s pragmatic but easy to get wrong when adding endpoints.
+### Recent API enhancements (May 2026)
 
+**Adoption endpoints now return enriched data:**
+
+- `/api/adoptions/my` — Each request now includes full `petPost` object (not just compact pet reference)
+- `/api/adoptions/history` — Each adoption record includes complete pet post details
+
+**Benefits:**
+- Frontend components can display rich pet information (images, health status, owner name) without additional API calls
+- Reduced network round trips
+- More consistent data model
+
+**Implementation notes:**
+- Backend uses eager loading in repository queries to prevent N+1 problems
+- Mapping centralized in `PetPostResponseMapper` for consistency
+- Frontend components (ActiveApplicationsCard, AdoptionHistoryCard, PetAvatar) updated to consume enhanced data
 ## Performance (not yet optimized)
 
 - No `React.memo` on heavy lists.

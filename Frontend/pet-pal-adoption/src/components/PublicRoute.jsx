@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
 const ROLE_DESTINATIONS = {
-  Adopter: "/adopter/profile",
+  Adopter: "/adopter",
   Owner: "/owner",
   Admin: "/admin/dashboard",
 };

@@ -1,7 +1,10 @@
 // src/store/usePetStore.js
 
 import { create } from "zustand";
-import api from "../api/api"; // ← shared axios instance (interceptors handle auth + refresh)
+import api, {
+  createAdoptionRequest,
+  getAvailablePetPosts,
+} from "../api/api";
 
 const usePetStore = create((set) => ({
   // ── State ──────────────────────────────────────────────────
@@ -82,6 +85,45 @@ const usePetStore = create((set) => ({
       createError: null,
       createSuccess: false,
     }),
+
+  // ========== Adopter home (/adopter) — browse + request adoption ==========
+  browsePets: [],
+  browseLoading: false,
+  browseError: null,
+  adoptSubmitting: false,
+  adoptError: null,
+
+  fetchBrowsePets: async () => {
+    set({ browseLoading: true, browseError: null });
+    try {
+      const list = await getAvailablePetPosts();
+      set({ browsePets: Array.isArray(list) ? list : [], browseLoading: false });
+    } catch (error) {
+      const msg =
+        typeof error === "string"
+          ? error
+          : error?.message || "Could not load pets.";
+      set({ browseError: msg, browseLoading: false });
+    }
+  },
+
+  submitAdoptionRequest: async (petPostId, message) => {
+    set({ adoptSubmitting: true, adoptError: null });
+    try {
+      const data = await createAdoptionRequest(petPostId, message);
+      set({ adoptSubmitting: false });
+      return { ok: true, data };
+    } catch (error) {
+      const msg =
+        typeof error === "string"
+          ? error
+          : error?.message || "Request failed.";
+      set({ adoptError: msg, adoptSubmitting: false });
+      return { ok: false, error: msg };
+    }
+  },
+
+  clearAdoptError: () => set({ adoptError: null }),
 }));
 
 export default usePetStore;

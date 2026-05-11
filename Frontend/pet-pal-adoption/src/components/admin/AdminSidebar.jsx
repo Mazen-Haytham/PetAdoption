@@ -1,22 +1,23 @@
-import { ClipboardList, LayoutDashboard, PawPrint } from "lucide-react";
+/**
+ * Left navigation for every /admin route (mobile drawer + desktop column).
+ */
+import { LayoutDashboard, PawPrint, Users } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import LogoutBtn from "../shared/LogoutBtn";
+import { logout } from "../../api/api";
+
 const navItems = [
-  { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/owner" },
-  {
-    key: "requests",
-    label: "Adoption Requests",
-    icon: ClipboardList,
-    to: "/owner/requests",
-  },
+  { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/admin/dashboard" },
+  { key: "users", label: "Manage Users", icon: Users, to: "/admin/users" },
+  { key: "pets", label: "Pet Posts", icon: PawPrint, to: "/admin/pets" },
 ];
 
-export default function ShelterSidebar({
-  isOpen = false,
-  onToggle,
-  onNavigate,
-}) {
+export default function AdminSidebar({ isOpen = false, onToggle, onNavigate }) {
   const navigate = useNavigate();
+
+  const postLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   const linkClasses = ({ isActive }) =>
     [
@@ -65,11 +66,9 @@ export default function ShelterSidebar({
             <PawPrint className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
           </div>
           <div className="leading-tight">
-            <div className="text-base font-extrabold tracking-tight">
-              Shelter Home
-            </div>
+            <div className="text-base font-extrabold tracking-tight">PetAdopt</div>
             <div className="text-[11px] font-bold tracking-wide text-black/40">
-              ADMIN PORTAL
+              ADMIN PANEL
             </div>
           </div>
         </div>
@@ -81,7 +80,6 @@ export default function ShelterSidebar({
               <NavLink
                 key={item.key}
                 to={item.to}
-                end={item.key === "dashboard"}
                 onClick={() => onNavigate?.()}
                 className={linkClasses}
               >
@@ -96,17 +94,15 @@ export default function ShelterSidebar({
           })}
         </nav>
 
-        <button
-          type="button"
-          onClick={() => {
-            navigate("/owner/pets/new");
-            onNavigate?.();
-          }}
-          className="hover:cursor-pointer mt-5 mb-3 w-full transition-all rounded-2xl border-2 text-[rgb(var(--pa-primary))] hover:bg-[rgb(var(--pa-primary))] px-5 py-3 text-sm font-extrabold hover:text-white hover:border-transparent hover:brightness-95"
-        >
-          Create a new post
-        </button>
-        <LogoutBtn />
+        <div className="mt-auto pt-6">
+          <button
+            type="button"
+            className="hover:cursor-pointer w-full rounded-2xl transition-all border-2 text-red-500 hover:bg-red-500 px-5 py-3 text-sm font-extrabold hover:text-white hover:border-transparent shadow-lg shadow-black/10 hover:brightness-95"
+            onClick={postLogout}
+          >
+            Logout
+          </button>
+        </div>
       </aside>
     </>
   );

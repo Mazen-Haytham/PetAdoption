@@ -4,7 +4,12 @@ import StatusPill from "./StatusPill";
 function Row({ item, showDivider }) {
   return (
     <div className={`flex items-center gap-4 py-5 ${showDivider ? "border-b border-black/5" : ""}`}>
-      <PetAvatar seed={item.petName} size={54} />
+      <PetAvatar
+        seed={item.petName}
+        size={54}
+        src={item.imageUrl}
+        alt={item.petName ? `Photo of ${item.petName}` : "Pet"}
+      />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-4">
