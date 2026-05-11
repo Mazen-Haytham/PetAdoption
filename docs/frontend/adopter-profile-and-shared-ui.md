@@ -38,7 +38,13 @@ Filters requests where **`status` case-insensitive === `"pending"`** and maps st
 r.id ?? r.requestId ?? composite of pet id + createdAt
 ```
 
-Produces card-friendly `{ petName, subtitle, status, trailingText }`.
+**[ENHANCED - May 2026]** Each request item now includes full `petPost` object containing:
+- **Images**: `petPost.images` (array of URLs) and `petPost.primaryImage` (primary image URL)
+- **Pet details**: breed, location, age, health status
+- **Owner info**: `petPost.ownerName` and `petPost.ownerId`
+- **Post metadata**: description, createdAt, status
+
+Produces card-friendly `{ petName, subtitle, status, trailingText, petPost }` — cards now display pet avatar from `petPost.primaryImage` and can access full pet/owner details without additional API calls.
 
 #### `adoptionHistoryItems`
 
@@ -46,6 +52,8 @@ Merges two sources:
 
 1. **Non-pending** items from `requests` (accepted/rejected/etc.) with humanized secondary text.
 2. **`history` array** from dedicated history endpoint (adopted pets with notes).
+
+**[ENHANCED - May 2026]** Both sources now provide full `petPost` object with same structure as activeApplications above, enabling rich display of completed adoption details.
 
 Then:
 
@@ -78,15 +86,35 @@ Shows first **4** or **all** based on `showAllHistory` toggle passed to `Adoptio
 Includes (non-exhaustive list from tree):
 
 - `ProfileHeaderCard.jsx`
-- `ActiveApplicationsCard.jsx`
-- `AdoptionHistoryCard.jsx`
+- `ActiveApplicationsCard.jsx` — **[ENHANCED]** Now displays pet avatar from `petPost.primaryImage` and shows comprehensive pet details
+- `AdoptionHistoryCard.jsx` — **[ENHANCED]** Displays full pet information and owner details from enriched response
 - `AdoptionHistoryCard`-related display pieces
-- `PetAvatar.jsx`, `Avatar.jsx`, `StatusPill.jsx` (adopter-scoped styling variants)
+- `PetAvatar.jsx` — **[ENHANCED - May 2026]** Improved avatar display with better image handling, fallbacks, responsive sizing, and proper error boundaries
+- `Avatar.jsx`, `StatusPill.jsx` (adopter-scoped styling variants)
 - `VolunteerCard.jsx`, `VetReferencesCard.jsx` — may be **presentational placeholders** or partially wired; verify against actual JSX usage in `AdopterProfile.jsx` (current page imports subset only).
+
+### Component enhancements (May 2026)
+
+#### `PetAvatar.jsx`
+- **Image handling**: Improved logic for rendering pet images with proper URL resolution
+- **Fallbacks**: Better handling of missing or invalid images
+- **Responsive design**: Adaptive sizing based on container
+- **Error boundaries**: Graceful degradation when images fail to load
+
+#### `ActiveApplicationsCard.jsx`
+- **Pet information display**: Shows pet avatar, breed, location, age from `petPost`
+- **Owner details**: Displays owner name from `petPost.ownerName`
+- **Health status**: Can now display health status from `petPost.healthStatus`
+- **No additional API calls**: All data available from enhanced response
+
+#### `AdoptionHistoryCard.jsx`
+- **Rich display**: Shows all pet post details including images and owner information
+- **Complete history**: Can display adoption dates, status, and owner who facilitated adoption
+- **Image carousel**: Uses PetAvatar with primary image and access to full image array
 
 **Fact check for defense:** `AdopterProfile.jsx` imports:
 
-- `ProfileHeaderCard`, `ActiveApplicationsCard`, `AdoptionHistoryCard` only (plus shared nav/footer). Other adopter components may be **unused** in the current page — worth confirming with `grep` before claiming full integration.
+- `ProfileHeaderCard`, `ActiveApplicationsCard`, `AdoptionHistoryCard` (plus shared nav/footer). Other adopter components may be **unused** in the current page — worth confirming with `grep` before claiming full integration.
 
 ## Global styling (`index.css`)
 

@@ -4,7 +4,35 @@ import ActiveApplicationsCard from "../../components/adopterProfile/ActiveApplic
 import AdoptionHistoryCard from "../../components/adopterProfile/AdoptionHistoryCard";
 import PageFooter from "./../../components/shared/PageFooter";
 import { useEffect, useMemo, useState } from "react";
-import { getAdoptionHistory, getMe, getMyAdoptionRequests } from "../../api/api";
+import {
+  getAdoptionHistory,
+  getMe,
+  getMyAdoptionRequests,
+  resolveAssetUrl,
+} from "../../api/api";
+
+/** Same shape as each element of `GET /api/pets/mine` when present on adoption rows. */
+function petPostSnapshot(row) {
+  return row?.petPost ?? row?.PetPost ?? null;
+}
+
+function petNameFromAdoptionRow(row) {
+  const pp = petPostSnapshot(row);
+  return pp?.name ?? pp?.Name ?? row?.pet?.name ?? row?.petName ?? "Unknown Pet";
+}
+
+function imageUrlFromPetPostRow(row) {
+  const pp = petPostSnapshot(row);
+  if (pp) {
+    const primary = pp.primaryImage ?? pp.PrimaryImage;
+    if (primary) return resolveAssetUrl(primary);
+    const imgs = pp.images ?? pp.Images;
+    if (Array.isArray(imgs) && imgs.length > 0) return resolveAssetUrl(imgs[0]);
+  }
+  const rootPrimary = row?.primaryImage ?? row?.PrimaryImage;
+  if (rootPrimary) return resolveAssetUrl(rootPrimary);
+  return null;
+}
 
 function toTitleCaseStatus(status) {
   if (!status) return "Unknown";
@@ -75,7 +103,8 @@ export default function AdopterProfile() {
     const pending = requests.filter((r) => String(r?.status ?? "").toLowerCase() === "pending");
     return pending.map((r) => ({
       id: String(r.id ?? r.requestId ?? `${r?.pet?.id ?? ""}-${r?.createdAt ?? ""}`),
-      petName: r?.pet?.name ?? r?.petName ?? "Unknown Pet",
+      petName: petNameFromAdoptionRow(r),
+      imageUrl: imageUrlFromPetPostRow(r),
       subtitle: r?.createdAt ? `Applied ${formatDate(r.createdAt)}` : null,
       status: toTitleCaseStatus(r.status),
       trailingText: r?.createdAt ? formatDate(r.createdAt).toUpperCase() : "",
@@ -90,7 +119,7 @@ export default function AdopterProfile() {
       })
       .map((r) => {
         const status = String(r?.status ?? "").toLowerCase();
-        const petName = r?.pet?.name ?? r?.petName ?? "Unknown Pet";
+        const petName = petNameFromAdoptionRow(r);
         const when = r?.createdAt ? formatDate(r.createdAt) : null;
         const secondary =
           status === "accepted"
@@ -102,15 +131,17 @@ export default function AdopterProfile() {
         return {
           id: `req-${String(r.id ?? r.requestId ?? `${petName}-${r?.createdAt ?? ""}`)}`,
           petName,
+          imageUrl: imageUrlFromPetPostRow(r),
           secondary,
-          note: "Refresh or check your requests for details.",
+          note: r?.notes ?? r?.note ?? (status ? `Status: ${toTitleCaseStatus(status)}` : null),
           _sortDate: r?.createdAt ?? null,
         };
       });
 
     const completed = history.map((h) => ({
       id: `hist-${String(h?.pet?.id ?? `${h?.adoptedAt ?? ""}-${h?.status ?? ""}`)}`,
-      petName: h?.pet?.name ?? "Unknown Pet",
+      petName: petNameFromAdoptionRow(h),
+      imageUrl: imageUrlFromPetPostRow(h),
       secondary: h?.adoptedAt ? `Adopted ${formatDate(h.adoptedAt)}` : "Adopted",
       note: h?.status ? `Status: ${toTitleCaseStatus(h.status)}` : null,
       _sortDate: h?.adoptedAt ?? null,

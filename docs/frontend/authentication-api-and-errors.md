@@ -71,11 +71,58 @@ Both use **`import api from "./api"`** so interceptors attach.
 | `getMe()` | `GET /auth/me` | Validates session; SignalR hook uses before connecting |
 | `getMyPetPosts()` | `GET /pets/mine` | Parses `res.data.data ?? []` |
 | `getReceivedAdoptionRequests()` | `GET /adoptions/received` | Same `data.data` unwrap |
-| `getMyAdoptionRequests()` | `GET /adoptions/my` | Returns `res.data` as array-ish |
-| `getAdoptionHistory()` | `GET /adoptions/history` | |
+| `getMyAdoptionRequests()` | `GET /adoptions/my` | **[ENHANCED]** Returns full `petPost` object per request (see below) |
+| `getAdoptionHistory()` | `GET /adoptions/history` | **[ENHANCED]** Returns full `petPost` object per adoption (see below) |
 | `acceptAdoptionRequest(id)` | `PUT /adoptions/{id}/accept` | 204 no content OK |
 | `rejectAdoptionRequest(id)` | `PUT /adoptions/{id}/reject` | 204 no content OK |
 | `resolveAssetUrl(path)` | N/A (pure helper) | Prefixes backend origin for relative image paths |
+
+### Enhanced adoption request/history response format (May 2026)
+
+**`GET /adoptions/my`** now returns each request with full pet post details:
+
+```json
+[
+  {
+    "id": 123,
+    "pet": { "id": 456, "name": "Max" },
+    "petPost": {
+      "petPostId": 456,
+      "description": "Friendly dog",
+      "healthStatus": "Healthy",
+      "status": "Active",
+      "createdAt": "2026-05-10T10:00:00",
+      "petId": 789,
+      "name": "Max",
+      "type": "Dog",
+      "breed": "Golden Retriever",
+      "location": "New York",
+      "age": 3,
+      "ownerId": 10,
+      "ownerName": "John Shelter",
+      "images": ["url1.jpg", "url2.jpg"],
+      "primaryImage": "url1.jpg"
+    },
+    "status": "pending",
+    "createdAt": "2026-05-11T08:30:00"
+  }
+]
+```
+
+**`GET /adoptions/history`** similarly includes the full `petPost` object:
+
+```json
+[
+  {
+    "pet": { "id": 456, "name": "Max" },
+    "petPost": { /* same structure as above */ },
+    "status": "approved",
+    "adoptedAt": "2026-05-11T15:45:00"
+  }
+]
+```
+
+**Frontend impact:** Components can now display comprehensive pet information (images, health status, owner name, etc.) without additional API calls. Previously only compact `{ id, name }` was available.
 
 Many functions treat **404** as **empty list** for list endpoints (returns `[]` instead of throwing).
 

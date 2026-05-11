@@ -120,7 +120,7 @@ export async function getMyAdoptionRequests() {
   try {
     const res = await api.get("/adoptions/my");
     // console.log("getMyAdoptionRequests response:", res);
-    return res.data ?? [];
+    return res.data?.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
     return Promise.reject(error.response ? error.response.data : error.message);
@@ -130,7 +130,7 @@ export async function getMyAdoptionRequests() {
 export async function getAdoptionHistory() {
   try {
     const res = await api.get("/adoptions/history");
-    return res.data ?? [];
+    return res.data?.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
     return Promise.reject(error.response ? error.response.data : error.message);

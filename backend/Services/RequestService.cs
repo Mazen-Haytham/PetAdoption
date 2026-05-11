@@ -1,5 +1,6 @@
 ﻿using backend.Data;
 using backend.Models;
+using backend.Pets.Mapping;
 using backend.Requests.DTOs;
 using backend.Requests.Repositories;
 using backend.Hubs;
@@ -12,7 +13,9 @@ namespace backend.Requests.Services
         private readonly IRequestRepository _requestRepository;
         private readonly IHubContext<NotificationsHub> _hub;
 
-        public RequestService(IRequestRepository requestRepository, IHubContext<NotificationsHub> hub)
+        public RequestService(
+            IRequestRepository requestRepository,
+            IHubContext<NotificationsHub> hub)
         {
             _requestRepository = requestRepository;
             _hub = hub;
@@ -86,12 +89,17 @@ namespace backend.Requests.Services
         {
             var requests = await _requestRepository.GetRequestsByAdopterIdAsync(adopterId);
 
-            return requests.Select(r => (object)new
+            return requests.Select(r =>
             {
-                id = r.Id,
-                pet = new { id = r.PetPostId, name = r.PetPost.Pet.Name },
-                status = r.Status.ToString().ToLowerInvariant(),
-                createdAt = r.CreatedAt
+                var petPost = PetPostResponseMapper.Map(r.PetPost);
+                return (object)new
+                {
+                    id = r.Id,
+                    pet = new { id = r.PetPostId, name = r.PetPost.Pet.Name },
+                    petPost,
+                    status = r.Status.ToString().ToLowerInvariant(),
+                    createdAt = r.CreatedAt
+                };
             }).ToList();
         }
 
@@ -99,11 +107,16 @@ namespace backend.Requests.Services
         {
             var adoptions = await _requestRepository.GetAdoptionsByAdopterIdAsync(adopterId);
 
-            return adoptions.Select(a => (object)new
+            return adoptions.Select(a =>
             {
-                pet = new { id = a.PetPostId, name = a.PetPost.Pet.Name },
-                status = a.Status.ToString().ToLowerInvariant(),
-                adoptedAt = a.AdoptedAt
+                var petPost = PetPostResponseMapper.Map(a.PetPost);
+                return (object)new
+                {
+                    pet = new { id = a.PetPostId, name = a.PetPost.Pet.Name },
+                    petPost,
+                    status = a.Status.ToString().ToLowerInvariant(),
+                    adoptedAt = a.AdoptedAt
+                };
             }).ToList();
         }
 
