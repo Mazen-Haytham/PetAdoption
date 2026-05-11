@@ -1,6 +1,14 @@
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
+
+
+const ROLE_DESTINATIONS = {
+  Adopter: "/adopter/profile",
+  Owner: "/owner",
+  Admin: "/admin/dashboard",
+};
+
 export default function ProtectedRoute({ allowedRoles, children }) {
   const accessToken = useAuthStore((s) => s.accessToken);
   const role = useAuthStore((s) => s.role);
@@ -10,8 +18,9 @@ export default function ProtectedRoute({ allowedRoles, children }) {
 
   if (!accessToken) return <Navigate to="/login" replace />;
 
-  if (allowedRoles && !allowedRoles.includes(role)) {
-    return <Navigate to="/unauthorized" replace />;
+if (allowedRoles && !allowedRoles.includes(role)) {
+    const destination = ROLE_DESTINATIONS[role] ?? "/login";
+    return <Navigate to={destination} replace />;
   }
 
   return children;

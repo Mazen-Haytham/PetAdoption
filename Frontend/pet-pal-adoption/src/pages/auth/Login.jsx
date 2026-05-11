@@ -35,7 +35,7 @@ const Login = () => {
 		toast.success("Login successful!");
 		navigate(destination);
 	} catch (error) {
-		console.error("Login error:", error);
+		// console.error("Login error:", error);
 		toast.error(error.error || "Login failed: An unexpected error occurred");
 	} finally {
 		setLoading(false);
@@ -131,16 +131,6 @@ const Login = () => {
 					{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
 					</button>
 				</div>
-				</div>
-
-				{/* Remember Me */}
-				<div className="flex items-center gap-2 px-1">
-				<input
-					className="w-4 h-4 text-[#6a79e0] border-[#6a79e0]/20 rounded focus:ring-[#6a79e0] bg-white"
-					id="remember"
-					type="checkbox"
-				/>
-				<label className="text-sm text-slate-600" htmlFor="remember">Remember for 30 days</label>
 				</div>
 
 				{/* Submit */}
