@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
+import { Check, X } from "lucide-react";
 import useAdminStore from "../../store/useAdminStore";
 import {
+  isPendingStatus,
   USER_ROLE_FILTER_OPTIONS,
   USER_STATUS_FILTER_OPTIONS,
-} from "../../admin/adminConstants";
-import AdminAlertError from "./AdminAlertError";
-import AdminUsersTable from "./AdminUsersTable";
+} from "../../admin/adminShared";
 
-/** Users page body: filters + table. */
+/** Manage users: filters + user table (one file). */
 export default function AdminUsersManage() {
   const users = useAdminStore((s) => s.users);
   const loading = useAdminStore((s) => s.usersLoading);
@@ -29,18 +29,6 @@ export default function AdminUsersManage() {
     if (statusFilter && u.status !== statusFilter) return false;
     return true;
   });
-
-  async function handleApprove(id) {
-    setBusyUserId(id);
-    await approveUser(id);
-    setBusyUserId(null);
-  }
-
-  async function handleReject(id) {
-    setBusyUserId(id);
-    await rejectUser(id);
-    setBusyUserId(null);
-  }
 
   return (
     <>
@@ -78,15 +66,115 @@ export default function AdminUsersManage() {
         </div>
       </div>
 
-      <AdminAlertError message={error} />
+      {error ? (
+        <div className="pa-card mt-6 border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-700">
+          {error}
+        </div>
+      ) : null}
 
-      <AdminUsersTable
-        rows={rows}
-        loading={loading}
-        busyUserId={busyUserId}
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
+      <div className="pa-card mt-6 overflow-x-auto lg:overflow-hidden">
+        <div className="min-w-[640px] lg:min-w-0">
+          <div className="grid grid-cols-5 gap-2 bg-[rgb(var(--pa-primary))/4] px-6 py-4 text-[11px] font-extrabold tracking-wider text-black/40">
+            <div className="col-span-2">USER</div>
+            <div>ROLE</div>
+            <div>STATUS</div>
+            <div className="text-right">ACTIONS</div>
+          </div>
+
+          <div className="divide-y divide-black/5">
+            {rows.length === 0 ? (
+              <div className="px-6 py-10 text-sm font-semibold text-black/45">
+                {loading ? "Loading…" : "No users match the filters."}
+              </div>
+            ) : (
+              rows.map((user) => {
+                const pending = isPendingStatus(user.status);
+                const busy = busyUserId === user.id;
+                return (
+                  <div key={user.id} className="grid grid-cols-5 items-center gap-2 px-6 py-5">
+                    <div className="col-span-2 min-w-0">
+                      <div className="truncate text-sm font-extrabold">{user.name ?? "—"}</div>
+                      <div className="truncate text-xs font-semibold text-black/40">
+                        {user.email ?? "—"}
+                      </div>
+                    </div>
+                    <div>
+                      <RolePill role={user.role} />
+                    </div>
+                    <div>
+                      <StatusPill status={user.status} />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      {pending ? (
+                        <>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={async () => {
+                              setBusyUserId(user.id);
+                              await approveUser(user.id);
+                              setBusyUserId(null);
+                            }}
+                            className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={async () => {
+                              setBusyUserId(user.id);
+                              await rejectUser(user.id);
+                              setBusyUserId(null);
+                            }}
+                            className="flex items-center gap-1.5 rounded-xl bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 disabled:opacity-50"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            Reject
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-xs text-black/30">—</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
     </>
+  );
+}
+
+function StatusPill({ status }) {
+  const key = String(status ?? "").toLowerCase();
+  const map = {
+    pending: "bg-amber-50 text-amber-700",
+    approved: "bg-emerald-50 text-emerald-700",
+    rejected: "bg-rose-50 text-rose-700",
+  };
+  const cls = map[key] ?? "bg-black/5 text-black/45";
+  return (
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${cls}`}>
+      {status ?? "—"}
+    </span>
+  );
+}
+
+function RolePill({ role }) {
+  const key = String(role ?? "").toLowerCase();
+  const map = {
+    admin: "bg-violet-50 text-violet-700",
+    owner: "bg-blue-50 text-blue-700",
+    adopter: "bg-sky-50 text-sky-700",
+  };
+  const cls = map[key] ?? "bg-black/5 text-black/45";
+  return (
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${cls}`}>
+      {role ?? "—"}
+    </span>
   );
 }

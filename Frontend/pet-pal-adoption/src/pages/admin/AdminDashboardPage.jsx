@@ -2,22 +2,23 @@ import { useNavigate } from "react-router-dom";
 import { useAdminDashboard } from "../../hooks/useAdminDashboard";
 import AdminDashboardStats from "../../components/admin/AdminDashboardStats";
 import AdminDashboardRecentActivity from "../../components/admin/AdminDashboardRecentActivity";
-import AdminPageShell from "../../components/admin/AdminPageShell";
-import AdminAlertError from "../../components/admin/AdminAlertError";
 
-/** Thin page: data from hook, layout from small components (same idea as ShelterDashboardPage). */
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
   const { loading, error, stats, recentApproved } = useAdminDashboard();
 
   return (
-    <AdminPageShell>
+    <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <h1 className="text-3xl font-extrabold tracking-tight">System Overview</h1>
       <p className="mt-1 text-sm font-semibold text-black/45">
         Snapshot of users and pet moderation queue.
       </p>
 
-      <AdminAlertError message={error} />
+      {error ? (
+        <div className="pa-card mt-6 border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-700">
+          {error}
+        </div>
+      ) : null}
 
       <AdminDashboardStats
         loading={loading}
@@ -32,6 +33,6 @@ export default function AdminDashboardPage() {
         rows={recentApproved}
         onViewAll={() => navigate("/admin/pets")}
       />
-    </AdminPageShell>
+    </div>
   );
 }

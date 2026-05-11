@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { Check, X } from "lucide-react";
 import useAdminStore from "../../store/useAdminStore";
-import { PET_STATUS_FILTER_OPTIONS } from "../../admin/adminConstants";
-import AdminAlertError from "./AdminAlertError";
-import AdminPetsTable from "./AdminPetsTable";
+import {
+  adminApprovalRequestId,
+  adminPetPostId,
+  isPendingStatus,
+  PET_STATUS_FILTER_OPTIONS,
+} from "../../admin/adminShared";
 
-/** Pets page body: filter + table. Data lives in Zustand (`useAdminStore`). */
+/** Pet posts: filter + table (one file). */
 export default function AdminPetsModeration() {
   const pets = useAdminStore((s) => s.pets);
   const loading = useAdminStore((s) => s.petsLoading);
@@ -19,18 +23,6 @@ export default function AdminPetsModeration() {
   useEffect(() => {
     fetchPets({ status: statusFilter });
   }, [fetchPets, statusFilter]);
-
-  async function handleApprove(id) {
-    setBusyApprovalId(id);
-    await approvePet(id);
-    setBusyApprovalId(null);
-  }
-
-  async function handleReject(id) {
-    setBusyApprovalId(id);
-    await rejectPet(id);
-    setBusyApprovalId(null);
-  }
 
   return (
     <>
@@ -55,15 +47,96 @@ export default function AdminPetsModeration() {
         </select>
       </div>
 
-      <AdminAlertError message={error} />
+      {error ? (
+        <div className="pa-card mt-6 border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-700">
+          {error}
+        </div>
+      ) : null}
 
-      <AdminPetsTable
-        rows={pets}
-        loading={loading}
-        busyApprovalId={busyApprovalId}
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
+      <div className="pa-card mt-6 overflow-x-auto lg:overflow-hidden">
+        <div className="min-w-[640px] lg:min-w-0">
+          <div className="grid grid-cols-4 gap-2 bg-[rgb(var(--pa-primary))/4] px-6 py-4 text-[11px] font-extrabold tracking-wider text-black/40">
+            <div>PET</div>
+            <div>OWNER</div>
+            <div>STATUS</div>
+            <div className="text-right">ACTIONS</div>
+          </div>
+
+          <div className="divide-y divide-black/5">
+            {pets.length === 0 ? (
+              <div className="px-6 py-10 text-sm font-semibold text-black/45">
+                {loading ? "Loading…" : "No pet posts."}
+              </div>
+            ) : (
+              pets.map((row) => {
+                const approvalId = adminApprovalRequestId(row);
+                const key = approvalId ?? adminPetPostId(row);
+                const pending = isPendingStatus(row.status);
+                const busy = busyApprovalId === approvalId;
+
+                return (
+                  <div key={key} className="grid grid-cols-4 items-center gap-2 px-6 py-5">
+                    <div className="text-sm font-extrabold">{row.name ?? "—"}</div>
+                    <div className="text-sm font-semibold text-black/45">{row.owner ?? "—"}</div>
+                    <div>
+                      <StatusPill status={row.status} />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      {pending && approvalId != null ? (
+                        <>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={async () => {
+                              setBusyApprovalId(approvalId);
+                              await approvePet(approvalId);
+                              setBusyApprovalId(null);
+                            }}
+                            className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={async () => {
+                              setBusyApprovalId(approvalId);
+                              await rejectPet(approvalId);
+                              setBusyApprovalId(null);
+                            }}
+                            className="flex items-center gap-1.5 rounded-xl bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 disabled:opacity-50"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            Reject
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-xs text-black/30">—</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
     </>
+  );
+}
+
+function StatusPill({ status }) {
+  const key = String(status ?? "").toLowerCase();
+  const map = {
+    pending: "bg-amber-50 text-amber-700",
+    approved: "bg-emerald-50 text-emerald-700",
+    rejected: "bg-rose-50 text-rose-700",
+  };
+  const cls = map[key] ?? "bg-black/5 text-black/45";
+  return (
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${cls}`}>
+      {status ?? "—"}
+    </span>
   );
 }

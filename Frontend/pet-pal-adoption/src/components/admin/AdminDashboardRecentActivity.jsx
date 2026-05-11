@@ -1,5 +1,5 @@
 /** Approved posts list on dashboard (reads pre-filtered `rows` from parent). */
-import { adminApprovalRequestId, adminPetPostId } from "../../admin/adminHelpers";
+import { adminApprovalRequestId, adminPetPostId } from "../../admin/adminShared";
 
 export default function AdminDashboardRecentActivity({
   loading,
