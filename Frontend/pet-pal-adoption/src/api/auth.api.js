@@ -5,7 +5,7 @@ export async function register(name, email, password, role) {
     const res = await api.post("/auth/register", { name, email, password, role });
     return res.status;
   } catch (error) {
-    return Promise.reject(error.response ? error.response.data : error.message);
+    return Promise.reject(error);
   }
 }
 
@@ -14,6 +14,6 @@ export async function login(email, password) {
     const res = await api.post("/auth/login", { email, password });
     return  res.data;
   } catch (error) {
-    return Promise.reject(error.response ? error.response.data : error.message);
+    return Promise.reject(error);
   }
 }
