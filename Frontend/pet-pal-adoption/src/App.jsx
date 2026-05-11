@@ -53,11 +53,15 @@ export default function App() {
         /> 
 
         {/* Owner */}
-        <Route path="/owner/*" element={
+        <Route path="/owner" element={
           <ProtectedRoute allowedRoles={['Owner']}>
-            <ShelterHome />
+            <ShelterOwnerLayout />
           </ProtectedRoute>
-        } /> 
+        }>
+          <Route index element={<ShelterDashboardPage />} />
+          <Route path="dashboard" element={<Navigate to="/owner" replace />} />
+          <Route path="requests" element={<ShelterRequestsPage />} />
+        </Route> 
 
         {/* Admin */}
         <Route path="/admin/*" element={
