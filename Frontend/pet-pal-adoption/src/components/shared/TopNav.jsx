@@ -1,4 +1,5 @@
-import { Bell, Settings } from "lucide-react";
+import { Bell, LogOut, Settings } from "lucide-react";
+import LogoutBtn from "./LogoutBtn";
 
 function LogoMark() {
   return (
@@ -19,11 +20,12 @@ export default function TopNav({ brand }) {
 
         <div className="flex items-center gap-3">
           <button type="button" className="pa-icon-btn" aria-label="Notifications">
-            <Bell className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
+            <Bell className="h-5 w-10 text-[rgb(var(--pa-primary))]" />
           </button>
           <button type="button" className="pa-icon-btn" aria-label="Settings">
-            <Settings className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
+            <Settings className="h-5 w-10 text-[rgb(var(--pa-primary))]" />
           </button>
+          <LogoutBtn />
         </div>
       </div>
     </header>

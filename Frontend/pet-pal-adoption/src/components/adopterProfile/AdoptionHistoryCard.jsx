@@ -1,16 +1,16 @@
 import PetAvatar from "./PetAvatar";
 
 function StoryCard({ item }) {
-  const bg = (() => {
-    if(item.note?.includes("Rejected")) return "bg-red-200";
+  const config = (() => {
+    if(item.note?.includes("Rejected")) return "bg-red-100 text-red-500";
     if(item.note?.includes("Adopted") || 
        item.note?.includes("Completed") || 
-       item.note?.includes("Accepted")) return "bg-green-200";
+       item.note?.includes("Accepted")) return "bg-green-100 text-green-600";
 
     return "bg-gray-200";
   })();
   return (
-    <article className="pa-card p-6">
+    <article className="pa-card p-6 flex flex-col">
       <div className="flex items-start gap-4">
         <div className="rounded-full bg-[rgb(var(--pa-primary))/10] p-1">
           <PetAvatar
@@ -30,7 +30,7 @@ function StoryCard({ item }) {
       </div>
 
       {item.note ? (
-        <p className={`rounded-full ${bg} text-center mt-4 text-sm leading-6 text-black/70`}>{item.note}</p>
+        <p className={`rounded-full ${config} text-center mt-4 py-2 text-sm leading-6 text-black/70 w-50 self-center`}>{item.note}</p>
       ) : null}
     </article>
   );

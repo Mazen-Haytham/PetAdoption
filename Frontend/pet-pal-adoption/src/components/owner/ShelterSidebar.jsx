@@ -1,7 +1,6 @@
 import { ClipboardList, LayoutDashboard, PawPrint } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { logout } from "../../api/api";
-
+import LogoutBtn from "../shared/LogoutBtn";
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/owner" },
   {
@@ -18,10 +17,6 @@ export default function ShelterSidebar({
   onNavigate,
 }) {
   const navigate = useNavigate();
-  const postLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
 
   const linkClasses = ({ isActive }) =>
     [
@@ -107,17 +102,11 @@ export default function ShelterSidebar({
             navigate("/owner/pets/new");
             onNavigate?.();
           }}
-          className="hover:cursor-pointer mt-5 w-full transition-all rounded-2xl border-2 text-[rgb(var(--pa-primary))] hover:bg-[rgb(var(--pa-primary))] px-5 py-3 text-sm font-extrabold hover:text-white hover:border-transparent shadow-lg shadow-black/10 hover:brightness-95"
+          className="hover:cursor-pointer mt-5 mb-3 w-full transition-all rounded-2xl border-2 text-[rgb(var(--pa-primary))] hover:bg-[rgb(var(--pa-primary))] px-5 py-3 text-sm font-extrabold hover:text-white hover:border-transparent hover:brightness-95"
         >
           Create a new post
         </button>
-        <button
-          type="button"
-          className="hover:cursor-pointer mt-5 w-full rounded-2xl transition-all border-2 text-red-500 hover:bg-red-500 px-5 py-3 text-sm font-extrabold hover:text-white hover:border-transparent shadow-lg shadow-black/10 hover:brightness-95"
-          onClick={postLogout}
-        >
-          Logout
-        </button>
+        <LogoutBtn />
       </aside>
     </>
   );
