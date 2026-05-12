@@ -88,6 +88,30 @@ export async function logout() {
   }
 }
 
+// ─── Favorites (Adopter) ─────────────────────────────────────
+
+/** GET /favorites — returns favorite pet rows (pet post id in `id`). */
+export async function getFavorites() {
+  const res = await api.get("/favorites");
+  const body = res.data;
+  if (body?.success === false) {
+    return Promise.reject(body.message || "Failed to load favorites.");
+  }
+  return Array.isArray(body?.data) ? body.data : [];
+}
+
+/** POST /favorites/{petPostId} */
+export async function addFavorite(petPostId) {
+  const res = await api.post(`/favorites/${petPostId}`);
+  return res.data;
+}
+
+/** DELETE /favorites/{petPostId} */
+export async function removeFavorite(petPostId) {
+  const res = await api.delete(`/favorites/${petPostId}`);
+  return res.data;
+}
+
 // ─── Pets ────────────────────────────────────────────────────
 
 export function resolveAssetUrl(path) {
@@ -164,8 +188,9 @@ export async function getReceivedAdoptionRequests() {
 export async function getMyAdoptionRequests() {
   try {
     const res = await api.get("/adoptions/my");
-    // console.log("getMyAdoptionRequests response:", res);
-    return res.data ?? [];
+    const body = res.data;
+    if (Array.isArray(body)) return body;
+    return body?.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
     return Promise.reject(error.response ? error.response.data : error.message);

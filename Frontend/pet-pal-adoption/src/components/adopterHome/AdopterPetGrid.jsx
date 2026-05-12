@@ -5,6 +5,11 @@ export default function AdopterPetGrid({
   canRequestAdoption,
   onRequestAdopt,
   onRequestBlocked,
+  showFavorite,
+  favoritesLoaded,
+  favoritePetPostIds,
+  favoriteBusyId,
+  onToggleFavorite,
 }) {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -18,6 +23,11 @@ export default function AdopterPetGrid({
             canRequestAdoption={canRequestAdoption}
             onRequestAdopt={onRequestAdopt}
             onRequestBlocked={onRequestBlocked}
+            showFavorite={showFavorite}
+            favoritesLoaded={favoritesLoaded}
+            favoritePetPostIds={favoritePetPostIds}
+            favoriteBusyId={favoriteBusyId}
+            onToggleFavorite={onToggleFavorite}
           />
         );
       })}
