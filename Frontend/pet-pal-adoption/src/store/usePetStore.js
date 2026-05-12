@@ -89,16 +89,26 @@ isSearching: false,
 searchError: null,
 
 searchPets: async (filter) => {
-  set({ browseLoading: true, browseError: null })
-  try {
-    const list = await searchPetPosts(filter)
-    set({ browsePets: Array.isArray(list) ? list : [], browseLoading: false })
-  } catch (error) {
-    const msg = typeof error === 'string'
-      ? error : error?.message || 'Search failed.'
-    set({ browseError: msg, browseLoading: false })
-  }
-},
+    set({ browseLoading: true, browseError: null, browsePets: [] });
+    try {
+      const list = await searchPetPosts(filter);
+      set({
+        browsePets: Array.isArray(list) ? list : [],
+        browseLoading: false,
+        browseError: null,
+      });
+    } catch (error) {
+      const msg =
+        typeof error === "string"
+          ? error
+          : error?.message || "Search failed.";
+      set({
+        browseError: msg,
+        browseLoading: false,
+        browsePets: [],
+      });
+    }
+  },
 
   // Reset when unmounting the form or after navigation
   resetCreateState: () =>

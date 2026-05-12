@@ -103,7 +103,7 @@ namespace backend.Controllers
             {
                 HttpOnly = true,                      // JS cannot read it
                 Secure = true,                        // HTTPS only
-                SameSite = SameSiteMode.Strict,       // CSRF protection
+                SameSite = SameSiteMode.None,       // CSRF protection
                 Expires = DateTime.UtcNow.AddDays(7)  // match your token expiry
             };
             Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);

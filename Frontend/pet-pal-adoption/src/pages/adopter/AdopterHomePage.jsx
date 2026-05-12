@@ -7,6 +7,7 @@ import AdopterPetGrid from "../../components/adopterHome/AdopterPetGrid";
 import AdopterAdoptModal from "../../components/adopterHome/AdopterAdoptModal";
 import AdopterGuestLoginModal from "../../components/adopterHome/AdopterGuestLoginModal";
 import { Search, X } from "lucide-react";
+import { getFavorites, addFavorite, removeFavorite } from "../../api/api";
 
 export default function AdopterHomePage() {
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -32,12 +33,41 @@ export default function AdopterHomePage() {
   const [selectedPetPostId, setSelectedPetPostId] = useState(null);
   const [selectedPetName, setSelectedPetName] = useState("");
 
+  const [favoriteSet, setFavoriteSet] = useState(() => new Set());
+  const [favoritesLoaded, setFavoritesLoaded] = useState(false);
+  const [favoriteBusyId, setFavoriteBusyId] = useState(null);
+
   useEffect(() => {
     fetchBrowsePets();
     const handleFocus = () => fetchBrowsePets()
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
   }, [fetchBrowsePets]);
+
+  useEffect(() => {
+    if (!canRequestAdoption) {
+      setFavoriteSet(new Set());
+      setFavoritesLoaded(false);
+      return;
+    }
+    let cancelled = false;
+    setFavoritesLoaded(false);
+    (async () => {
+      try {
+        const list = await getFavorites();
+        if (cancelled) return;
+        const ids = (Array.isArray(list) ? list : []).map((x) => x.id ?? x.Id);
+        setFavoriteSet(new Set(ids.filter((n) => n != null)));
+      } catch {
+        if (!cancelled) setFavoriteSet(new Set());
+      } finally {
+        if (!cancelled) setFavoritesLoaded(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [canRequestAdoption, accessToken]);
 
   // ── Search handlers ────────────────────────────
   const handleSearch = async () => {
@@ -61,8 +91,17 @@ export default function AdopterHomePage() {
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSearch()
-  }
+    if (e.key === "Enter") handleSearch();
+  };
+
+  const activeFilterSummary = (() => {
+    const bits = [];
+    if (filters.type?.trim()) bits.push(`type “${filters.type.trim()}”`);
+    if (filters.breed?.trim()) bits.push(`breed “${filters.breed.trim()}”`);
+    if (filters.age?.trim()) bits.push(`age ${filters.age.trim()}`);
+    if (filters.location?.trim()) bits.push(`location “${filters.location.trim()}”`);
+    return bits.length ? bits.join(", ") : "those filters";
+  })();
 
   function openModal(petPostId, petName) {
     clearAdoptError();
@@ -99,6 +138,50 @@ export default function AdopterHomePage() {
       description: "Log out and log in as an adopter, or register as one.",
     });
   }, [accessToken]);
+
+  const handleToggleFavorite = useCallback(
+    async (petPostId) => {
+      if (petPostId == null || favoriteBusyId != null || !favoritesLoaded) return;
+      const inFav = favoriteSet.has(petPostId);
+      setFavoriteBusyId(petPostId);
+      try {
+        if (inFav) {
+          const res = await removeFavorite(petPostId);
+          if (res?.success === false) {
+            toast.error(res.message || "Could not update favorites.");
+            return;
+          }
+          setFavoriteSet((prev) => {
+            const next = new Set(prev);
+            next.delete(petPostId);
+            return next;
+          });
+          toast.success("Removed from favorites.");
+        } else {
+          const res = await addFavorite(petPostId);
+          if (res?.success === false) {
+            toast.error(res.message || "Could not add to favorites.");
+            return;
+          }
+          setFavoriteSet((prev) => {
+            const next = new Set(prev);
+            next.add(petPostId);
+            return next;
+          });
+          toast.success("Saved to favorites.");
+        }
+      } catch (e) {
+        const msg =
+          typeof e === "string"
+            ? e
+            : e?.message ?? "Could not update favorites.";
+        toast.error(msg);
+      } finally {
+        setFavoriteBusyId(null);
+      }
+    },
+    [favoriteBusyId, favoriteSet, favoritesLoaded],
+  );
 
   return (
     <main className="pa-container pb-16 pt-8">
@@ -182,9 +265,21 @@ export default function AdopterHomePage() {
         <div className="pa-card p-8 text-center text-sm font-semibold text-black/45">
           Loading pets…
         </div>
-      ) : !loading && pets.length === 0 ? (
+      ) : !loadError && !loading && pets.length === 0 ? (
         <div className="pa-card p-8 text-center text-sm font-semibold text-black/45">
-          {hasSearched ? 'No pets found matching your search.' : 'No available pets right now. Check back soon.'}
+          {hasSearched ? (
+            <>
+              <p className="text-base font-extrabold text-black/80">
+                No pets match your search
+              </p>
+              <p className="mt-2 text-sm font-semibold text-black/50">
+                Nothing matched {activeFilterSummary}. Try different filters or
+                clear the search.
+              </p>
+            </>
+          ) : (
+            "No available pets right now. Check back soon."
+          )}
         </div>
       ) : (
         <AdopterPetGrid
@@ -192,6 +287,11 @@ export default function AdopterHomePage() {
           canRequestAdoption={canRequestAdoption}
           onRequestAdopt={openModal}
           onRequestBlocked={onRequestBlocked}
+          showFavorite={canRequestAdoption}
+          favoritesLoaded={favoritesLoaded}
+          favoritePetPostIds={favoriteSet}
+          favoriteBusyId={favoriteBusyId}
+          onToggleFavorite={handleToggleFavorite}
         />
       )}
 

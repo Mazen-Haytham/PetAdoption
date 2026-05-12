@@ -3,8 +3,8 @@ using backend.Dto.AdminPetPost;
 using backend.Models;
 using backend.Repos;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;  
-using Microsoft.Extensions.Caching.Memory;        
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace backend.Services
 {
@@ -12,22 +12,16 @@ namespace backend.Services
     {
         private readonly IAdminPetPostRepository _repo;
         private readonly AppDbContext _context;
-        private readonly IDistributedCache _redis;  
-        private readonly IMemoryCache _memory;      
-
-        // Same key as PetService — must match exactly
-        private const string AllPetPostsCacheKey = "petPosts:all";
+        private readonly ICachingService _cachingService;
 
         public AdminPetPostService(
             IAdminPetPostRepository repo,
             AppDbContext context,
-            IDistributedCache redis,  
-            IMemoryCache memory)       
+            ICachingService cachingService)
         {
             _repo = repo;
             _context = context;
-            _redis = redis;            
-            _memory = memory;          
+            _cachingService = cachingService;
         }
 
         public async Task<List<AdminPetPostDto>> GetPetsAsync(string? status, int page, int pageSize)
@@ -50,9 +44,8 @@ namespace backend.Services
 
             await _context.SaveChangesAsync();
 
-            
-            await _redis.RemoveAsync(AllPetPostsCacheKey);
-            _memory.Remove(AllPetPostsCacheKey);
+            // ── Invalidate cache ─────────────────────────
+            await _cachingService.InvalidatePetCacheAsync(request.PetPost.Id, request.PetPost.OwnerId);
 
             return true;
         }
@@ -72,9 +65,8 @@ namespace backend.Services
 
             await _context.SaveChangesAsync();
 
-            
-            await _redis.RemoveAsync(AllPetPostsCacheKey);
-            _memory.Remove(AllPetPostsCacheKey);
+            // ── Invalidate cache ─────────────────────────
+            await _cachingService.InvalidatePetCacheAsync(request.PetPost.Id, request.PetPost.OwnerId);
 
             return true;
         }

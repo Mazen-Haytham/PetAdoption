@@ -33,6 +33,17 @@ export default function AdopterShellNav({ brand = "PawAdopt" }) {
                 My profile
               </NavLink>
             ) : null}
+
+            {accessToken && role === "Adopter" ? (
+               <NavLink to="/adopter/reviews" className={linkClass}>
+                 Reviews
+              </NavLink>
+               ) : null}
+               {accessToken && role === "Adopter" ? (
+              <NavLink to="/adopter/favorites" className={linkClass}>
+                My favorites
+              </NavLink>
+            ) : null}
             {accessToken && role === "Owner" ? (
               <Link
                 to="/owner"

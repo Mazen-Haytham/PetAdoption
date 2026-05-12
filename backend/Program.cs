@@ -33,6 +33,9 @@ builder.Services.AddStackExchangeRedisCache(options =>
 //InMemory Cache
 builder.Services.AddMemoryCache();
 
+// ── Caching Service ──────────────────────────────
+builder.Services.AddScoped<ICachingService, CachingService>();
+
 // ── Generic repo "open generic" —───────────────────────────────────
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
