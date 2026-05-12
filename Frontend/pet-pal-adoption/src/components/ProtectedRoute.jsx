@@ -16,7 +16,7 @@ export default function ProtectedRoute({ allowedRoles, children }) {
 
   if (isAuthLoading) return null;
 
-  if (!accessToken) return <Navigate to="/login" replace />;
+  if (!accessToken) return <Navigate to="/adopter" replace />;
 
 if (allowedRoles && !allowedRoles.includes(role)) {
     const destination = ROLE_DESTINATIONS[role] ?? "/login";
