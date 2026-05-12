@@ -61,7 +61,7 @@ namespace backend.Services
             request.Status = PostApprovalStatus.Rejected;
             request.ReviewedByAdminId = adminId;
             request.ReviewedAt = DateTime.UtcNow;
-            request.PetPost.Status = PetStatus.Available;
+            request.PetPost.Status = PetStatus.Rejected;
 
             await _context.SaveChangesAsync();
 
