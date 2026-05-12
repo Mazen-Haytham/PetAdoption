@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ClipboardIcon, HandshakeIcon, PawIcon } from "./OwnerIcons";
 import StatCard from "./StatCard";
 import PetPostsTable from "./PetPostsTable";
 import PetPostFormModal from "./PetPostFormModal";
 import RequestsList from "./RequestsList";
 import { useShelterOwnerOutlet } from "../../../hooks/useShelterOwnerOutlet";
+import { getMe } from "../../../api/api";
+import {
+  CLIENT_REVIEWS_CHANGED_EVENT,
+  getReviewsForOwner,
+} from "../../../utils/clientReviewsStorage";
 
 function pickPetPostId(raw) {
   return raw?.petPostId ?? raw?.PetPostId ?? raw?.id;
@@ -26,6 +31,40 @@ export default function ShelterDashboard() {
   const [petFormMode, setPetFormMode] = useState("create");
   const [petFormInitial, setPetFormInitial] = useState(null);
   const [deletingKey, setDeletingKey] = useState(null);
+
+  const [shelterOwnerId, setShelterOwnerId] = useState(null);
+  const [adopterReviews, setAdopterReviews] = useState([]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const me = await getMe();
+        if (!alive) return;
+        const oid = me?.userId ?? me?.UserId;
+        if (oid == null) return;
+        const n = Number(oid);
+        setShelterOwnerId(n);
+        setAdopterReviews(getReviewsForOwner(n));
+      } catch {
+        /* non-fatal: dashboard still works */
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (shelterOwnerId == null) return;
+    const refresh = () => setAdopterReviews(getReviewsForOwner(shelterOwnerId));
+    window.addEventListener(CLIENT_REVIEWS_CHANGED_EVENT, refresh);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.removeEventListener(CLIENT_REVIEWS_CHANGED_EVENT, refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [shelterOwnerId]);
 
   const pendingRows = petRows.filter(
     (row) => String(row.status).toLowerCase() === "pending",
@@ -166,6 +205,78 @@ export default function ShelterDashboard() {
         onCreate={createPetListing}
         onUpdate={updatePetListing}
       />
+
+      <section className="mt-14 border-t border-black/10 pt-12">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="pa-section-title">Adopter reviews</h2>
+            <p className="mt-1 text-sm font-semibold text-black/40">
+              Ratings adopters leave after a completed adoption (saved in this
+              browser for your shelter account).
+            </p>
+          </div>
+          <div className="text-sm font-extrabold text-black/35">
+            {adopterReviews.length} total
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-4">
+          {adopterReviews.length === 0 ? (
+            <div className="pa-card p-6 text-sm font-semibold text-black/45">
+              No reviews yet. When an adopter submits feedback from their
+              Reviews page, it will show up here.
+            </div>
+          ) : (
+            [...adopterReviews]
+              .sort(
+                (a, b) =>
+                  new Date(b.submittedAt || 0).getTime() -
+                  new Date(a.submittedAt || 0).getTime(),
+              )
+              .map((r) => (
+                <article
+                  key={r.adoptionKey}
+                  className="pa-card border border-[rgb(var(--pa-primary))]/15 p-5"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-base font-extrabold text-black/90">
+                        {r.petName ?? "Pet"}
+                      </p>
+                      <p className="mt-1 text-sm font-bold text-black/45">
+                        From {r.adopterName ?? "Adopter"}
+                      </p>
+                    </div>
+                    <div
+                      className="text-lg text-amber-500"
+                      aria-label={`${r.rating} out of 5 stars`}
+                    >
+                      {"★".repeat(Number(r.rating) || 0)}
+                      {"☆".repeat(5 - (Number(r.rating) || 0))}
+                    </div>
+                  </div>
+                  {r.comment ? (
+                    <p className="mt-4 text-sm font-semibold leading-relaxed text-black/70">
+                      {r.comment}
+                    </p>
+                  ) : (
+                    <p className="mt-4 text-sm font-semibold italic text-black/35">
+                      No written message.
+                    </p>
+                  )}
+                  <p className="mt-4 text-xs font-bold uppercase tracking-wide text-black/35">
+                    {r.submittedAt
+                      ? new Date(r.submittedAt).toLocaleString(undefined, {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })
+                      : ""}
+                  </p>
+                </article>
+              ))
+          )}
+        </div>
+      </section>
     </div>
   );
 }

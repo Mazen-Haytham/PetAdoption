@@ -1,4 +1,4 @@
-import { MapPin, User, Heart , VenusAndMars } from "lucide-react"
+import { MapPin, User, Activity, VenusAndMars, Heart } from "lucide-react";
 import { resolveAssetUrl } from "../../api/api";
 
 function petImage(pet) {
@@ -13,7 +13,17 @@ function petPostId(pet) {
   return pet?.petPostId ?? pet?.PetPostId ?? pet?.id;
 }
 
-export default function AdopterPetCard({ pet, canRequestAdoption, onRequestAdopt, onRequestBlocked }) {
+export default function AdopterPetCard({
+  pet,
+  canRequestAdoption,
+  onRequestAdopt,
+  onRequestBlocked,
+  showFavorite,
+  favoritesLoaded,
+  favoritePetPostIds,
+  favoriteBusyId,
+  onToggleFavorite,
+}) {
   const id = petPostId(pet);
   const img = petImage(pet);
   const name = pet?.name ?? pet?.Name ?? "Pet";
@@ -26,11 +36,22 @@ export default function AdopterPetCard({ pet, canRequestAdoption, onRequestAdopt
   const ownerName    = pet?.ownerName    ?? pet?.OwnerName    ?? null
   const healthStatus = pet?.healthStatus ?? pet?.HealthStatus ?? null
   const description  = pet?.description  ?? pet?.Description  ?? null
-  
+
+  const isFavorite =
+    showFavorite &&
+    favoritesLoaded &&
+    id != null &&
+    favoritePetPostIds &&
+    favoritePetPostIds.has(id);
+  const favoriteDisabled =
+    !showFavorite ||
+    !favoritesLoaded ||
+    id == null ||
+    favoriteBusyId != null;
 
   return (
     <article className="pa-card flex flex-col overflow-hidden transition hover:ring-2 hover:ring-[rgb(var(--pa-primary))]/15">
-      <div className="aspect-[4/3] w-full bg-black/5">
+      <div className="relative aspect-[4/3] w-full bg-black/5">
         {img ? (
           <img src={img} alt="" className="h-full w-full object-cover" />
         ) : (
@@ -38,6 +59,32 @@ export default function AdopterPetCard({ pet, canRequestAdoption, onRequestAdopt
             No photo
           </div>
         )}
+        {showFavorite ? (
+          <button
+            type="button"
+            disabled={favoriteDisabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (id != null && favoritesLoaded) onToggleFavorite?.(id);
+            }}
+            className={[
+              "absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full shadow-md ring-1 transition",
+              isFavorite
+                ? "bg-[rgb(var(--pa-primary))] text-white ring-[rgb(var(--pa-primary))]/30"
+                : "bg-white/95 text-black/50 ring-black/10 hover:text-[rgb(var(--pa-primary))]",
+              !favoritesLoaded || favoriteBusyId != null ? "opacity-60" : "",
+            ].join(" ")}
+            title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            aria-pressed={isFavorite}
+            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Heart
+              className="h-5 w-5"
+              strokeWidth={2}
+              fill={isFavorite ? "currentColor" : "none"}
+            />
+          </button>
+        ) : null}
       </div>
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-2">
@@ -63,7 +110,7 @@ export default function AdopterPetCard({ pet, canRequestAdoption, onRequestAdopt
 
           {healthStatus && (
           <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-black/40">
-          <Heart className="h-3.5 w-3.5 shrink-0" />
+          <Activity className="h-3.5 w-3.5 shrink-0" />
            {healthStatus}
           </p>
            )}
