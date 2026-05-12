@@ -3,7 +3,6 @@ using backend.Data;
 using backend.Models;
 using backend.Pets.DTOs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 namespace backend.Pets.Repositories
 {
     public class PetRepository : IPetRepository
@@ -13,11 +12,6 @@ namespace backend.Pets.Repositories
         public PetRepository(AppDbContext context)
         {
             _context = context;
-        }
-        // PetRepository.cs
-        public async Task<IDbContextTransaction> BeginTransactionAsync()
-        {
-            return await _context.Database.BeginTransactionAsync();
         }
         public async Task<List<PetPost>> GetAvailablePetPostsAsync()
         {

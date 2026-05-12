@@ -1,0 +1,86 @@
+version: '3.8'
+
+networks:
+  petadoption-network:
+    driver: bridge
+
+services:
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-StrongPassword123!}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - petadoption-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${MSSQL_SA_PASSWORD:-StrongPassword123!}\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - petadoption-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - petadoption-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: >
+        Data Source=mssql,1433;
+        Initial Catalog=PetAdoptionDb;
+        User Id=SA;
+        Password=${MSSQL_SA_PASSWORD};
+        Encrypt=True;
+        TrustServerCertificate=True;
+      ConnectionStrings__Redis: "redis:6379"
+      AppSettings__Token: "${JWT_TOKEN:-MySuperSecureAndRandomKeyThatLooksJustAwesomeAndNeedsToBeVeryVeryLong!!!111oneeleven!}"
+      AppSettings__Issuer: "PetAdoption"
+      AppSettings__Audience: "PetAdoptionAudience"
+      AppSettings__TokenExpiryMinutes: "15"
+      FrontendUrl: "http://frontend"
+    depends_on:
+      mssql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Same host directory as the frontend mount below — both containers see identical files.
+    volumes:
+      - ./backend/wwwroot/uploads/pets:/app/wwwroot/uploads/pets
+
+  frontend:
+    build:
+      context: ./Frontend/pet-pal-adoption
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    networks:
+      - petadoption-network
+    depends_on:
+      backend:
+        condition: service_started
+    # Shared with backend: URLs like /uploads/pets/... map to this path under nginx root.
+    volumes:
+      - ./backend/wwwroot/uploads/pets:/usr/share/nginx/html/uploads/pets
+
+volumes:
+  mssql_data:

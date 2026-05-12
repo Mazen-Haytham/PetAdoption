@@ -1,5 +1,4 @@
 ﻿using backend.Models;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace backend.Requests.Repositories
 {
@@ -17,7 +16,6 @@ namespace backend.Requests.Repositories
         Task<List<Adoption>> GetAdoptionsByAdopterIdAsync(int adopterId);
         Task CreateAdoptionAsync(Adoption adoption);
         Task SaveChangesAsync();
-        Task<IDbContextTransaction> BeginTransactionAsync();
         Task<Adoption?> GetAdoptionByPetPostIdAsync(int petPostId);
     }
 }

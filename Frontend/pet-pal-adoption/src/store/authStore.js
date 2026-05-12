@@ -1,6 +1,13 @@
 import { create } from "zustand";
 
-const BASE_URL = "https://localhost:7081/api";
+// Get the base URL - use relative path which works both in dev and Docker
+const getBaseUrl = () => {
+  // In development, import.meta.env.VITE_API_URL can be set via .env
+  // In production/Docker, use relative URLs
+  return import.meta.env.VITE_API_URL || "/api";
+};
+
+const BASE_URL = getBaseUrl();
 
 function parseJwt(token) {
   try {

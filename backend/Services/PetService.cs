@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Dto;
+using Microsoft.EntityFrameworkCore;
 using backend.Hubs;
 using backend.Models;
 using backend.Pets.DTOs;
@@ -13,6 +14,7 @@ namespace backend.Pets.Services
     public class PetService : IPetService
     {
         private readonly IPetRepository _petRepository;
+        private readonly AppDbContext _db;
         private readonly IWebHostEnvironment _env;
         private readonly ICachingService _cachingService;
         private readonly IHubContext<NotificationsHub> _hubContext;
@@ -24,11 +26,13 @@ namespace backend.Pets.Services
 
         public PetService(
             IPetRepository petRepository,
+            AppDbContext db,
             IWebHostEnvironment env,
             ICachingService cachingService,
             IHubContext<NotificationsHub> hubContext)
         {
             _petRepository = petRepository;
+            _db = db;
             _env = env;
             _cachingService = cachingService;
             _hubContext = hubContext;
@@ -109,111 +113,122 @@ namespace backend.Pets.Services
         // ── CREATE ──────────────────────────────────
         public async Task<Pet> CreatePetAsync(CreatePetDto dto, int ownerId)
         {
-            using var transaction = await _petRepository.BeginTransactionAsync();
             var savedImagePaths = new List<string>();
 
             try
             {
-                var pet = new Pet
+                var (createdPet, createdPetPost) = await _db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
                 {
-                    Name = dto.Name,
-                    Age = dto.Age,
-                    Breed = dto.Breed,
-                    Gender = dto.Gender,
-                    Location = dto.Location,
-                    Type = dto.Type,
-                    OwnerId = ownerId,
-                    Status = PetStatus.Available,
-                    CreatedAt = DateTime.UtcNow
-                };
+                    _db.ChangeTracker.Clear();
 
-                await _petRepository.CreatePetAsync(pet);
-                await _petRepository.SaveChangesAsync();
-
-                var petPost = new PetPost
-                {
-                    PetId = pet.Id,
-                    OwnerId = ownerId,
-                    Description = dto.Description,
-                    HealthStatus = dto.HealthStatus,
-                    Status = PetStatus.Pending,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                await _petRepository.CreatePetPostAsync(petPost);
-                await _petRepository.SaveChangesAsync();
-
-                var approvalRequest = new PostApprovalRequest
-                {
-                    PetPostId = petPost.Id,
-                    OwnerId = ownerId,
-                    Status = PostApprovalStatus.Pending,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                await _petRepository.CreateApprovalRequestAsync(approvalRequest);
-                await _petRepository.SaveChangesAsync();
-
-                if (dto.Images == null || dto.Images.Count == 0)
-                    throw new Exception("At least one image is required");
-
-                var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "pets");
-                Directory.CreateDirectory(uploadsFolder);
-
-                var petImages = new List<PetImage>();
-                bool isFirst = true;
-
-                foreach (var image in dto.Images)
-                {
-                    if (image.Length > 0)
+                    await using var transaction = await _db.Database.BeginTransactionAsync();
+                    try
                     {
-                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
-                        var filePath = Path.Combine(uploadsFolder, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        var pet = new Pet
                         {
-                            await image.CopyToAsync(stream);
-                        }
+                            Name = dto.Name,
+                            Age = dto.Age,
+                            Breed = dto.Breed,
+                            Gender = dto.Gender,
+                            Location = dto.Location,
+                            Type = dto.Type,
+                            OwnerId = ownerId,
+                            Status = PetStatus.Available,
+                            CreatedAt = DateTime.UtcNow
+                        };
 
-                        savedImagePaths.Add(filePath);
+                        await _petRepository.CreatePetAsync(pet);
+                        await _petRepository.SaveChangesAsync();
 
-                        petImages.Add(new PetImage
+                        var petPost = new PetPost
+                        {
+                            PetId = pet.Id,
+                            OwnerId = ownerId,
+                            Description = dto.Description,
+                            HealthStatus = dto.HealthStatus,
+                            Status = PetStatus.Pending,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        await _petRepository.CreatePetPostAsync(petPost);
+                        await _petRepository.SaveChangesAsync();
+
+                        var approvalRequest = new PostApprovalRequest
                         {
                             PetPostId = petPost.Id,
-                            ImageUrl = $"/uploads/pets/{fileName}",
-                            IsPrimary = isFirst,
-                            UploadedAt = DateTime.UtcNow
-                        });
+                            OwnerId = ownerId,
+                            Status = PostApprovalStatus.Pending,
+                            CreatedAt = DateTime.UtcNow
+                        };
 
-                        isFirst = false;
+                        await _petRepository.CreateApprovalRequestAsync(approvalRequest);
+                        await _petRepository.SaveChangesAsync();
+
+                        if (dto.Images == null || dto.Images.Count == 0)
+                            throw new Exception("At least one image is required");
+
+                        var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "pets");
+                        Directory.CreateDirectory(uploadsFolder);
+
+                        var petImages = new List<PetImage>();
+                        bool isFirst = true;
+
+                        foreach (var image in dto.Images)
+                        {
+                            if (image.Length > 0)
+                            {
+                                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
+                                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                                using (var stream = new FileStream(filePath, FileMode.Create))
+                                {
+                                    await image.CopyToAsync(stream);
+                                }
+
+                                savedImagePaths.Add(filePath);
+
+                                petImages.Add(new PetImage
+                                {
+                                    PetPostId = petPost.Id,
+                                    ImageUrl = $"/uploads/pets/{fileName}",
+                                    IsPrimary = isFirst,
+                                    UploadedAt = DateTime.UtcNow
+                                });
+
+                                isFirst = false;
+                            }
+                        }
+
+                        await _petRepository.AddPetImagesAsync(petImages);
+                        await _petRepository.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
+
+                        return (pet, petPost);
                     }
-                }
-
-                await _petRepository.AddPetImagesAsync(petImages);
-                await _petRepository.SaveChangesAsync();
-
-                await transaction.CommitAsync();
+                    catch (Exception)
+                    {
+                        await transaction.RollbackAsync();
+                        throw;
+                    }
+                });
 
                 // ── Invalidate cache ─────────────────────────
-                await _cachingService.InvalidatePetCacheAsync(petPost.Id, ownerId);
+                await _cachingService.InvalidatePetCacheAsync(createdPetPost.Id, ownerId);
 
                 // ── Notify Admins ────────────────────────────
                 await _hubContext.Clients.Group("Admins").SendAsync("NewPostCreated", new NotificationDto
                 {
                     Message = "New pet post waiting for approval",
-                    PostId = petPost.Id,
+                    PostId = createdPetPost.Id,
                     OwnerId = ownerId,
                     CreatedAt = DateTime.UtcNow
                 });
 
-
-
-                return pet;  // ← no cache invalidation
+                return createdPet;
             }
             catch (Exception)
             {
-                await transaction.RollbackAsync();
-
                 foreach (var path in savedImagePaths)
                     if (File.Exists(path)) File.Delete(path);
 
@@ -255,43 +270,57 @@ namespace backend.Pets.Services
         // ── DELETE ──────────────────────────────────
         public async Task<(bool Success, string Message)> DeletePetAsync(int petPostId, int ownerId)
         {
-            using var transaction = await _petRepository.BeginTransactionAsync();
-
-            try
+            var (success, message, imagePaths) = await _db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
             {
-                var petPost = await _petRepository.GetPetPostByIdAsync(petPostId);
+                _db.ChangeTracker.Clear();
 
-                if (petPost == null)
-                    return (false, "Pet post not found");
+                await using var transaction = await _db.Database.BeginTransactionAsync();
+                try
+                {
+                    var petPost = await _petRepository.GetPetPostByIdAsync(petPostId);
 
-                if (petPost.OwnerId != ownerId)
-                    return (false, "You are not allowed to delete this post");
+                    if (petPost == null)
+                    {
+                        await transaction.RollbackAsync();
+                        return (false, "Pet post not found", (List<string>?)null);
+                    }
 
-                var imagePaths = petPost.Images
-                    .Select(img => Path.Combine(_env.WebRootPath, img.ImageUrl.TrimStart('/')))
-                    .ToList();
+                    if (petPost.OwnerId != ownerId)
+                    {
+                        await transaction.RollbackAsync();
+                        return (false, "You are not allowed to delete this post", (List<string>?)null);
+                    }
 
-                await _petRepository.DeletePetPostAsync(petPost);
-                await _petRepository.SaveChangesAsync();
+                    var imagePaths = petPost.Images
+                        .Select(img => Path.Combine(_env.WebRootPath, img.ImageUrl.TrimStart('/')))
+                        .ToList();
 
-                await _petRepository.DeletePetAsync(petPost.Pet);
-                await _petRepository.SaveChangesAsync();
+                    await _petRepository.DeletePetPostAsync(petPost);
+                    await _petRepository.SaveChangesAsync();
 
-                await transaction.CommitAsync();
+                    await _petRepository.DeletePetAsync(petPost.Pet);
+                    await _petRepository.SaveChangesAsync();
 
-                // ── Invalidate cache ─────────────────────────
+                    await transaction.CommitAsync();
+
+                    return (true, "Pet deleted successfully", imagePaths);
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
+
+            if (success)
+            {
                 await _cachingService.InvalidatePetCacheAsync(petPostId, ownerId);
 
-                foreach (var path in imagePaths)
+                foreach (var path in imagePaths ?? [])
                     if (File.Exists(path)) File.Delete(path);
+            }
 
-                return (true, "Pet deleted successfully");
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            return (success, message);
         }
 
         // ── SEARCH ──────────────────────────────────

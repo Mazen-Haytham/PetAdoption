@@ -22,7 +22,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ── Database ─────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 15,                    // Increased for Docker
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);             // Retry on all transient errors
+
+            // Optional but recommended for Docker
+            sqlOptions.CommandTimeout(90);            // Give migrations more time
+            sqlOptions.MigrationsAssembly(typeof(Program).Assembly.GetName().Name);
+        });
+});
 
 //Redis 
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -79,9 +93,10 @@ builder.Services.AddSignalR();
 // ── CORS ──────────────────────────────────────────
 builder.Services.AddCors(options =>
 {
+    var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(frontendUrl, "http://localhost:5173", "http://localhost:3000")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -184,6 +199,14 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         c.RoutePrefix = string.Empty;
     });
+}
+
+// Auto-Migrate
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    db.Database.Migrate();
 }
 
 app.UseStaticFiles();

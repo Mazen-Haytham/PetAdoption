@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
-const BASE_URL = "https://localhost:7081/api";
-export const ORIGIN_URL = "https://localhost:7081";
+const BASE_URL = "/api";
+// Get the origin URL - can be overridden via environment variable
+export const ORIGIN_URL = import.meta.env.VITE_ORIGIN_URL || "http://localhost:5173";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -114,11 +115,13 @@ export async function removeFavorite(petPostId) {
 
 // ─── Pets ────────────────────────────────────────────────────
 
+/** Resolves backend-stored paths like `/uploads/pets/...` for <img src>. */
 export function resolveAssetUrl(path) {
   if (!path || typeof path !== "string" || path.trim() === "") return null;
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  if (path.startsWith("/")) return `${ORIGIN_URL}${path}`;
-  return `${ORIGIN_URL}/${path}`;
+  // Same-origin relative URL so nginx (Docker) or Vite proxy can forward `/uploads/` to the API.
+  // Do not prefix ORIGIN_URL — that pointed at this SPA host while static files live on the backend.
+  return path.startsWith("/") ? path : `/${path}`;
 }
 
 export async function getMyPetPosts() {

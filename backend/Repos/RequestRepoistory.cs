@@ -1,7 +1,6 @@
 ﻿using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace backend.Requests.Repositories
 {
@@ -115,10 +114,6 @@ namespace backend.Requests.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IDbContextTransaction> BeginTransactionAsync()
-        {
-            return await _context.Database.BeginTransactionAsync();
-        }
         public async Task<Adoption?> GetAdoptionByPetPostIdAsync(int petPostId)
         {
             return await _context.Adoptions

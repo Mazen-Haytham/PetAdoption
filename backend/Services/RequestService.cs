@@ -1,5 +1,6 @@
 ﻿using backend.Data;
 using backend.Models;
+using Microsoft.EntityFrameworkCore;
 using backend.Pets.Mapping;
 using backend.Requests.DTOs;
 using backend.Requests.Repositories;
@@ -12,17 +13,20 @@ namespace backend.Requests.Services
     public class RequestService : IRequestService
     {
         private readonly IRequestRepository _requestRepository;
+        private readonly AppDbContext _db;
         private readonly IHubContext<NotificationsHub> _hub;
         private readonly ICachingService _cachingService;
         private const string AllPetPostsCacheKey = "petPosts:all";
 
         public RequestService(
             IRequestRepository requestRepository,
+            AppDbContext db,
             IHubContext<NotificationsHub> hub,
             ICachingService cachingService
             )
         {
             _requestRepository = requestRepository;
+            _db = db;
             _hub = hub;
             _cachingService = cachingService;
         }
@@ -144,64 +148,82 @@ namespace backend.Requests.Services
 
         public async Task<(bool Success, string Message)> AcceptRequestAsync(int requestId, int ownerId)
         {
-            using var transaction = await _requestRepository.BeginTransactionAsync();
-
-            try
+            var (success, message, petPostIdForCache) = await _db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
             {
-                // ── 1. Find Request ─────────────────────
-                var request = await _requestRepository.GetRequestByIdAsync(requestId);
+                _db.ChangeTracker.Clear();
 
-                if (request == null)
-                    return (false, "Request not found");
-
-                // ── 2. Check ownership ──────────────────
-                if (request.PetPost.OwnerId != ownerId)
-                    return (false, "You are not allowed to accept this request");
-
-                // ── 3. Check if already processed ───────
-                if (request.Status != RequestStatus.Pending)
-                    return (false, $"Request is already {request.Status}");
-
-                // ── 4. Accept Request ───────────────────
-                request.Status = RequestStatus.Accepted;
-
-                // ── 4.1 Reject other pending requests ────
-                await _requestRepository.RejectOtherPendingRequestsForPetPostAsync(request.PetPostId, request.Id);
-
-                // ── 4.2 Guard against duplicate adoption ─
-                var existingAdoption = await _requestRepository.GetAdoptionByPetPostIdAsync(request.PetPostId);
-                if (existingAdoption != null)
-                    return (false, "This pet has already been adopted");
-
-                // ── 5. Create Adoption ──────────────────
-                var adoption = new Adoption
+                await using var transaction = await _db.Database.BeginTransactionAsync();
+                try
                 {
-                    RequestId = request.Id,
-                    AdopterId = request.AdopterId,
-                    OwnerId = ownerId,
-                    PetPostId = request.PetPostId,
-                    Status = AdoptionStatus.Completed,
-                    AdoptedAt = DateTime.UtcNow
-                };
+                    // ── 1. Find Request ─────────────────────
+                    var request = await _requestRepository.GetRequestByIdAsync(requestId);
 
-                await _requestRepository.CreateAdoptionAsync(adoption);
+                    if (request == null)
+                    {
+                        await transaction.RollbackAsync();
+                        return (false, "Request not found", (int?)null);
+                    }
 
-                // ── 6. Update PetPost Status ────────────
-                request.PetPost.Status = PetStatus.Adopted;
+                    // ── 2. Check ownership ──────────────────
+                    if (request.PetPost.OwnerId != ownerId)
+                    {
+                        await transaction.RollbackAsync();
+                        return (false, "You are not allowed to accept this request", (int?)null);
+                    }
 
-                await _requestRepository.SaveChangesAsync();
-                await transaction.CommitAsync();
+                    // ── 3. Check if already processed ───────
+                    if (request.Status != RequestStatus.Pending)
+                    {
+                        await transaction.RollbackAsync();
+                        return (false, $"Request is already {request.Status}", (int?)null);
+                    }
 
-                // ── Invalidate cache ─────────────────────────
-                await _cachingService.InvalidateRequestRelatedCacheAsync(request.PetPostId, ownerId);
+                    // ── 4. Accept Request ───────────────────
+                    request.Status = RequestStatus.Accepted;
 
-                return (true, "Adoption request approved");
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+                    // ── 4.1 Reject other pending requests ────
+                    await _requestRepository.RejectOtherPendingRequestsForPetPostAsync(request.PetPostId, request.Id);
+
+                    // ── 4.2 Guard against duplicate adoption ─
+                    var existingAdoption = await _requestRepository.GetAdoptionByPetPostIdAsync(request.PetPostId);
+                    if (existingAdoption != null)
+                    {
+                        await transaction.RollbackAsync();
+                        return (false, "This pet has already been adopted", (int?)null);
+                    }
+
+                    // ── 5. Create Adoption ──────────────────
+                    var adoption = new Adoption
+                    {
+                        RequestId = request.Id,
+                        AdopterId = request.AdopterId,
+                        OwnerId = ownerId,
+                        PetPostId = request.PetPostId,
+                        Status = AdoptionStatus.Completed,
+                        AdoptedAt = DateTime.UtcNow
+                    };
+
+                    await _requestRepository.CreateAdoptionAsync(adoption);
+
+                    // ── 6. Update PetPost Status ────────────
+                    request.PetPost.Status = PetStatus.Adopted;
+
+                    await _requestRepository.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return (true, "Adoption request approved", (int?)request.PetPostId);
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
+
+            if (success && petPostIdForCache.HasValue)
+                await _cachingService.InvalidateRequestRelatedCacheAsync(petPostIdForCache.Value, ownerId);
+
+            return (success, message);
         }
 
         public async Task<(bool Success, string Message)> RejectRequestAsync(int requestId, int ownerId)
