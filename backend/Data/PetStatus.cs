@@ -4,6 +4,7 @@
     {
         Available = 0,
         Adopted = 1,
-        Pending = 2
+        Pending = 2,
+        Rejected = 3
     }
 }
