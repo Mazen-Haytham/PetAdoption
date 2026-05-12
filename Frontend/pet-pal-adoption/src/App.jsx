@@ -4,6 +4,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import AdopterProfile from "./pages/adopter/AdopterProfile";
+import Favorites from "./pages/adopter/Favorites";
+import Reviews from "./pages/adopter/Reviews";
 import AdopterBrowseLayout from "./pages/adopter/AdopterBrowseLayout";
 import AdopterHomePage from "./pages/adopter/AdopterHomePage";
 import { useAuthStore } from "./store/authStore";
@@ -38,7 +40,6 @@ export default function App() {
             </PublicRoute>
           }
         />
-
         <Route
           path="/register"
           element={
@@ -49,14 +50,33 @@ export default function App() {
         />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* Adopter — browse is public; profile is protected */}
+        {/* Adopter — browse is public; profile/favorites/reviews are protected */}
         <Route path="/adopter" element={<AdopterBrowseLayout />}>
           <Route index element={<AdopterHomePage />} />
+
           <Route
             path="profile"
             element={
               <ProtectedRoute allowedRoles={["Adopter"]}>
                 <AdopterProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="favorites"
+            element={
+              <ProtectedRoute allowedRoles={["Adopter"]}>
+                <Favorites />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="reviews"
+            element={
+              <ProtectedRoute allowedRoles={["Adopter"]}>
+                <Reviews />
               </ProtectedRoute>
             }
           />
@@ -72,7 +92,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
         {/* All other owner routes, Owner-only */}
         <Route
           path="/owner"
