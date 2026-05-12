@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Star, X } from "lucide-react";
+import { Heart, Star, X } from "lucide-react";
 import {
+  addFavorite,
   getAdoptionHistory,
+  getFavorites,
   getMe,
+  removeFavorite,
   resolveAssetUrl,
 } from "../../api/api";
 import {
@@ -120,8 +123,12 @@ export default function Reviews() {
       .map((row) => {
         const key = adoptionKeyFromHistoryRow(row);
         if (!key) return null;
+        const pp = petPostFromRow(row) ?? {};
+        const petPostId =
+          pp.petPostId ?? pp.PetPostId ?? row?.pet?.id ?? row?.pet?.Id;
         return {
           key,
+          petPostId: petPostId != null ? Number(petPostId) : null,
           petName: petNameFromHistoryRow(row),
           imageUrl: imageUrlFromHistoryRow(row),
           shelterName: shelterLabelFromRow(row),
@@ -140,6 +147,74 @@ export default function Reviews() {
     }
     return set;
   }, [reviewKeysVersion, successfulAdoptions]);
+
+  const [favoriteSet, setFavoriteSet] = useState(() => new Set());
+  const [favoritesLoaded, setFavoritesLoaded] = useState(false);
+  const [favoriteBusyId, setFavoriteBusyId] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setFavoritesLoaded(false);
+    (async () => {
+      try {
+        const list = await getFavorites();
+        if (cancelled) return;
+        const ids = (Array.isArray(list) ? list : []).map((x) => x.id ?? x.Id);
+        setFavoriteSet(new Set(ids.filter((n) => n != null)));
+      } catch {
+        if (!cancelled) setFavoriteSet(new Set());
+      } finally {
+        if (!cancelled) setFavoritesLoaded(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleToggleFavorite = useCallback(
+    async (petPostId) => {
+      if (petPostId == null || favoriteBusyId != null || !favoritesLoaded) return;
+      const inFav = favoriteSet.has(petPostId);
+      setFavoriteBusyId(petPostId);
+      try {
+        if (inFav) {
+          const res = await removeFavorite(petPostId);
+          if (res?.success === false) {
+            toast.error(res.message || "Could not update favorites.");
+            return;
+          }
+          setFavoriteSet((prev) => {
+            const next = new Set(prev);
+            next.delete(petPostId);
+            return next;
+          });
+          toast.success("Removed from favorites.");
+        } else {
+          const res = await addFavorite(petPostId);
+          if (res?.success === false) {
+            toast.error(res.message || "Could not add to favorites.");
+            return;
+          }
+          setFavoriteSet((prev) => {
+            const next = new Set(prev);
+            next.add(petPostId);
+            return next;
+          });
+          toast.success("Saved to favorites.");
+        }
+      } catch (e) {
+        const msg =
+          typeof e === "string"
+            ? e
+            : e?.message ?? "Could not update favorites.";
+        toast.error(msg);
+      } finally {
+        setFavoriteBusyId(null);
+      }
+    },
+    [favoriteBusyId, favoriteSet, favoritesLoaded],
+  );
 
   const [modalAdoption, setModalAdoption] = useState(null);
   const [rating, setRating] = useState(0);
@@ -207,7 +282,8 @@ export default function Reviews() {
         <p className="mt-2 max-w-3xl text-sm font-semibold text-black/45">
           Every successful adoption appears below. Leave a star rating and an
           optional note for the shelter—they&apos;ll see it on their dashboard
-          in this browser.
+          in this browser. Use the heart on a card to add or remove the pet from
+          your favorites.
         </p>
       </div>
 
@@ -232,6 +308,16 @@ export default function Reviews() {
         <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {successfulAdoptions.map((item) => {
             const done = reviewedKeys.has(item.key);
+            const pid = item.petPostId;
+            const isFavorite =
+              favoritesLoaded &&
+              pid != null &&
+              favoriteSet.has(pid);
+            const favoriteDisabled =
+              pid == null ||
+              !favoritesLoaded ||
+              favoriteBusyId != null;
+
             return (
               <li key={item.key} className="pa-card flex flex-col overflow-hidden">
                 <div className="relative aspect-[5/3] w-full bg-black/5">
@@ -242,10 +328,40 @@ export default function Reviews() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-3xl text-black/20">
-                      🐾
+                    <div className="flex h-full items-center justify-center text-sm font-semibold text-black/35">
+                      No photo
                     </div>
                   )}
+                  {pid != null ? (
+                    <button
+                      type="button"
+                      disabled={favoriteDisabled}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleFavorite(pid);
+                      }}
+                      className={[
+                        "absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full shadow-md ring-1 transition",
+                        isFavorite
+                          ? "bg-[rgb(var(--pa-primary))] text-white ring-[rgb(var(--pa-primary))]/30"
+                          : "bg-white/95 text-black/50 ring-black/10 hover:text-[rgb(var(--pa-primary))]",
+                        !favoritesLoaded || favoriteBusyId != null
+                          ? "opacity-60"
+                          : "",
+                      ].join(" ")}
+                      title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                      aria-pressed={isFavorite}
+                      aria-label={
+                        isFavorite ? "Remove from favorites" : "Add to favorites"
+                      }
+                    >
+                      <Heart
+                        className="h-5 w-5"
+                        strokeWidth={2}
+                        fill={isFavorite ? "currentColor" : "none"}
+                      />
+                    </button>
+                  ) : null}
                 </div>
                 <div className="flex flex-1 flex-col gap-2 p-3">
                   <div>
