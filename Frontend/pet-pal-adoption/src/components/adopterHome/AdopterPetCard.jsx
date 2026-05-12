@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { MapPin, User, Heart } from "lucide-react"
 import { resolveAssetUrl } from "../../api/api";
 
 function petImage(pet) {
@@ -22,6 +22,9 @@ export default function AdopterPetCard({ pet, canRequestAdoption, onRequestAdopt
   const age = pet?.age ?? pet?.Age;
   const location = pet?.location ?? pet?.Location ?? "—";
   const status = pet?.status ?? pet?.Status ?? "Available";
+  const ownerName    = pet?.ownerName    ?? pet?.OwnerName    ?? null
+  const healthStatus = pet?.healthStatus ?? pet?.HealthStatus ?? null
+  const description  = pet?.description  ?? pet?.Description  ?? null
 
   return (
     <article className="pa-card flex flex-col overflow-hidden transition hover:ring-2 hover:ring-[rgb(var(--pa-primary))]/15">
@@ -49,6 +52,34 @@ export default function AdopterPetCard({ pet, canRequestAdoption, onRequestAdopt
           <MapPin className="h-3.5 w-3.5 shrink-0" />
           {location}
         </p>
+        {ownerName && (
+        <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-black/40">
+         <User className="h-3.5 w-3.5 shrink-0" />
+         {ownerName}
+         </p>
+          )}
+
+          {healthStatus && (
+          <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-black/40">
+          <Heart className="h-3.5 w-3.5 shrink-0" />
+           {healthStatus}
+          </p>
+           )}
+
+           {healthStatus && (
+           <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-black/40">
+           <Heart className="h-3.5 w-3.5 shrink-0" />
+           {healthStatus}
+           </p>
+            )}    
+
+
+            {description && (
+            <p className="mt-2 text-xs text-black/50 leading-relaxed line-clamp-2">
+            {description}
+            </p>
+             )}
+
         <div className="mt-4 flex flex-1 flex-col justify-end">
           <button
             type="button"

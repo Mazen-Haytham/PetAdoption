@@ -29,7 +29,12 @@ export default function AdopterHomePage() {
 
   useEffect(() => {
     fetchBrowsePets();
-  }, [fetchBrowsePets]);
+
+    //
+    const handleFocus = () => fetchBrowsePets()
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+}, [fetchBrowsePets]);
 
   function openModal(petPostId, petName) {
     clearAdoptError();
@@ -50,6 +55,7 @@ export default function AdopterHomePage() {
     const res = await submitAdoptionRequest(selectedPetPostId, message);
     if (res.ok) {
       toast.success("Adoption request sent!");
+      await fetchBrowsePets() // 
       return true;
     }
     toast.error(res.error || "Could not send request.");
