@@ -1,4 +1,4 @@
-import { Bell, Settings } from "lucide-react";
+
 import { Bell, Settings, Heart, Star, User } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
