@@ -180,6 +180,18 @@ export async function rejectAdoptionRequest(requestId) {
   }
 }
 
+
+
+export async function searchPetPosts(filter) {
+  try {
+    const res = await api.get('/pets/search', { params: filter })
+    return res.data.data ?? []
+  } catch (error) {
+    if (error?.response?.status === 404) return []
+    return Promise.reject(error.response ? error.response.data : error.message)
+  }
+}
+
 // // ─── Admin ───────────────────────────────────────────────────
 
 // export async function updateUserStatus(userId, decision) {

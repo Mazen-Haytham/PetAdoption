@@ -22,6 +22,7 @@ namespace backend.Pets.Mapping
                 Name = pp.Pet.Name,
                 Type = pp.Pet.Type,
                 Breed = pp.Pet.Breed,
+                Gender = pp.Pet.Gender,
                 Location = pp.Pet.Location,
                 Age = pp.Pet.Age,
                 OwnerId = pp.Owner?.Id ?? pp.OwnerId,
