@@ -5,6 +5,8 @@ using backend.Requests.DTOs;
 using backend.Requests.Repositories;
 using backend.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace backend.Requests.Services
 {
@@ -12,13 +14,21 @@ namespace backend.Requests.Services
     {
         private readonly IRequestRepository _requestRepository;
         private readonly IHubContext<NotificationsHub> _hub;
+        private readonly IDistributedCache _redis;
+        private readonly IMemoryCache _memory;
+        private const string AllPetPostsCacheKey = "petPosts:all";
 
         public RequestService(
             IRequestRepository requestRepository,
-            IHubContext<NotificationsHub> hub)
+            IHubContext<NotificationsHub> hub,
+            IDistributedCache redis,   
+            IMemoryCache memory
+            )
         {
             _requestRepository = requestRepository;
             _hub = hub;
+            _redis = redis;            
+            _memory = memory;
         }
 
         public async Task<(bool Success, string Message, int? RequestId)> CreateAdoptionRequestAsync(int adopterId, int petPostId, string message)
@@ -164,6 +174,9 @@ namespace backend.Requests.Services
 
                 await _requestRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                await _redis.RemoveAsync(AllPetPostsCacheKey);
+                _memory.Remove(AllPetPostsCacheKey);
 
                 return (true, "Adoption request approved");
             }

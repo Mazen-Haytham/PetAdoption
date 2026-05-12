@@ -37,6 +37,8 @@ namespace backend.Models
         [Required]
         public int Age { get; set; }
 
+
+
         // ── Post Metadata ──────────────────────────────
         public PetStatus Status { get; set; } = PetStatus.Available;
 
