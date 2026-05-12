@@ -175,8 +175,12 @@ namespace backend.Requests.Services
                 await _requestRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                // Clear adopter home cache
                 await _redis.RemoveAsync(AllPetPostsCacheKey);
                 _memory.Remove(AllPetPostsCacheKey);
+                //clears owner's own posts cache
+                await _redis.RemoveAsync($"petPosts:owner:{ownerId}");
+                _memory.Remove($"petPosts:owner:{ownerId}");
 
                 return (true, "Adoption request approved");
             }

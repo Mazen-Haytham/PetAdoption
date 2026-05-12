@@ -12,8 +12,10 @@ namespace backend.Pets.DTOs
         public int PetId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
+        public string Gender { get; set; } = string.Empty;
         public string Breed { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
+
         public int Age { get; set; }
 
         // ── Owner Info ─────────────────────────────

@@ -128,6 +128,7 @@ namespace backend.Pets.Services
                     Name = dto.Name,
                     Age = dto.Age,
                     Breed = dto.Breed,
+                    Gender= dto.Gender,
                     Location = dto.Location,
                     Type = dto.Type,
                     OwnerId = ownerId,

@@ -4,7 +4,12 @@ import { create } from "zustand";
 import api, {
   createAdoptionRequest,
   getAvailablePetPosts,
+  searchPetPosts, // ← ADD
 } from "../api/api";
+
+
+
+
 
 const usePetStore = create((set) => ({
   // ── State ──────────────────────────────────────────────────
@@ -25,6 +30,7 @@ const usePetStore = create((set) => ({
    * @param {string}   petData.gender
    * @param {string}   petData.location
    * @param {string}   petData.type
+   * @param {string}   petData.gender
    * @param {string}   petData.description
    * @param {string}   petData.healthStatus  - comma-separated string
    * @param {File[]}   petData.images        - at least 1 required
@@ -41,6 +47,7 @@ const usePetStore = create((set) => ({
       formData.append("gender",       petData.gender);
       formData.append("location",     petData.location);
       formData.append("type",         petData.type);
+      formData.append("gender",         petData.gender);
       formData.append("description",  petData.description ?? "");
       formData.append("healthStatus", petData.healthStatus ?? "");
 
@@ -76,6 +83,22 @@ const usePetStore = create((set) => ({
       return { success: false, error: message };
     }
   },
+
+  // ── Search ──────────────────────────────────────
+isSearching: false,
+searchError: null,
+
+searchPets: async (filter) => {
+  set({ browseLoading: true, browseError: null })
+  try {
+    const list = await searchPetPosts(filter)
+    set({ browsePets: Array.isArray(list) ? list : [], browseLoading: false })
+  } catch (error) {
+    const msg = typeof error === 'string'
+      ? error : error?.message || 'Search failed.'
+    set({ browseError: msg, browseLoading: false })
+  }
+},
 
   // Reset when unmounting the form or after navigation
   resetCreateState: () =>
@@ -125,5 +148,9 @@ const usePetStore = create((set) => ({
 
   clearAdoptError: () => set({ adoptError: null }),
 }));
+
+
+
+
 
 export default usePetStore;
