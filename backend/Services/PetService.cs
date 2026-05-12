@@ -6,9 +6,7 @@ using backend.Pets.DTOs;
 using backend.Pets.Mapping;
 using backend.Pets.Repositories;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
-using System.Text.Json;
+using backend.Services;
 
 namespace backend.Pets.Services
 {
@@ -16,8 +14,7 @@ namespace backend.Pets.Services
     {
         private readonly IPetRepository _petRepository;
         private readonly IWebHostEnvironment _env;
-        private readonly IDistributedCache _redis;
-        private readonly IMemoryCache _memory;
+        private readonly ICachingService _cachingService;
         private readonly IHubContext<NotificationsHub> _hubContext;
 
         // ── Cache keys ──────────────────────────────
@@ -25,28 +22,22 @@ namespace backend.Pets.Services
         private static string SinglePetPostCacheKey(int id) => $"petPosts:{id}";
         private static string OwnerPetPostsCacheKey(int ownerId) => $"petPosts:owner:{ownerId}";
 
-        // ── Cache duration ──────────────────────────
-        private static readonly TimeSpan MemoryExpiry = TimeSpan.FromMinutes(2);
-        private static readonly TimeSpan RedisExpiry = TimeSpan.FromMinutes(3);
-
         public PetService(
             IPetRepository petRepository,
             IWebHostEnvironment env,
-            IDistributedCache redis,
-            IMemoryCache memory,
+            ICachingService cachingService,
             IHubContext<NotificationsHub> hubContext)
         {
             _petRepository = petRepository;
             _env = env;
-            _redis = redis;
-            _memory = memory;
+            _cachingService = cachingService;
             _hubContext = hubContext;
         }
 
         // ── GET ALL ─────────────────────────────────
         public async Task<List<PetPostResponseDto>> GetAvailablePetPostsAsync()
         {
-            return await GetOrSetCacheAsync(
+            return await _cachingService.GetOrSetCacheAsync(
                 AllPetPostsCacheKey,
                 async () =>
                 {
@@ -58,7 +49,7 @@ namespace backend.Pets.Services
         // ── GET BY ID ───────────────────────────────
         public async Task<PetPostResponseDto?> GetPetPostByIdAsync(int petPostId)
         {
-            return await GetOrSetCacheAsync(
+            return await _cachingService.GetOrSetCacheAsync(
                 SinglePetPostCacheKey(petPostId),
                 async () =>
                 {
@@ -70,7 +61,7 @@ namespace backend.Pets.Services
         // ── GET BY ID (Detail DTO) ──────────────────
         public async Task<PetPostDetailDto?> GetPetPostByIdDTOAsync(int petPostId)
         {
-            return await GetOrSetCacheAsync(
+            return await _cachingService.GetOrSetCacheAsync(
                 $"petPosts:detail:{petPostId}",
                 async () =>
                 {
@@ -106,7 +97,7 @@ namespace backend.Pets.Services
         // ── GET MY POSTS ────────────────────────────
         public async Task<List<PetPostResponseDto>> GetMyPetPostsAsync(int ownerId)
         {
-            return await GetOrSetCacheAsync(
+            return await _cachingService.GetOrSetCacheAsync(
                 OwnerPetPostsCacheKey(ownerId),
                 async () =>
                 {
@@ -128,7 +119,7 @@ namespace backend.Pets.Services
                     Name = dto.Name,
                     Age = dto.Age,
                     Breed = dto.Breed,
-                    Gender= dto.Gender,
+                    Gender = dto.Gender,
                     Location = dto.Location,
                     Type = dto.Type,
                     OwnerId = ownerId,
@@ -203,17 +194,19 @@ namespace backend.Pets.Services
 
                 await transaction.CommitAsync();
 
+                // ── Invalidate cache ─────────────────────────
+                await _cachingService.InvalidatePetCacheAsync(petPost.Id, ownerId);
 
                 // ── Notify Admins ────────────────────────────
                 await _hubContext.Clients.Group("Admins").SendAsync("NewPostCreated", new NotificationDto
                 {
                     Message = "New pet post waiting for approval",
                     PostId = petPost.Id,
-                    OwnerId = ownerId, 
+                    OwnerId = ownerId,
                     CreatedAt = DateTime.UtcNow
                 });
 
-                
+
 
                 return pet;  // ← no cache invalidation
             }
@@ -247,7 +240,10 @@ namespace backend.Pets.Services
             if (dto.Location != null) petPost.Pet.Location = dto.Location;
 
             await _petRepository.UpdatePetPostAsync(petPost);
-            await _petRepository.SaveChangesAsync();  // ← DB only, no cache invalidation
+            await _petRepository.SaveChangesAsync();
+
+            // ── Invalidate cache ─────────────────────────
+            await _cachingService.InvalidatePetCacheAsync(petPostId, ownerId);
 
             return (true, "Pet updated successfully", new
             {
@@ -281,7 +277,10 @@ namespace backend.Pets.Services
                 await _petRepository.DeletePetAsync(petPost.Pet);
                 await _petRepository.SaveChangesAsync();
 
-                await transaction.CommitAsync();  // ← DB only, no cache invalidation
+                await transaction.CommitAsync();
+
+                // ── Invalidate cache ─────────────────────────
+                await _cachingService.InvalidatePetCacheAsync(petPostId, ownerId);
 
                 foreach (var path in imagePaths)
                     if (File.Exists(path)) File.Delete(path);
@@ -300,51 +299,6 @@ namespace backend.Pets.Services
         {
             var petPosts = await _petRepository.SearchPetPostsAsync(filter);
             return petPosts.Select(pp => MapToDto(pp)).ToList();
-        }
-
-        // ── Cache helper: Memory → Redis → DB ───────
-        private async Task<T?> GetOrSetCacheAsync<T>(
-            string cacheKey,
-            Func<Task<T?>> fetchFromDb)
-        {
-            // ── 1. Check Memory cache ───────────────
-            if (_memory.TryGetValue(cacheKey, out T? memoryResult))
-            {
-                Console.WriteLine($"MEMORY HIT: {cacheKey}");
-                return memoryResult;
-            }
-
-            // ── 2. Check Redis cache ────────────────
-            var redisResult = await _redis.GetStringAsync(cacheKey);
-
-            if (redisResult != null)
-            {
-                Console.WriteLine($"REDIS HIT: {cacheKey}");
-                var deserialized = JsonSerializer.Deserialize<T>(redisResult)!;
-
-                // backfill memory from Redis
-                _memory.Set(cacheKey, deserialized, MemoryExpiry);
-
-                return deserialized;
-            }
-
-            // ── 3. Fetch from DB ────────────────────
-            Console.WriteLine($"DB HIT: {cacheKey}");
-            var result = await fetchFromDb();
-
-            if (result == null) return default;
-
-            // ── 4. Save to both caches ──────────────
-            _memory.Set(cacheKey, result, MemoryExpiry);
-
-            await _redis.SetStringAsync(cacheKey,
-                JsonSerializer.Serialize(result),
-                new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = RedisExpiry
-                });
-
-            return result;
         }
 
         // ── Mapping helper ───────────────────────────

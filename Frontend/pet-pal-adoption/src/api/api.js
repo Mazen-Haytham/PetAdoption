@@ -1,9 +1,8 @@
 import axios from "axios";
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from "../store/authStore";
 
 const BASE_URL = "https://localhost:7081/api";
 export const ORIGIN_URL = "https://localhost:7081";
-
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -17,12 +16,12 @@ const refreshApi = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken
+  const token = useAuthStore.getState().accessToken;
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 
 api.interceptors.response.use(
   (response) => response,
@@ -32,31 +31,35 @@ api.interceptors.response.use(
     // 403
     if (error.response?.status === 403) {
       window.location.href = "/unauthorized";
-      return Promise.reject(error.response ? error.response.data : error.message);
+      return Promise.reject(
+        error.response ? error.response.data : error.message,
+      );
     }
 
     // 401
     if (error.response?.status !== 401 || original._retry) {
-      return Promise.reject(error.response ? error.response.data : error.message);
+      return Promise.reject(
+        error.response ? error.response.data : error.message,
+      );
     }
 
     original._retry = true;
 
     try {
-      const res = await refreshApi.post("/Auth/refresh-token");
+      const res = await refreshApi.post("/auth/refresh-token");
       const newToken = res.data.accessToken;
 
       useAuthStore.getState().setAccessToken(newToken);
 
       original.headers.Authorization = `Bearer ${newToken}`;
       return api(original);
-
-    } catch {
-      await refreshApi.post("/auth/logout"); // refreshApi = no interceptors
+    } catch (err) {
+      console.warn("[api] Token refresh failed:", err.message);
+      await refreshApi.post("/auth/logout").catch(() => {}); // refreshApi = no interceptors
       useAuthStore.getState().clearAuth();
-      return Promise.reject(error.response ? error.response.data : error.message);
+      return Promise.reject(err.response ? err.response.data : err.message);
     }
-  }
+  },
 );
 
 export default api;
@@ -72,12 +75,14 @@ export async function getMe() {
   }
 }
 
-
 export async function logout() {
   try {
     await api.post("/auth/logout");
-  } catch(err) {
-    console.error("Logout failed:", err.response ? err.response.data : err.message);
+  } catch (err) {
+    console.error(
+      "Logout failed:",
+      err.response ? err.response.data : err.message,
+    );
   } finally {
     useAuthStore.getState().clearAuth();
   }
@@ -228,35 +233,13 @@ export async function rejectAdoptionRequest(requestId) {
   }
 }
 
-
-
 export async function searchPetPosts(filter) {
   try {
     const res = await api.get("/pets/search", { params: filter });
     return res.data.data ?? [];
   } catch (error) {
-    // Raw axios error (e.g. tests or callers without interceptor shape)
     if (error?.response?.status === 404) return [];
-
-    // Default api interceptor rejects with `response.data`, not the full axios error
-    const body = error?.response?.data ?? error;
-    if (body && typeof body === "object" && body.success === false) {
-      const msg = String(body.message || "").toLowerCase();
-      if (
-        msg.includes("no pets") ||
-        msg.includes("matching your search") ||
-        msg.includes("not found")
-      ) {
-        return [];
-      }
-      return Promise.reject(body.message || "Search failed.");
-    }
-    if (typeof error === "string") {
-      const s = error.toLowerCase();
-      if (s.includes("no pets") || s.includes("matching your search")) return [];
-      return Promise.reject(error);
-    }
-    return Promise.reject(error?.message || "Search failed.");
+    return Promise.reject(error.response ? error.response.data : error.message);
   }
 }
 

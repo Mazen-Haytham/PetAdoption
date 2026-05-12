@@ -18,6 +18,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminPetsPage from "./pages/admin/AdminPetsPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdopterOrPublicRoute from "./components/AdopterOrPublicRoute";
 
 const Unauthorized = () => <h1>Unauthorized</h1>;
 
@@ -50,8 +51,12 @@ export default function App() {
         />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* Adopter — browse is public; profile/favorites/reviews are protected */}
-        <Route path="/adopter" element={<AdopterBrowseLayout />}>
+        {/* Adopter — browse is public; profile is protected */}
+        <Route path="/adopter" element={
+          <AdopterOrPublicRoute>
+            <AdopterBrowseLayout />
+          </AdopterOrPublicRoute>
+        }>
           <Route index element={<AdopterHomePage />} />
 
           <Route
