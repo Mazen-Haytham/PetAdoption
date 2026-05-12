@@ -3,6 +3,7 @@ using backend.Dto;
 using backend.Hubs;
 using backend.Models;
 using backend.Pets.DTOs;
+using backend.Pets.Mapping;
 using backend.Pets.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
@@ -127,6 +128,7 @@ namespace backend.Pets.Services
                     Name = dto.Name,
                     Age = dto.Age,
                     Breed = dto.Breed,
+                    Gender= dto.Gender,
                     Location = dto.Location,
                     Type = dto.Type,
                     OwnerId = ownerId,
@@ -346,23 +348,6 @@ namespace backend.Pets.Services
         }
 
         // ── Mapping helper ───────────────────────────
-        private static PetPostResponseDto MapToDto(PetPost pp) => new PetPostResponseDto
-        {
-            PetPostId = pp.Id,
-            Description = pp.Description ?? string.Empty,
-            HealthStatus = pp.HealthStatus ?? string.Empty,
-            Status = pp.Status.ToString(),
-            CreatedAt = pp.CreatedAt,
-            PetId = pp.Pet.Id,
-            Name = pp.Pet.Name,
-            Type = pp.Pet.Type,
-            Breed = pp.Pet.Breed,
-            Location = pp.Pet.Location,
-            Age = pp.Pet.Age,
-            OwnerId = pp.Owner.Id,
-            OwnerName = pp.Owner.Name,
-            Images = pp.Images.Select(img => img.ImageUrl).ToList(),
-            PrimaryImage = pp.Images.FirstOrDefault(img => img.IsPrimary)?.ImageUrl
-        };
+        private static PetPostResponseDto MapToDto(PetPost pp) => PetPostResponseMapper.Map(pp)!;
     }
 }

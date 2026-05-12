@@ -103,6 +103,29 @@ export async function getMyPetPosts() {
   }
 }
 
+// ─── Adopter browse (public GET; POST adoption needs login) ─
+
+/** GET /pets — available listings (anonymous allowed). Empty list → [] on 404. */
+export async function getAvailablePetPosts() {
+  try {
+    const res = await api.get("/pets");
+    return res.data.data ?? [];
+  } catch (error) {
+    if (error?.response?.status === 404) return [];
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
+
+/** POST /adoptions — Adopter only; body uses petPostId + message. */
+export async function createAdoptionRequest(petPostId, message) {
+  try {
+    const res = await api.post("/adoptions", { petPostId, message });
+    return res.data;
+  } catch (error) {
+    return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
+
 // ─── Adoptions (Requests) ─────────────────────────────────────
 
 export async function getReceivedAdoptionRequests() {
@@ -154,6 +177,18 @@ export async function rejectAdoptionRequest(requestId) {
     return res.data;
   } catch (error) {
     return Promise.reject(error.response ? error.response.data : error.message);
+  }
+}
+
+
+
+export async function searchPetPosts(filter) {
+  try {
+    const res = await api.get('/pets/search', { params: filter })
+    return res.data.data ?? []
+  } catch (error) {
+    if (error?.response?.status === 404) return []
+    return Promise.reject(error.response ? error.response.data : error.message)
   }
 }
 

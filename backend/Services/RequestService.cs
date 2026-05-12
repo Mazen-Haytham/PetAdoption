@@ -1,9 +1,12 @@
 ﻿using backend.Data;
 using backend.Models;
+using backend.Pets.Mapping;
 using backend.Requests.DTOs;
 using backend.Requests.Repositories;
 using backend.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace backend.Requests.Services
 {
@@ -11,11 +14,21 @@ namespace backend.Requests.Services
     {
         private readonly IRequestRepository _requestRepository;
         private readonly IHubContext<NotificationsHub> _hub;
+        private readonly IDistributedCache _redis;
+        private readonly IMemoryCache _memory;
+        private const string AllPetPostsCacheKey = "petPosts:all";
 
-        public RequestService(IRequestRepository requestRepository, IHubContext<NotificationsHub> hub)
+        public RequestService(
+            IRequestRepository requestRepository,
+            IHubContext<NotificationsHub> hub,
+            IDistributedCache redis,   
+            IMemoryCache memory
+            )
         {
             _requestRepository = requestRepository;
             _hub = hub;
+            _redis = redis;            
+            _memory = memory;
         }
 
         public async Task<(bool Success, string Message, int? RequestId)> CreateAdoptionRequestAsync(int adopterId, int petPostId, string message)
@@ -86,12 +99,17 @@ namespace backend.Requests.Services
         {
             var requests = await _requestRepository.GetRequestsByAdopterIdAsync(adopterId);
 
-            return requests.Select(r => (object)new
+            return requests.Select(r =>
             {
-                id = r.Id,
-                pet = new { id = r.PetPostId, name = r.PetPost.Pet.Name },
-                status = r.Status.ToString().ToLowerInvariant(),
-                createdAt = r.CreatedAt
+                var petPost = PetPostResponseMapper.Map(r.PetPost);
+                return (object)new
+                {
+                    id = r.Id,
+                    pet = new { id = r.PetPostId, name = r.PetPost.Pet.Name },
+                    petPost,
+                    status = r.Status.ToString().ToLowerInvariant(),
+                    createdAt = r.CreatedAt
+                };
             }).ToList();
         }
 
@@ -99,11 +117,16 @@ namespace backend.Requests.Services
         {
             var adoptions = await _requestRepository.GetAdoptionsByAdopterIdAsync(adopterId);
 
-            return adoptions.Select(a => (object)new
+            return adoptions.Select(a =>
             {
-                pet = new { id = a.PetPostId, name = a.PetPost.Pet.Name },
-                status = a.Status.ToString().ToLowerInvariant(),
-                adoptedAt = a.AdoptedAt
+                var petPost = PetPostResponseMapper.Map(a.PetPost);
+                return (object)new
+                {
+                    pet = new { id = a.PetPostId, name = a.PetPost.Pet.Name },
+                    petPost,
+                    status = a.Status.ToString().ToLowerInvariant(),
+                    adoptedAt = a.AdoptedAt
+                };
             }).ToList();
         }
 
@@ -151,6 +174,13 @@ namespace backend.Requests.Services
 
                 await _requestRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                // Clear adopter home cache
+                await _redis.RemoveAsync(AllPetPostsCacheKey);
+                _memory.Remove(AllPetPostsCacheKey);
+                //clears owner's own posts cache
+                await _redis.RemoveAsync($"petPosts:owner:{ownerId}");
+                _memory.Remove($"petPosts:owner:{ownerId}");
 
                 return (true, "Adoption request approved");
             }

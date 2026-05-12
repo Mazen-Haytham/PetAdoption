@@ -1,10 +1,35 @@
-import TopNav from "./../../components/shared/TopNav";
 import ProfileHeaderCard from "../../components/adopterProfile/ProfileHeaderCard";
 import ActiveApplicationsCard from "../../components/adopterProfile/ActiveApplicationsCard";
 import AdoptionHistoryCard from "../../components/adopterProfile/AdoptionHistoryCard";
-import PageFooter from "./../../components/shared/PageFooter";
 import { useEffect, useMemo, useState } from "react";
-import { getAdoptionHistory, getMe, getMyAdoptionRequests } from "../../api/api";
+import {
+  getAdoptionHistory,
+  getMe,
+  getMyAdoptionRequests,
+  resolveAssetUrl,
+} from "../../api/api";
+
+function petPostSnapshot(row) {
+  return row?.petPost ?? row?.PetPost ?? null;
+}
+
+function petNameFromAdoptionRow(row) {
+  const pp = petPostSnapshot(row);
+  return pp?.name ?? pp?.Name ?? row?.pet?.name ?? row?.petName ?? "Unknown Pet";
+}
+
+function imageUrlFromPetPostRow(row) {
+  const pp = petPostSnapshot(row);
+  if (pp) {
+    const primary = pp.primaryImage ?? pp.PrimaryImage;
+    if (primary) return resolveAssetUrl(primary);
+    const imgs = pp.images ?? pp.Images;
+    if (Array.isArray(imgs) && imgs.length > 0) return resolveAssetUrl(imgs[0]);
+  }
+  const rootPrimary = row?.primaryImage ?? row?.PrimaryImage;
+  if (rootPrimary) return resolveAssetUrl(rootPrimary);
+  return null;
+}
 
 function toTitleCaseStatus(status) {
   if (!status) return "Unknown";
@@ -75,7 +100,8 @@ export default function AdopterProfile() {
     const pending = requests.filter((r) => String(r?.status ?? "").toLowerCase() === "pending");
     return pending.map((r) => ({
       id: String(r.id ?? r.requestId ?? `${r?.pet?.id ?? ""}-${r?.createdAt ?? ""}`),
-      petName: r?.pet?.name ?? r?.petName ?? "Unknown Pet",
+      petName: petNameFromAdoptionRow(r),
+      imageUrl: imageUrlFromPetPostRow(r),
       subtitle: r?.createdAt ? `Applied ${formatDate(r.createdAt)}` : null,
       status: toTitleCaseStatus(r.status),
       trailingText: r?.createdAt ? formatDate(r.createdAt).toUpperCase() : "",
@@ -90,7 +116,7 @@ export default function AdopterProfile() {
       })
       .map((r) => {
         const status = String(r?.status ?? "").toLowerCase();
-        const petName = r?.pet?.name ?? r?.petName ?? "Unknown Pet";
+        const petName = petNameFromAdoptionRow(r);
         const when = r?.createdAt ? formatDate(r.createdAt) : null;
         const secondary =
           status === "accepted"
@@ -102,15 +128,17 @@ export default function AdopterProfile() {
         return {
           id: `req-${String(r.id ?? r.requestId ?? `${petName}-${r?.createdAt ?? ""}`)}`,
           petName,
+          imageUrl: imageUrlFromPetPostRow(r),
           secondary,
-          note: "Refresh or check your requests for details.",
+          note: r?.notes ?? r?.note ?? (status ? `Status: ${toTitleCaseStatus(status)}` : null),
           _sortDate: r?.createdAt ?? null,
         };
       });
 
     const completed = history.map((h) => ({
       id: `hist-${String(h?.pet?.id ?? `${h?.adoptedAt ?? ""}-${h?.status ?? ""}`)}`,
-      petName: h?.pet?.name ?? "Unknown Pet",
+      petName: petNameFromAdoptionRow(h),
+      imageUrl: imageUrlFromPetPostRow(h),
       secondary: h?.adoptedAt ? `Adopted ${formatDate(h.adoptedAt)}` : "Adopted",
       note: h?.status ? `Status: ${toTitleCaseStatus(h.status)}` : null,
       _sortDate: h?.adoptedAt ?? null,
@@ -139,37 +167,30 @@ export default function AdopterProfile() {
   }, [adoptionHistoryItems, showAllHistory]);
 
   return (
-    <div className="min-h-dvh">
-      <TopNav brand="PawAdopt" />
+    <main className="pa-container pb-12 pt-8">
+      <ProfileHeaderCard adopter={adopter} />
 
-      <main className="pa-container pb-12 pt-8">
-        <ProfileHeaderCard adopter={adopter} />
+      {loading ? (
+        <div className="mt-8 pa-card p-6 text-sm text-black/55">Loading…</div>
+      ) : error ? (
+        <div className="mt-8 pa-card p-6 text-sm text-rose-700 bg-rose-50 ring-1 ring-rose-200">
+          {error}
+        </div>
+      ) : null}
 
-        {loading ? (
-          <div className="mt-8 pa-card p-6 text-sm text-black/55">Loading…</div>
-        ) : error ? (
-          <div className="mt-8 pa-card p-6 text-sm text-rose-700 bg-rose-50 ring-1 ring-rose-200">
-            {error}
-          </div>
-        ) : null}
+      <section className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-10">
+          <ActiveApplicationsCard items={activeApplications} />
+          <AdoptionHistoryCard
+            items={visibleAdoptionHistoryItems}
+            canToggle={adoptionHistoryItems.length > 4}
+            toggleLabel={showAllHistory ? "Show Recent" : "Show All"}
+            onToggle={() => setShowAllHistory((v) => !v)}
+          />
+        </div>
 
-        <section className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-10">
-            <ActiveApplicationsCard items={activeApplications} />
-            <AdoptionHistoryCard
-              items={visibleAdoptionHistoryItems}
-              canToggle={adoptionHistoryItems.length > 4}
-              toggleLabel={showAllHistory ? "Show Recent" : "Show All"}
-              onToggle={() => setShowAllHistory((v) => !v)}
-            />
-          </div>
-
-          <div className="space-y-6" />
-        </section>
-      </main>
-
-      <PageFooter brand="PawAdopt" />
-    </div>
+        <div className="space-y-6" />
+      </section>
+    </main>
   );
 }
-

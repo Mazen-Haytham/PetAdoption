@@ -32,10 +32,12 @@ namespace backend.Models
         [Required]
         public string Location { get; set; }
 
-        
+        public string Gender { get; set; } = string.Empty; // "Male" or "Female"
 
         [Required]
         public int Age { get; set; }
+
+
 
         // ── Post Metadata ──────────────────────────────
         public PetStatus Status { get; set; } = PetStatus.Available;

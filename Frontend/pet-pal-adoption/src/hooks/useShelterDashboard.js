@@ -45,6 +45,11 @@ export function useShelterDashboard() {
     setReceivedRequests(Array.isArray(requests) ? requests : []);
   }, []);
 
+  const refreshPets = useCallback(async () => {
+    const myPets = await getMyPetPosts()
+    setPets(Array.isArray(myPets) ? myPets : [])
+}, [])
+
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -130,17 +135,28 @@ export function useShelterDashboard() {
     setSelectedRequest(null);
   };
 
+
+  
   const handleAccept = async (req) => {
-    const id = req?.id ?? req?.requestId ?? req?.adoptionRequestId;
-    if (!id) return;
-    setActingId(id);
+    const id = req?.id ?? req?.requestId ?? req?.adoptionRequestId
+    const petPostId = req?.pet?.id
+    if (!id) return
+    setActingId(id)
     try {
-      await acceptAdoptionRequest(id);
-      await refreshRequests();
+        await acceptAdoptionRequest(id)
+        await refreshRequests()
+
+        //  Optimistic update only — NO refreshPets call
+        setPets(prev => prev.map(p =>
+            p?.petPostId === petPostId
+                ? { ...p, status: 'Adopted' }
+                : p
+        ))
     } finally {
-      setActingId(null);
+        setActingId(null)
     }
-  };
+}
+
 
   const handleReject = async (req) => {
     const id = req?.id ?? req?.requestId ?? req?.adoptionRequestId;
@@ -149,6 +165,7 @@ export function useShelterDashboard() {
     try {
       await rejectAdoptionRequest(id);
       await refreshRequests();
+      await refreshPets()
     } finally {
       setActingId(null);
     }

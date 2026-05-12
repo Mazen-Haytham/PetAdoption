@@ -2,6 +2,8 @@
 import { Bell, Settings, Heart, Star, User } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { LogOut, Settings } from "lucide-react";
+import LogoutBtn from "./LogoutBtn";
 
 function LogoMark() {
   return (
@@ -83,18 +85,12 @@ export default function TopNav({ brand }) {
         {/* Actions */}
         <div className="flex items-center gap-3">
           <button type="button" className="pa-icon-btn" aria-label="Notifications">
-            <Bell className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
+            <Bell className="h-5 w-10 text-[rgb(var(--pa-primary))]" />
           </button>
           <button type="button" className="pa-icon-btn" aria-label="Settings">
-            <Settings className="h-5 w-5 text-[rgb(var(--pa-primary))]" />
+            <Settings className="h-5 w-10 text-[rgb(var(--pa-primary))]" />
           </button>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="text-sm font-semibold text-black/50 hover:text-rose-500 transition-colors px-2 py-1 rounded-lg hover:bg-rose-50"
-          >
-            Logout
-          </button>
+          <LogoutBtn />
         </div>
       </div>
     </header>

@@ -33,6 +33,10 @@ namespace backend.Requests.Repositories
                 .Where(r => r.AdopterId == adopterId)
                 .Include(r => r.PetPost)
                     .ThenInclude(pp => pp.Pet)
+                .Include(r => r.PetPost)
+                    .ThenInclude(pp => pp.Images)
+                .Include(r => r.PetPost)
+                    .ThenInclude(pp => pp.Owner)
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
         }
@@ -86,6 +90,10 @@ namespace backend.Requests.Repositories
                 .Where(a => a.AdopterId == adopterId)
                 .Include(a => a.PetPost)
                     .ThenInclude(pp => pp.Pet)
+                .Include(a => a.PetPost)
+                    .ThenInclude(pp => pp.Images)
+                .Include(a => a.PetPost)
+                    .ThenInclude(pp => pp.Owner)
                 .OrderByDescending(a => a.AdoptedAt)
                 .ToListAsync();
         }

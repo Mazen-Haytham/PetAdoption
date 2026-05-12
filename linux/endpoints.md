@@ -147,10 +147,69 @@
 ### `GET /api/adoptions/my`
 **Action:** My
 **Response:** `IActionResult`
+**Response Structure:**
+```json
+{
+  "data": [
+    {
+      "id": "int",
+      "pet": { "id": "int", "name": "string" },
+      "petPost": {
+        "petPostId": "int",
+        "description": "string",
+        "healthStatus": "string",
+        "status": "string",
+        "createdAt": "datetime",
+        "petId": "int",
+        "name": "string",
+        "type": "string",
+        "breed": "string",
+        "location": "string",
+        "age": "int",
+        "ownerId": "int",
+        "ownerName": "string",
+        "images": ["string"],
+        "primaryImage": "string"
+      },
+      "status": "string",
+      "createdAt": "datetime"
+    }
+  ]
+}
+```
 
 ### `GET /api/adoptions/history`
 **Action:** History
 **Response:** `IActionResult`
+**Response Structure:**
+```json
+{
+  "data": [
+    {
+      "pet": { "id": "int", "name": "string" },
+      "petPost": {
+        "petPostId": "int",
+        "description": "string",
+        "healthStatus": "string",
+        "status": "string",
+        "createdAt": "datetime",
+        "petId": "int",
+        "name": "string",
+        "type": "string",
+        "breed": "string",
+        "location": "string",
+        "age": "int",
+        "ownerId": "int",
+        "ownerName": "string",
+        "images": ["string"],
+        "primaryImage": "string"
+      },
+      "status": "string",
+      "adoptedAt": "datetime"
+    }
+  ]
+}
+```
 
 ### `PUT /api/adoptions/{id}/accept`
 **Action:** AcceptRequest
