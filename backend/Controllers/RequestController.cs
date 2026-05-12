@@ -102,6 +102,32 @@ namespace backend.Requests.Controllers
             }
         }
 
+        // GET /api/adoptions/history/for-adopter/{adopterId}
+        // Owner/Shelter/Admin: view an applicant&apos;s completed adoptions (only if they applied to your posts, unless admin).
+        [HttpGet("history/for-adopter/{adopterId:int}")]
+        [Authorize(Roles = "Owner,Shelter,Admin")]
+        public async Task<IActionResult> HistoryForAdopter(int adopterId)
+        {
+            try
+            {
+                if (!TryGetUserId(out var ownerId))
+                    return Unauthorized(new { success = false, message = "Missing or invalid user id claim." });
+
+                var isAdmin = User.IsInRole("Admin");
+                var (ok, error, data) =
+                    await _requestService.GetAdoptionHistoryForAdopterAsOwnerAsync(adopterId, ownerId, isAdmin);
+
+                if (!ok)
+                    return StatusCode(403, new { success = false, message = error });
+
+                return Ok(new { success = true, data });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
         // GET /api/adoptions/history
         [HttpGet("history")]
         public async Task<IActionResult> History()

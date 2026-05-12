@@ -13,6 +13,9 @@ namespace backend.Pets.DTOs
         [MaxLength(100)]
         public string? Breed { get; set; }
 
+        [MaxLength(50)]
+        public string? Type { get; set; }
+
         [MaxLength(10)]
         public string? Gender { get; set; }
 

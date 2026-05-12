@@ -2,12 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 import {
   acceptAdoptionRequest,
+  createPetPost,
+  deletePetPost,
   getMe,
   getMyPetPosts,
   getReceivedAdoptionRequests,
   ORIGIN_URL,
   rejectAdoptionRequest,
   resolveAssetUrl,
+  updatePetPost,
 } from "../api/api";
 import { useAuthStore } from "../store/authStore";
 
@@ -16,7 +19,6 @@ export function useShelterDashboard() {
   const [loadError, setLoadError] = useState(null);
   const [pets, setPets] = useState([]);
   const [receivedRequests, setReceivedRequests] = useState([]);
-  const [showAllPets, setShowAllPets] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [actingId, setActingId] = useState(null);
@@ -45,37 +47,74 @@ export function useShelterDashboard() {
     setReceivedRequests(Array.isArray(requests) ? requests : []);
   }, []);
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      setLoading(true);
-      setLoadError(null);
-
-      try {
-        const [myPets, requests] = await Promise.all([
-          getMyPetPosts(),
-          getReceivedAdoptionRequests(),
-        ]);
-
-        if (!alive) return;
-
-        setPets(Array.isArray(myPets) ? myPets : []);
-        setReceivedRequests(Array.isArray(requests) ? requests : []);
-      } catch (e) {
-        if (alive) {
-          setLoadError(e?.message || "Failed to load dashboard.");
-        }
-      } finally {
-        if (alive) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
+  const refreshPets = useCallback(async () => {
+    const myPets = await getMyPetPosts();
+    setPets(Array.isArray(myPets) ? myPets : []);
   }, []);
+
+  const createPetListing = useCallback(
+    async (formData) => {
+      await createPetPost(formData);
+      await refreshPets();
+    },
+    [refreshPets],
+  );
+
+  const updatePetListing = useCallback(
+    async (petPostId, body) => {
+      await updatePetPost(petPostId, body);
+      await refreshPets();
+    },
+    [refreshPets],
+  );
+
+  const deletePetListing = useCallback(
+    async (petPostId) => {
+      await deletePetPost(petPostId);
+      setPets((prev) =>
+        prev.filter(
+          (p) =>
+            (p?.petPostId ?? p?.PetPostId ?? p?.id) !== petPostId,
+        ),
+      );
+      await refreshPets();
+    },
+    [refreshPets],
+  );
+
+useEffect(() => {
+  let alive = true;
+  (async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const orEmpty = (promise) =>
+        promise.catch((e) => {
+          if (e?.status === 404 || e === "No pet posts found") return [];
+          console.log(JSON.stringify(e));
+          throw e; // re-throw anything that's a real error
+          
+        });
+
+      const [myPets, requests] = await Promise.all([
+        orEmpty(getMyPetPosts()),
+        orEmpty(getReceivedAdoptionRequests()),
+      ]);
+
+      if (!alive) return;
+      setPets(Array.isArray(myPets) ? myPets : []);
+      setReceivedRequests(Array.isArray(requests) ? requests : []);
+    } catch (e) {
+      if (alive) {
+        setLoadError(e?.message || "Failed to load dashboard.");
+        console.log(e?.message);
+      }
+    } finally {
+      if (alive) setLoading(false);
+    }
+  })();
+  return () => { alive = false; };
+}, []);
 
   useEffect(() => {
     let connection;
@@ -130,17 +169,28 @@ export function useShelterDashboard() {
     setSelectedRequest(null);
   };
 
+
+  
   const handleAccept = async (req) => {
-    const id = req?.id ?? req?.requestId ?? req?.adoptionRequestId;
-    if (!id) return;
-    setActingId(id);
+    const id = req?.id ?? req?.requestId ?? req?.adoptionRequestId
+    const petPostId = req?.pet?.id
+    if (!id) return
+    setActingId(id)
     try {
-      await acceptAdoptionRequest(id);
-      await refreshRequests();
+        await acceptAdoptionRequest(id)
+        await refreshRequests()
+
+        //  Optimistic update only — NO refreshPets call
+        setPets(prev => prev.map(p =>
+            p?.petPostId === petPostId
+                ? { ...p, status: 'Adopted' }
+                : p
+        ))
     } finally {
-      setActingId(null);
+        setActingId(null)
     }
-  };
+}
+
 
   const handleReject = async (req) => {
     const id = req?.id ?? req?.requestId ?? req?.adoptionRequestId;
@@ -149,6 +199,7 @@ export function useShelterDashboard() {
     try {
       await rejectAdoptionRequest(id);
       await refreshRequests();
+      await refreshPets()
     } finally {
       setActingId(null);
     }
@@ -172,35 +223,35 @@ export function useShelterDashboard() {
     };
   }, [pets, receivedRequests]);
 
-  const petRows = useMemo(() => {
-    const visible = showAllPets ? pets : pets.slice(0, 3);
+const petRows = useMemo(() => {
+  const sortByDate = (a, b) =>
+    new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime();
 
-    const available = visible.filter((p) => String(p?.status).toLowerCase() === "available");
-    const adopted = visible.filter((p) => String(p?.status).toLowerCase() === "adopted");
+  const normalize = (s) => String(s ?? "").toLowerCase();
 
-    const sortByDate = (a, b) => {
-      const dateA = new Date(a?.createdAt || 0).getTime();
-      const dateB = new Date(b?.createdAt || 0).getTime();
-      return dateB - dateA;
-    };
+  const available = pets.filter((p) => normalize(p?.status) === "available").sort(sortByDate);
+  const adopted   = pets.filter((p) => normalize(p?.status) === "adopted").sort(sortByDate);
+  const pending   = pets.filter((p) => normalize(p?.status) === "pending").sort(sortByDate);
 
-    const sorted = [...available.sort(sortByDate), ...adopted.sort(sortByDate)];
+  const toPetRow = (p) => ({
+    key:     p?.petPostId ?? p?.petPostID ?? p?.petId ?? p?.id ?? p?.name,
+    petPostId: p?.petPostId ?? p?.PetPostId,
+    name:    p?.name ?? "—",
+    species: p?.type ?? "—",
+    status:  p?.status ?? "—",
+    date:    p?.createdAt ? 
+      new Date(p.createdAt).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      })
+      : "—",
+    avatar: resolveAssetUrl(p?.primaryImage) ?? null,
+    raw: p,
+  });
 
-    return sorted.map((p) => ({
-      key: p?.petPostId ?? p?.petPostID ?? p?.petId ?? p?.id ?? p?.name,
-      name: p?.name ?? "—",
-      species: p?.type ?? "—",
-      status: p?.status ?? "—",
-      date: p?.createdAt
-        ? new Date(p.createdAt).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "2-digit",
-          })
-        : "—",
-      avatar: resolveAssetUrl(p?.primaryImage) ?? null,
-    }));
-  }, [pets, showAllPets]);
+  return [...available, ...adopted, ...pending].map(toPetRow);
+}, [pets]);
 
   const recentRequestItems = useMemo(() => {
     const pendingOnly = receivedRequests.filter(
@@ -228,8 +279,6 @@ export function useShelterDashboard() {
     loadError,
     pets,
     receivedRequests,
-    showAllPets,
-    setShowAllPets,
     detailsOpen,
     selectedRequest,
     actingId,
@@ -242,5 +291,9 @@ export function useShelterDashboard() {
     stats,
     petRows,
     recentRequestItems,
+    refreshPets,
+    createPetListing,
+    updatePetListing,
+    deletePetListing,
   };
 }

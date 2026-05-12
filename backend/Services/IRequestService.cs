@@ -8,6 +8,8 @@ namespace backend.Requests.Services
         Task<List<RequestResponseDto>> GetRequestsByOwnerIdAsync(int ownerId);
         Task<List<object>> GetMyRequestsAsync(int adopterId);
         Task<List<object>> GetAdoptionHistoryAsync(int adopterId);
+        /// <summary>Completed adoptions for an adopter, when the caller is that adopter&apos;s listing owner (or admin).</summary>
+        Task<(bool Ok, string? Error, List<object>? Data)> GetAdoptionHistoryForAdopterAsOwnerAsync(int adopterId, int ownerId, bool callerIsAdmin);
         Task<(bool Success, string Message)> AcceptRequestAsync(int requestId, int ownerId);
         Task<(bool Success, string Message)> RejectRequestAsync(int requestId, int ownerId);
     }

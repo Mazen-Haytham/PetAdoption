@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getAdopterAdoptionHistoryForShelter, resolveAssetUrl } from "../../../api/api";
 import { formatWhen } from "./utils";
 
 function InfoRow({ label, value }) {
@@ -13,13 +14,81 @@ function InfoRow({ label, value }) {
   );
 }
 
+function petPostSnapshot(row) {
+  return row?.petPost ?? row?.PetPost ?? null;
+}
+
+function petNameFromHistoryRow(row) {
+  const pp = petPostSnapshot(row);
+  return pp?.name ?? pp?.Name ?? row?.pet?.name ?? row?.pet?.Name ?? "Unknown pet";
+}
+
+function imageUrlFromHistoryRow(row) {
+  const pp = petPostSnapshot(row);
+  if (pp) {
+    const primary = pp.primaryImage ?? pp.PrimaryImage;
+    if (primary) return resolveAssetUrl(primary);
+    const imgs = pp.images ?? pp.Images;
+    if (Array.isArray(imgs) && imgs.length > 0) return resolveAssetUrl(imgs[0]);
+  }
+  return null;
+}
+
+function formatHistoryError(err) {
+  if (typeof err === "string") return err;
+  if (err?.message) return err.message;
+  return "Could not load adoption history.";
+}
+
 export default function RequestDetailsModal({ open, request, onClose }) {
-  if (!open || !request) return null;
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState(null);
 
   const adopter = request?.adopter ?? {};
   const pet = request?.pet ?? {};
   const status = request?.status ?? "—";
   const createdAt = request?.createdAt;
+  const adopterId = adopter?.id ?? adopter?.Id ?? request?.adopterId ?? request?.AdopterId;
+
+  useEffect(() => {
+    if (!open) {
+      setHistory([]);
+      setHistoryLoading(false);
+      setHistoryError(null);
+      return;
+    }
+    if (adopterId == null || adopterId === "") {
+      setHistory([]);
+      setHistoryError(null);
+      return;
+    }
+
+    let alive = true;
+    setHistoryLoading(true);
+    setHistoryError(null);
+    setHistory([]);
+
+    getAdopterAdoptionHistoryForShelter(adopterId)
+      .then((rows) => {
+        if (!alive) return;
+        setHistory(Array.isArray(rows) ? rows : []);
+      })
+      .catch((err) => {
+        if (!alive) return;
+        setHistoryError(formatHistoryError(err));
+        setHistory([]);
+      })
+      .finally(() => {
+        if (alive) setHistoryLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [open, adopterId]);
+
+  if (!open || !request) return null;
 
   return (
     <div
@@ -54,7 +123,7 @@ export default function RequestDetailsModal({ open, request, onClose }) {
               <div className="text-sm font-extrabold">Applicant</div>
               <div className="mt-3">
                 <InfoRow label="Name" value={adopter?.name} />
-                <InfoRow label="Applicant ID" value={adopter?.id} />
+                <InfoRow label="Applicant ID" value={adopter?.id ?? adopter?.Id} />
               </div>
             </div>
 
@@ -62,7 +131,7 @@ export default function RequestDetailsModal({ open, request, onClose }) {
               <div className="text-sm font-extrabold">Pet</div>
               <div className="mt-3">
                 <InfoRow label="Name" value={pet?.name} />
-                <InfoRow label="Pet Post ID" value={pet?.id} />
+                <InfoRow label="Pet Post ID" value={pet?.id ?? pet?.Id} />
                 <InfoRow label="Breed" value={request?.petBreed} />
               </div>
             </div>
@@ -76,9 +145,59 @@ export default function RequestDetailsModal({ open, request, onClose }) {
               <InfoRow label="Message" value={request?.message} />
             </div>
           </div>
+
+          <div className="mt-6 pa-card p-5">
+            <div className="text-sm font-extrabold">Applicant adoption history</div>
+            <p className="mt-1 text-xs font-semibold text-black/45">
+              Completed adoptions recorded in Pet Pal (from any shelter).
+            </p>
+
+            {historyLoading ? (
+              <div className="mt-4 text-sm font-semibold text-black/45">
+                Loading history…
+              </div>
+            ) : historyError ? (
+              <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">
+                {historyError}
+              </div>
+            ) : history.length === 0 ? (
+              <div className="mt-4 text-sm font-semibold text-black/45">
+                No completed adoptions on file yet.
+              </div>
+            ) : (
+              <ul className="mt-4 divide-y divide-black/5">
+                {history.map((row) => {
+                  const name = petNameFromHistoryRow(row);
+                  const img = imageUrlFromHistoryRow(row);
+                  const when = row?.adoptedAt ?? row?.AdoptedAt;
+                  const st = row?.status ?? row?.Status ?? "—";
+                  const key = `${name}-${when}-${st}`;
+                  return (
+                    <li key={key} className="flex items-center gap-4 py-4 first:pt-0">
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-black/10">
+                        {img ? (
+                          <img
+                            alt=""
+                            className="h-full w-full object-cover"
+                            src={img}
+                          />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-extrabold">{name}</div>
+                        <div className="mt-0.5 text-xs font-semibold text-black/45">
+                          {when ? formatWhen(when) : "—"}
+                          {st ? ` · ${String(st)}` : ""}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

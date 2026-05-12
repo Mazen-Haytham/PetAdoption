@@ -3,7 +3,6 @@ import { Outlet } from "react-router-dom";
 import ShelterSidebar from "../../components/owner/ShelterSidebar";
 import AdoptionToast from "../../components/owner/shelterHome/AdoptionToast";
 import RequestDetailsModal from "../../components/owner/shelterHome/RequestDetailsModal";
-import ShelterHomeHeader from "../../components/owner/shelterHome/ShelterHomeHeader";
 import { useShelterDashboard } from "../../hooks/useShelterDashboard";
 
 export default function ShelterOwnerLayout() {
@@ -34,7 +33,6 @@ export default function ShelterOwnerLayout() {
         />
 
         <main className="flex-1">
-          <ShelterHomeHeader />
           <Outlet context={dashboard} />
         </main>
       </div>
