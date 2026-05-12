@@ -26,18 +26,7 @@ export default function ProfileHeaderCard({ adopter }) {
   return (
     <section className="pa-card p-6 sm:p-8">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
-        <div className="relative shrink-0">
-          <div className="rounded-full bg-[rgb(var(--pa-primary))/10] p-1">
-            <Avatar name={adopter.name} />
-          </div>
-          <button
-            type="button"
-            aria-label="Change profile photo"
-            className="absolute bottom-1 right-1 grid h-10 w-10 place-items-center rounded-full bg-[rgb(var(--pa-primary))] text-white shadow-sm ring-4 ring-white hover:brightness-95"
-          >
-            <Camera className="h-5 w-5" />
-          </button>
-        </div>
+        
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -66,12 +55,6 @@ export default function ProfileHeaderCard({ adopter }) {
                   ))}
                 </div>
               ) : null}
-            </div>
-
-            <div className="shrink-0">
-              <button type="button" className="pa-btn-primary">
-                Edit Profile
-              </button>
             </div>
           </div>
         </div>

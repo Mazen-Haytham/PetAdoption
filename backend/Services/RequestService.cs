@@ -21,13 +21,13 @@ namespace backend.Requests.Services
         public RequestService(
             IRequestRepository requestRepository,
             IHubContext<NotificationsHub> hub,
-            IDistributedCache redis,   
+            IDistributedCache redis,
             IMemoryCache memory
             )
         {
             _requestRepository = requestRepository;
             _hub = hub;
-            _redis = redis;            
+            _redis = redis;
             _memory = memory;
         }
 
@@ -130,6 +130,22 @@ namespace backend.Requests.Services
             }).ToList();
         }
 
+        public async Task<(bool Ok, string? Error, List<object>? Data)> GetAdoptionHistoryForAdopterAsOwnerAsync(
+            int adopterId,
+            int ownerId,
+            bool callerIsAdmin)
+        {
+            if (!callerIsAdmin)
+            {
+                var allowed = await _requestRepository.OwnerHasOrHadRequestFromAdopterAsync(ownerId, adopterId);
+                if (!allowed)
+                    return (false, "You can only view this history for adopters who have applied to your listings.", null);
+            }
+
+            var data = await GetAdoptionHistoryAsync(adopterId);
+            return (true, null, data);
+        }
+
         public async Task<(bool Success, string Message)> AcceptRequestAsync(int requestId, int ownerId)
         {
             using var transaction = await _requestRepository.BeginTransactionAsync();
@@ -156,6 +172,11 @@ namespace backend.Requests.Services
                 // ── 4.1 Reject other pending requests ────
                 await _requestRepository.RejectOtherPendingRequestsForPetPostAsync(request.PetPostId, request.Id);
 
+                // ── 4.2 Guard against duplicate adoption ─
+                var existingAdoption = await _requestRepository.GetAdoptionByPetPostIdAsync(request.PetPostId);
+                if (existingAdoption != null)
+                    return (false, "This pet has already been adopted");
+
                 // ── 5. Create Adoption ──────────────────
                 var adoption = new Adoption
                 {
@@ -178,7 +199,8 @@ namespace backend.Requests.Services
                 // Clear adopter home cache
                 await _redis.RemoveAsync(AllPetPostsCacheKey);
                 _memory.Remove(AllPetPostsCacheKey);
-                //clears owner's own posts cache
+
+                // Clear owner's own posts cache
                 await _redis.RemoveAsync($"petPosts:owner:{ownerId}");
                 _memory.Remove($"petPosts:owner:{ownerId}");
 

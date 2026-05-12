@@ -6,7 +6,7 @@ export default function StatusPill({ status }) {
     if (s === "available") {
       return "bg-[rgb(var(--pa-primary))]/20 text-[rgb(var(--pa-primary))]";
     }
-    if (s === "pending") return "bg-indigo-100 text-indigo-700";
+    if (s === "pending") return "bg-yellow-200 text-yellow-700";
     if (s === "adopted") return "bg-emerald-100 text-emerald-700";
     return "bg-black/5 text-black/55";
   }, [status]);

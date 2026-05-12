@@ -31,7 +31,6 @@ Sidebar mobile state: **`sidebarOpen`** toggled via hamburger (`onToggle`); **`o
 | `loadError` | Surface fetch failure message |
 | `pets` | Shelter’s pet posts |
 | `receivedRequests` | Incoming adoption requests |
-| `showAllPets` | Toggle full vs first 3 rows on dashboard |
 | `detailsOpen` / `selectedRequest` | Modal |
 | `actingId` | Disables/conflict prevention while accept/reject in flight |
 | `notifications` | In-memory toast queue |

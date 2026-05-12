@@ -66,6 +66,13 @@ namespace backend.Requests.Repositories
                 r.Status == RequestStatus.Pending);
         }
 
+        public Task<bool> OwnerHasOrHadRequestFromAdopterAsync(int ownerId, int adopterId)
+        {
+            return _context.AdoptionRequests.AnyAsync(r =>
+                r.AdopterId == adopterId &&
+                r.PetPost.OwnerId == ownerId);
+        }
+
         public async Task CreateRequestAsync(Request request)
         {
             await _context.AdoptionRequests.AddAsync(request);
@@ -111,6 +118,11 @@ namespace backend.Requests.Repositories
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             return await _context.Database.BeginTransactionAsync();
+        }
+        public async Task<Adoption?> GetAdoptionByPetPostIdAsync(int petPostId)
+        {
+            return await _context.Adoptions
+                .FirstOrDefaultAsync(a => a.PetPostId == petPostId);
         }
     }
 }

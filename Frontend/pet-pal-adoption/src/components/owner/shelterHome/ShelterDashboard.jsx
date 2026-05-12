@@ -1,28 +1,101 @@
-import React from "react";
+import React, { useState } from "react";
 import { ClipboardIcon, HandshakeIcon, PawIcon } from "./OwnerIcons";
 import StatCard from "./StatCard";
-import StatusPill from "./StatusPill";
+import PetPostsTable from "./PetPostsTable";
+import PetPostFormModal from "./PetPostFormModal";
+import RequestsList from "./RequestsList";
+import { useShelterOwnerOutlet } from "../../../hooks/useShelterOwnerOutlet";
 
-export default function ShelterDashboard({
-  loading,
-  loadError,
-  stats,
-  pets,
-  showAllPets,
-  onToggleShowAllPets,
-  petRows,
-  recentRequestItems,
-  onOpenRequestDetails,
-}) {
+function pickPetPostId(raw) {
+  return raw?.petPostId ?? raw?.PetPostId ?? raw?.id;
+}
+
+export default function ShelterDashboard() {
+  const {
+    loading,
+    loadError,
+    petRows,
+    recentRequestItems,
+    openDetails,
+    createPetListing,
+    updatePetListing,
+    deletePetListing,
+  } = useShelterOwnerOutlet();
+
+  const [petFormOpen, setPetFormOpen] = useState(false);
+  const [petFormMode, setPetFormMode] = useState("create");
+  const [petFormInitial, setPetFormInitial] = useState(null);
+  const [deletingKey, setDeletingKey] = useState(null);
+
+  const pendingRows = petRows.filter(
+    (row) => String(row.status).toLowerCase() === "pending",
+  );
+  const availableOrAdopted = petRows.filter((row) => {
+    const s = String(row.status).toLowerCase();
+    return s === "available" || s === "adopted";
+  });
+
+  const stats = {
+    available: petRows.filter(
+      (row) => String(row.status).toLowerCase() === "available",
+    ).length,
+    pendingAdoptions: petRows.filter(
+      (row) => String(row.status).toLowerCase() === "pending",
+    ).length,
+    adopted: petRows.filter(
+      (row) => String(row.status).toLowerCase() === "adopted",
+    ).length,
+  };
+
+  const openEdit = (row) => {
+    setPetFormMode("edit");
+    const raw = row.raw ? { ...row.raw } : {};
+    const petPostId = row.petPostId ?? raw.petPostId ?? raw.PetPostId;
+    setPetFormInitial(
+      petPostId != null && petPostId !== ""
+        ? { ...raw, petPostId, PetPostId: petPostId }
+        : Object.keys(raw).length ? raw : null,
+    );
+    setPetFormOpen(true);
+  };
+
+  const closePetForm = () => {
+    setPetFormOpen(false);
+    setPetFormInitial(null);
+  };
+
+  const handleDelete = async (row) => {
+    const id = pickPetPostId(row.raw);
+    if (!id) return;
+    const ok = window.confirm(
+      `Delete the listing for “${row.name}”? This cannot be undone.`,
+    );
+    if (!ok) return;
+    setDeletingKey(row.key);
+    try {
+      await deletePetListing(id);
+    } catch (e) {
+      const msg =
+        typeof e === "string"
+          ? e
+          : e?.message ?? "Could not delete this listing.";
+      window.alert(msg);
+    } finally {
+      setDeletingKey(null);
+    }
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight">
-          Shelter Dashboard
-        </h1>
-        <p className="mt-1 text-sm font-semibold text-black/45">
-          Manage your shelter&apos;s activity and pet listings efficiently.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Shelter Dashboard
+          </h1>
+          <p className="mt-1 text-sm font-semibold text-black/45">
+            Manage your shelter&apos;s activity and pet listings efficiently.
+          </p>
+        </div>
       </div>
 
       {loadError ? (
@@ -49,127 +122,50 @@ export default function ShelterDashboard({
         />
       </section>
 
-      <section className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <section className="mt-10 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="pa-section-title">Active Pet Posts</h2>
-            <button
-              type="button"
-              className="pa-link"
-              onClick={onToggleShowAllPets}
-              disabled={loading || pets.length <= 3}
-            >
-              {showAllPets ? "View Less" : "View All"}
-            </button>
-          </div>
-
-          <div className="pa-card mt-4 overflow-x-auto lg:overflow-hidden">
-            <div className="min-w-[600px] lg:min-w-0">
-              <div className="grid grid-cols-5 gap-2 bg-[rgb(var(--pa-primary))/4] px-6 py-4 text-[11px] font-extrabold tracking-wider text-black/40">
-                <div className="col-span-2">PET</div>
-                <div>SPECIES</div>
-                <div>STATUS</div>
-                <div className="text-right">DATE POSTED</div>
-              </div>
-
-              <div className="divide-y divide-black/5">
-                {petRows.length ? (
-                  petRows.map((row) => (
-                    <div
-                      key={row.key}
-                      className="grid grid-cols-5 items-center gap-2 px-6 py-5"
-                    >
-                      <div className="col-span-2 flex items-center gap-4">
-                        <div className="h-10 w-10 overflow-hidden rounded-full bg-black/10">
-                          {row.avatar ? (
-                            <img
-                              alt={`${row.name} avatar`}
-                              className="h-full w-full object-cover"
-                              src={row.avatar}
-                            />
-                          ) : null}
-                        </div>
-                        <div className="text-sm font-extrabold">{row.name}</div>
-                      </div>
-                      <div className="text-sm font-semibold text-black/45">
-                        {row.species}
-                      </div>
-                      <div>
-                        <StatusPill status={row.status} />
-                      </div>
-                      <div className="flex items-center justify-end gap-6">
-                        <div className="text-sm font-semibold text-black/45">
-                          {row.date}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="px-6 py-10 text-sm font-semibold text-black/45">
-                    {loading ? "Loading pets…" : "No pet posts yet."}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <PetPostsTable
+            title="Active Pet Posts"
+            rows={availableOrAdopted}
+            loading={loading}
+            emptyMessage="No pet posts yet."
+            showRowActions
+            onEdit={openEdit}
+            onDelete={handleDelete}
+            deletingKey={deletingKey}
+          />
         </div>
 
-        <div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h2 className="pa-section-title">New Requests</h2>
-            </div>
-          </div>
+        <RequestsList
+          title="New Requests"
+          items={recentRequestItems}
+          loading={loading}
+          onOpenDetails={openDetails}
+          emptyMessage="No adoption requests yet."
+        />
 
-          <div className="mt-4 flex flex-col gap-5">
-            {recentRequestItems.length ? (
-              recentRequestItems.map((r) => (
-                <div key={r.key} className="pa-card p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="h-11 w-11 overflow-hidden rounded-full bg-black/10">
-                      {r.avatar ? (
-                        <img
-                          alt={`${r.name} avatar`}
-                          className="h-full w-full object-cover"
-                          src={r.avatar}
-                        />
-                      ) : null}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-extrabold">
-                        {r.name}
-                      </div>
-                      <div className="mt-0.5 text-xs font-semibold text-black/45">
-                        wants to adopt{" "}
-                        <span className="font-bold text-[rgb(var(--pa-primary))]">
-                          {r.petName}
-                        </span>
-                      </div>
-                      <div className="mt-1 text-[11px] font-semibold text-black/35">
-                        {r.time}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex items-center gap-3">
-                    <button
-                      type="button"
-                      className="pa-btn-primary flex-1"
-                      onClick={() => onOpenRequestDetails(r.raw)}
-                    >
-                      Review
-                    </button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="pa-card p-5 text-sm font-semibold text-black/45">
-                {loading ? "Loading requests…" : "No adoption requests yet."}
-              </div>
-            )}
-          </div>
+        <div className="col-span-full">
+          <PetPostsTable
+            title="Pending Pet Posts"
+            rows={pendingRows}
+            loading={loading}
+            emptyMessage="No pending pet posts."
+            showRowActions
+            onEdit={openEdit}
+            onDelete={handleDelete}
+            deletingKey={deletingKey}
+          />
         </div>
       </section>
+
+      <PetPostFormModal
+        open={petFormOpen}
+        mode={petFormMode}
+        initialPet={petFormInitial}
+        onClose={closePetForm}
+        onCreate={createPetListing}
+        onUpdate={updatePetListing}
+      />
     </div>
   );
 }
