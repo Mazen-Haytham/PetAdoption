@@ -1,223 +1,370 @@
-import { useEffect, useState } from "react";
-import { useAuthStore } from "../../store/authStore";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { Star, X } from "lucide-react";
+import {
+  getAdoptionHistory,
+  getMe,
+  resolveAssetUrl,
+} from "../../api/api";
+import {
+  appendClientReview,
+  CLIENT_REVIEWS_CHANGED_EVENT,
+  getReviewByAdoptionKey,
+  loadAllClientReviews,
+} from "../../utils/clientReviewsStorage";
 
-const API_BASE = "https://localhost:7081/api";
+function petPostFromRow(row) {
+  return row?.petPost ?? row?.PetPost ?? null;
+}
+
+function petNameFromHistoryRow(row) {
+  const pp = petPostFromRow(row);
+  return (
+    pp?.name ??
+    pp?.Name ??
+    row?.pet?.name ??
+    row?.pet?.Name ??
+    "Pet"
+  );
+}
+
+function imageUrlFromHistoryRow(row) {
+  const pp = petPostFromRow(row);
+  if (pp) {
+    const primary = pp.primaryImage ?? pp.PrimaryImage;
+    if (primary) return resolveAssetUrl(primary);
+    const imgs = pp.images ?? pp.Images;
+    if (Array.isArray(imgs) && imgs.length > 0) return resolveAssetUrl(imgs[0]);
+  }
+  return null;
+}
+
+function adoptionKeyFromHistoryRow(row) {
+  const pp = petPostFromRow(row) ?? {};
+  const ownerId = pp.ownerId ?? pp.OwnerId;
+  const petPostId = pp.petPostId ?? pp.PetPostId ?? row?.pet?.id ?? row?.pet?.Id;
+  if (ownerId == null || petPostId == null) return null;
+  return `${ownerId}:${petPostId}`;
+}
+
+function shelterLabelFromRow(row) {
+  const pp = petPostFromRow(row) ?? {};
+  return pp.ownerName ?? pp.OwnerName ?? "Shelter";
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(d);
+}
 
 export default function Reviews() {
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [adopterId, setAdopterId] = useState(null);
+  const [adopterName, setAdopterName] = useState("");
 
-  const [reviews, setReviews]         = useState([]);
-  const [ownerIdInput, setOwnerIdInput] = useState("");
-  const [adoptionId, setAdoptionId]   = useState("");
-  const [rating, setRating]           = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment]         = useState("");
-  const [alert, setAlert]             = useState(null);
-  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [reviewKeysVersion, setReviewKeysVersion] = useState(0);
+  const refreshLocalReviews = useCallback(() => {
+    setReviewKeysVersion((v) => v + 1);
+  }, []);
 
-  function showAlert(msg, type = "error") {
-    setAlert({ msg, type });
-    setTimeout(() => setAlert(null), 4000);
-  }
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === "pa_client_reviews_v1") refreshLocalReviews();
+    };
+    const onCustom = () => refreshLocalReviews();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener(CLIENT_REVIEWS_CHANGED_EVENT, onCustom);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(CLIENT_REVIEWS_CHANGED_EVENT, onCustom);
+    };
+  }, [refreshLocalReviews]);
 
-  // ── Rating Summary ─────────────────────────────
-  function getAvg() {
-    if (!reviews.length) return 0;
-    return (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
-  }
-
-  function getRatingCount(n) {
-    return reviews.filter((r) => r.rating === n).length;
-  }
-
-  // ── Load Reviews ───────────────────────────────
-  async function loadReviews() {
-    if (!ownerIdInput) { showAlert("Please enter an Owner ID."); return; }
-    setLoadingReviews(true);
-    try {
-      const res = await fetch(`${API_BASE}/reviews/${ownerIdInput}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const data = await res.json();
-      if (data.success) setReviews(data.data || []);
-      else showAlert(data.message || "Failed to load reviews.");
-    } catch {
-      showAlert("Could not connect to the server.");
-    } finally {
-      setLoadingReviews(false);
-    }
-  }
-
-  // ── Submit Review ──────────────────────────────
-  async function submitReview() {
-    if (!adoptionId) { showAlert("Please enter Adoption ID."); return; }
-    if (rating === 0) { showAlert("Please select a rating."); return; }
-    if (!accessToken) { showAlert("You must be logged in."); return; }
-
-    try {
-      const res = await fetch(`${API_BASE}/reviews`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ adoptionId: parseInt(adoptionId), rating, comment }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        showAlert("Review posted successfully!", "success");
-        setAdoptionId("");
-        setComment("");
-        setRating(0);
-      } else {
-        showAlert(data.message || "Failed to post review.");
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const [me, hist] = await Promise.all([getMe(), getAdoptionHistory()]);
+        if (cancelled) return;
+        const uid = me?.userId ?? me?.UserId;
+        setAdopterId(uid != null ? Number(uid) : null);
+        setAdopterName(me?.name ?? me?.Name ?? "");
+        setHistory(Array.isArray(hist) ? hist : []);
+      } catch (e) {
+        if (!cancelled) {
+          setLoadError(
+            typeof e === "string" ? e : e?.message ?? "Could not load adoptions.",
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    } catch {
-      showAlert("Could not connect to the server.");
-    }
-  }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const avg = getAvg();
+  const successfulAdoptions = useMemo(() => {
+    return (Array.isArray(history) ? history : [])
+      .map((row) => {
+        const key = adoptionKeyFromHistoryRow(row);
+        if (!key) return null;
+        return {
+          key,
+          petName: petNameFromHistoryRow(row),
+          imageUrl: imageUrlFromHistoryRow(row),
+          shelterName: shelterLabelFromRow(row),
+          adoptedAt: row?.adoptedAt ?? row?.AdoptedAt,
+          raw: row,
+        };
+      })
+      .filter(Boolean);
+  }, [history]);
+
+  const reviewedKeys = useMemo(() => {
+    void reviewKeysVersion;
+    const set = new Set();
+    for (const r of loadAllClientReviews()) {
+      if (r?.adoptionKey) set.add(r.adoptionKey);
+    }
+    return set;
+  }, [reviewKeysVersion, successfulAdoptions]);
+
+  const [modalAdoption, setModalAdoption] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const openModal = (item) => {
+    setModalAdoption(item);
+    const existing = getReviewByAdoptionKey(item.key);
+    setRating(existing?.rating ?? 0);
+    setComment(existing?.comment ?? "");
+    setHoverRating(0);
+  };
+
+  const closeModal = () => {
+    setModalAdoption(null);
+    setRating(0);
+    setHoverRating(0);
+    setComment("");
+    setSubmitting(false);
+  };
+
+  const submitReview = async () => {
+    if (!modalAdoption) return;
+    if (rating < 1 || rating > 5) {
+      toast.error("Please choose a star rating.");
+      return;
+    }
+    const pp = petPostFromRow(modalAdoption.raw) ?? {};
+    const ownerId = pp.ownerId ?? pp.OwnerId;
+    const petPostId = pp.petPostId ?? pp.PetPostId ?? modalAdoption.raw?.pet?.id;
+    if (ownerId == null || petPostId == null) {
+      toast.error("Missing listing data for this adoption.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      appendClientReview({
+        adoptionKey: modalAdoption.key,
+        ownerId: Number(ownerId),
+        petPostId: Number(petPostId),
+        petName: modalAdoption.petName,
+        shelterName: modalAdoption.shelterName,
+        adopterId: adopterId ?? undefined,
+        adopterName: adopterName || "Adopter",
+        rating,
+        comment: (comment || "").trim(),
+      });
+      toast.success("Thanks! Your review was sent to the shelter.");
+      closeModal();
+      refreshLocalReviews();
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#f7f5ff] px-6 md:px-40 py-10">
-      {/* Alert */}
-      {alert && (
-        <div className={`mb-4 rounded-lg px-4 py-3 text-sm font-semibold ${alert.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-          {alert.msg}
-        </div>
-      )}
+    <main className="pa-container pb-16 pt-8">
+      <div className="max-w-6xl">
+        <h1 className="text-3xl font-extrabold tracking-tight text-black/90">
+          My adoptions &amp; reviews
+        </h1>
+        <p className="mt-2 max-w-3xl text-sm font-semibold text-black/45">
+          Every successful adoption appears below. Leave a star rating and an
+          optional note for the shelter—they&apos;ll see it on their dashboard
+          in this browser.
+        </p>
+      </div>
 
-      {/* Rating Summary */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-[#6a79e0]/10 flex flex-col md:flex-row gap-8 items-center mb-8">
-        <div className="flex flex-col items-center px-8 md:border-r border-[#6a79e0]/10">
-          <p className="text-6xl font-black text-[#2a2f63]">{reviews.length ? avg : "—"}</p>
-          <div className="flex text-[#6a79e0] text-xl my-1">
-            {[1,2,3,4,5].map((i) => (
-              <span key={i}>{i <= Math.round(avg) ? "★" : "☆"}</span>
-            ))}
-          </div>
-          <p className="text-slate-500 text-sm">{reviews.length} Verified Review{reviews.length !== 1 ? "s" : ""}</p>
+      {loading ? (
+        <div className="mt-10 pa-card p-6 text-sm text-black/55">Loading…</div>
+      ) : null}
+
+      {!loading && loadError ? (
+        <div className="mt-10 pa-card border border-rose-200 bg-rose-50 p-6 text-sm font-semibold text-rose-700">
+          {loadError}
         </div>
-        <div className="flex-1 w-full space-y-2">
-          {[5,4,3,2,1].map((n) => {
-            const pct = reviews.length ? Math.round((getRatingCount(n) / reviews.length) * 100) : 0;
+      ) : null}
+
+      {!loading && !loadError && successfulAdoptions.length === 0 ? (
+        <div className="mt-10 pa-card p-8 text-center text-sm font-semibold text-black/45">
+          No completed adoptions yet. When a shelter accepts your application,
+          the pet will show up here so you can leave a review.
+        </div>
+      ) : null}
+
+      {!loading && !loadError && successfulAdoptions.length > 0 ? (
+        <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {successfulAdoptions.map((item) => {
+            const done = reviewedKeys.has(item.key);
             return (
-              <div key={n} className="grid grid-cols-[20px_1fr_40px] items-center gap-3">
-                <span className="text-sm text-slate-600 font-semibold">{n}</span>
-                <div className="h-2.5 rounded-full bg-[#6a79e0]/10 overflow-hidden">
-                  <div className="h-full rounded-full bg-[#6a79e0]" style={{ width: `${pct}%` }}></div>
+              <li key={item.key} className="pa-card flex flex-col overflow-hidden">
+                <div className="relative aspect-[5/3] w-full bg-black/5">
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-3xl text-black/20">
+                      🐾
+                    </div>
+                  )}
                 </div>
-                <span className="text-xs text-slate-500 text-right">{pct}%</span>
-              </div>
+                <div className="flex flex-1 flex-col gap-2 p-3">
+                  <div>
+                    <p className="text-base font-extrabold tracking-tight text-black/90">
+                      {item.petName}
+                    </p>
+                    <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-black/35">
+                      {item.shelterName}
+                    </p>
+                    {item.adoptedAt ? (
+                      <p className="mt-1.5 text-xs font-semibold text-black/45">
+                        Adopted {formatDate(item.adoptedAt)}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="mt-auto flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => openModal(item)}
+                      className="pa-btn w-full rounded-xl bg-[rgb(var(--pa-primary))] px-3 py-2 text-xs font-extrabold text-white shadow-sm transition hover:brightness-95 sm:text-[13px]"
+                    >
+                      {done ? "View / update" : "Review"}
+                    </button>
+                  </div>
+                </div>
+              </li>
             );
           })}
-        </div>
-      </div>
+        </ul>
+      ) : null}
 
-      {/* Review Form */}
-      <div className="bg-[#6a79e0]/5 rounded-xl p-8 border-2 border-dashed border-[#6a79e0]/30 mb-8">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h3 className="text-xl font-bold text-[#2a2f63]">Share Your Experience</h3>
-            <p className="text-slate-500 text-sm mt-1">Rate your adoption experience</p>
-          </div>
-          <span className="bg-[#6a79e0] text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Eligible</span>
-        </div>
-
-        {/* Stars */}
-        <div className="flex gap-1 text-[#6a79e0] text-3xl cursor-pointer mb-4">
-          {[1,2,3,4,5].map((i) => (
-            <span
-              key={i}
-              onClick={() => setRating(i)}
-              onMouseEnter={() => setHoverRating(i)}
-              onMouseLeave={() => setHoverRating(0)}
+      {modalAdoption ? (
+        <div
+          className="fixed inset-0 z-[70] flex items-end justify-center bg-black/45 p-4 sm:items-center"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) closeModal();
+          }}
+        >
+          <div
+            className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/10"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="review-dialog-title"
+          >
+            <button
+              type="button"
+              onClick={closeModal}
+              className="absolute right-4 top-4 rounded-lg p-2 text-black/45 transition hover:bg-black/5 hover:text-black/70"
+              aria-label="Close"
             >
-              {i <= (hoverRating || rating) ? "★" : "☆"}
-            </span>
-          ))}
-        </div>
+              <X className="h-5 w-5" />
+            </button>
+            <h2
+              id="review-dialog-title"
+              className="pr-10 text-xl font-extrabold tracking-tight text-black/90"
+            >
+              Review {modalAdoption.petName}
+            </h2>
+            <p className="mt-1 text-sm font-semibold text-black/45">
+              {modalAdoption.shelterName}
+            </p>
 
-        {/* Adoption ID */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold text-[#2a2f63]/80 block mb-1">Adoption ID</label>
-          <input
-            type="number"
-            value={adoptionId}
-            onChange={(e) => setAdoptionId(e.target.value)}
-            placeholder="Enter your adoption ID"
-            className="w-full border border-[#6a79e0]/20 rounded-lg px-4 py-2 text-[#2a2f63] focus:ring-2 focus:ring-[#6a79e0] outline-none"
-          />
-        </div>
-
-        {/* Comment */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold text-[#2a2f63]/80 block mb-1">Your Review</label>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Tell us about the adoption process..."
-            rows={3}
-            className="w-full border border-[#6a79e0]/20 rounded-lg px-4 py-3 text-[#2a2f63] focus:ring-2 focus:ring-[#6a79e0] outline-none"
-          />
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            onClick={submitReview}
-            className="bg-[#6a79e0] text-white font-bold py-3 px-8 rounded-lg hover:brightness-110 transition shadow-lg"
-          >
-            Post Review →
-          </button>
-        </div>
-      </div>
-
-      {/* Load Reviews */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-[#2a2f63]">Community Feedback</h2>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            value={ownerIdInput}
-            onChange={(e) => setOwnerIdInput(e.target.value)}
-            placeholder="Owner ID"
-            className="border border-[#6a79e0]/30 rounded px-3 py-1.5 w-28 text-sm outline-none focus:ring-2 focus:ring-[#6a79e0]"
-          />
-          <button
-            onClick={loadReviews}
-            className="bg-[#6a79e0] text-white text-xs font-bold px-4 py-2 rounded-lg hover:brightness-110 transition"
-          >
-            {loadingReviews ? "Loading..." : "Load"}
-          </button>
-        </div>
-      </div>
-
-      {/* Reviews List */}
-      <div className="flex flex-col gap-6">
-        {reviews.length === 0 && (
-          <p className="text-slate-400 text-sm text-center">Enter an Owner ID above and click Load.</p>
-        )}
-        {reviews.map((r) => (
-          <div key={r.id} className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="size-12 rounded-full bg-[#6a79e0]/20 flex items-center justify-center text-[#6a79e0] font-bold text-lg">
-                  {r.reviewer?.charAt(0)?.toUpperCase() || "U"}
-                </div>
-                <div>
-                  <p className="font-bold text-[#2a2f63]">{r.reviewer || "Anonymous"}</p>
-                  <p className="text-xs text-slate-400">{new Date(r.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
-                </div>
-              </div>
-              <div className="text-[#6a79e0] text-lg">
-                {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
-              </div>
+            <p className="mt-6 text-sm font-bold text-black/55">Your rating</p>
+            <div className="mt-2 flex gap-1">
+              {[1, 2, 3, 4, 5].map((i) => {
+                const active = i <= (hoverRating || rating);
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    className="p-1 text-amber-400 transition hover:scale-110"
+                    onMouseEnter={() => setHoverRating(i)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => setRating(i)}
+                    aria-label={`${i} stars`}
+                  >
+                    <Star
+                      className="h-9 w-9"
+                      strokeWidth={1.5}
+                      fill={active ? "currentColor" : "none"}
+                    />
+                  </button>
+                );
+              })}
             </div>
-            <p className="text-slate-600 leading-relaxed">{r.comment}</p>
+
+            <label className="mt-6 block text-sm font-bold text-black/55">
+              Message{" "}
+              <span className="font-semibold text-black/35">(optional)</span>
+            </label>
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={4}
+              placeholder="Share how the process went…"
+              className="mt-2 w-full resize-none rounded-xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-black/80 outline-none ring-[rgb(var(--pa-primary))] focus:ring-2"
+            />
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="rounded-2xl px-5 py-3 text-sm font-extrabold text-black/55 transition hover:bg-black/5"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={submitReview}
+                className="rounded-2xl bg-[rgb(var(--pa-primary))] px-6 py-3 text-sm font-extrabold text-white shadow-sm transition hover:brightness-95 disabled:opacity-60"
+              >
+                {submitting ? "Submitting…" : "Submit review"}
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
-    </div>
+        </div>
+      ) : null}
+    </main>
   );
 }
