@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import * as adminApi from "../api/Admin.api";
 import {
-  adminApprovalRequestId,
   apiErrorMessage,
   DASHBOARD_PETS_QUERY,
   DEFAULT_PETS_QUERY,
+  sameModerationRequestId,
 } from "../admin/adminShared";
 
 function newId() {
@@ -106,7 +106,7 @@ export default create((set, get) => ({
       await adminApi.putAdminPetApprove(approvalRequestId);
       set((s) => ({
         pets: s.pets.map((p) =>
-          adminApprovalRequestId(p) === approvalRequestId
+          sameModerationRequestId(p, approvalRequestId)
             ? { ...p, status: "Approved" }
             : p,
         ),
@@ -121,7 +121,7 @@ export default create((set, get) => ({
       await adminApi.putAdminPetReject(approvalRequestId);
       set((s) => ({
         pets: s.pets.map((p) =>
-          adminApprovalRequestId(p) === approvalRequestId
+          sameModerationRequestId(p, approvalRequestId)
             ? { ...p, status: "Rejected" }
             : p,
         ),

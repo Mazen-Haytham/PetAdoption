@@ -3,8 +3,6 @@ using backend.Dto.AdminPetPost;
 using backend.Models;
 using backend.Repos;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace backend.Services
 {
@@ -29,45 +27,116 @@ namespace backend.Services
             return await _repo.GetPetsAsync(status, page, pageSize);
         }
 
-        public async Task<bool> ApprovePetAsync(int approvalId, int adminId)
+        /// <summary>Route id is usually approval request id; otherwise a pending row is resolved by <see cref="PetPost.Id"/>.</summary>
+        private async Task<PostApprovalRequest?> LoadModerationRequestAsync(int routeId)
         {
             var request = await _context.PostApprovalRequests
                 .Include(x => x.PetPost)
-                .FirstOrDefaultAsync(x => x.Id == approvalId);
+                .FirstOrDefaultAsync(x => x.Id == routeId);
 
-            if (request == null) return false;
+            if (request != null)
+                return request;
 
-            request.Status = PostApprovalStatus.Approved;
-            request.ReviewedByAdminId = adminId;
-            request.ReviewedAt = DateTime.UtcNow;
-            request.PetPost.Status = PetStatus.Available;
+            return await _context.PostApprovalRequests
+                .Include(x => x.PetPost)
+                .FirstOrDefaultAsync(x => x.PetPostId == routeId && x.Status == PostApprovalStatus.Pending);
+        }
 
-            await _context.SaveChangesAsync();
+        public async Task<bool> ApprovePetAsync(int routeId, int adminId)
+        {
+            var outcome = await _context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            {
+                _context.ChangeTracker.Clear();
 
-            // ── Invalidate cache ─────────────────────────
-            await _cachingService.InvalidatePetCacheAsync(request.PetPost.Id, request.PetPost.OwnerId);
+                var request = await LoadModerationRequestAsync(routeId);
+                if (request is null || request.Status != PostApprovalStatus.Pending)
+                    return (ok: false, petPostId: 0, ownerId: 0);
 
+                request.Status = PostApprovalStatus.Approved;
+                request.ReviewedByAdminId = adminId;
+                request.ReviewedAt = DateTime.UtcNow;
+
+                var petPostId = request.PetPostId;
+                var petId = request.PetPost.PetId;
+                var ownerId = request.OwnerId;
+
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    await _context.SaveChangesAsync();
+
+                    await _context.PetPosts
+                        .Where(p => p.Id == petPostId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, PetStatus.Available));
+
+                    await _context.Pets
+                        .Where(p => p.Id == petId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, PetStatus.Available));
+
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+
+                return (ok: true, petPostId, ownerId);
+            });
+
+            if (!outcome.ok)
+                return false;
+
+            await _cachingService.InvalidatePetCacheAsync(outcome.petPostId, outcome.ownerId);
             return true;
         }
 
-        public async Task<bool> RejectPetAsync(int approvalId, int adminId)
+        public async Task<bool> RejectPetAsync(int routeId, int adminId)
         {
-            var request = await _context.PostApprovalRequests
-                .Include(x => x.PetPost)
-                .FirstOrDefaultAsync(x => x.Id == approvalId);
+            var outcome = await _context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            {
+                _context.ChangeTracker.Clear();
 
-            if (request == null) return false;
+                var request = await LoadModerationRequestAsync(routeId);
+                if (request is null || request.Status != PostApprovalStatus.Pending)
+                    return (ok: false, petPostId: 0, ownerId: 0);
 
-            request.Status = PostApprovalStatus.Rejected;
-            request.ReviewedByAdminId = adminId;
-            request.ReviewedAt = DateTime.UtcNow;
-            request.PetPost.Status = PetStatus.Rejected;
+                request.Status = PostApprovalStatus.Rejected;
+                request.ReviewedByAdminId = adminId;
+                request.ReviewedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+                var petPostId = request.PetPostId;
+                var petId = request.PetPost.PetId;
+                var ownerId = request.OwnerId;
 
-            // ── Invalidate cache ─────────────────────────
-            await _cachingService.InvalidatePetCacheAsync(request.PetPost.Id, request.PetPost.OwnerId);
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    await _context.SaveChangesAsync();
 
+                    await _context.PetPosts
+                        .Where(p => p.Id == petPostId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, PetStatus.Rejected));
+
+                    await _context.Pets
+                        .Where(p => p.Id == petId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, PetStatus.Rejected));
+
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+
+                return (ok: true, petPostId, ownerId);
+            });
+
+            if (!outcome.ok)
+                return false;
+
+            await _cachingService.InvalidatePetCacheAsync(outcome.petPostId, outcome.ownerId);
             return true;
         }
     }

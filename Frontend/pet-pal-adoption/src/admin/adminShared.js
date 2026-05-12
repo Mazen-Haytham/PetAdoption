@@ -43,3 +43,10 @@ export function adminPetPostId(row) {
 export function isPendingStatus(value) {
   return String(value ?? "").toLowerCase() === "pending";
 }
+
+/** Compare moderation row id from API (number|string) to the id used in PUT /admin/pets/.../{id}. */
+export function sameModerationRequestId(row, id) {
+  const fromRow = adminApprovalRequestId(row);
+  if (fromRow == null || id == null) return false;
+  return String(fromRow) === String(id);
+}
