@@ -77,6 +77,7 @@ export default function App() {
         />
 
         {/* Owner */}
+        {/* Extracted so "Shelter" role can also access this route */}
         <Route
           path="/owner/pets/new"
           element={
@@ -85,6 +86,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        {/* All other owner routes, Owner-only */}
         <Route
           path="/owner"
           element={
