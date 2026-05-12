@@ -95,12 +95,29 @@ export function resolveAssetUrl(path) {
 export async function getMyPetPosts() {
   try {
     const res = await api.get("/pets/mine");
-    // console.log("getMyPetPosts response:", res);
     return res.data.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
     return Promise.reject(error.response ? error.response.data : error.message);
   }
+}
+
+/** POST /pets — multipart form; Owner/Shelter/Admin. */
+export async function createPetPost(formData) {
+  const res = await api.post("/pets", formData);
+  return res.data;
+}
+
+/** PUT /pets/:petPostId — JSON body; partial updates supported. */
+export async function updatePetPost(petPostId, body) {
+  const res = await api.put(`/pets/${petPostId}`, body);
+  return res.data;
+}
+
+/** DELETE /pets/:petPostId */
+export async function deletePetPost(petPostId) {
+  const res = await api.delete(`/pets/${petPostId}`);
+  return res.data;
 }
 
 // ─── Adopter browse (public GET; POST adoption needs login) ─
@@ -153,11 +170,17 @@ export async function getMyAdoptionRequests() {
 export async function getAdoptionHistory() {
   try {
     const res = await api.get("/adoptions/history");
-    return res.data ?? [];
+    return res.data?.data ?? res.data ?? [];
   } catch (error) {
     if (error?.response?.status === 404) return [];
     return Promise.reject(error.response ? error.response.data : error.message);
   }
+}
+
+/** Completed adoptions for an applicant (shelter/owner viewing a request). */
+export async function getAdopterAdoptionHistoryForShelter(adopterId) {
+  const res = await api.get(`/adoptions/history/for-adopter/${adopterId}`);
+  return res.data?.data ?? [];
 }
 
 export async function acceptAdoptionRequest(requestId) {

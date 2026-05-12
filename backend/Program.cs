@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
 using backend.Hubs;
@@ -60,6 +61,9 @@ builder.Services.AddScoped<IReviewsService, ReviewsService>();
 // ── Controllers ───────────────────────────────────
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
+    // Match browser/axios JSON (camelCase) so PUT/PATCH bodies bind to DTOs reliably.
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     // Prevent System.Text.Json from throwing when EF navigation properties form cycles
     // (e.g., User -> UserFavourites -> Adopter -> UserFavourites -> ...)
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -158,7 +162,7 @@ app.UseCors("AllowFrontend");
 var seedOnly = args.Contains("--seed");
 
 // Seed database (development by default, or when --seed is passed)
-if (app.Environment.IsDevelopment() || seedOnly)
+if (seedOnly)
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
