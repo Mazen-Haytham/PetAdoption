@@ -5,8 +5,7 @@ using backend.Requests.DTOs;
 using backend.Requests.Repositories;
 using backend.Hubs;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
+using backend.Services;
 
 namespace backend.Requests.Services
 {
@@ -14,21 +13,18 @@ namespace backend.Requests.Services
     {
         private readonly IRequestRepository _requestRepository;
         private readonly IHubContext<NotificationsHub> _hub;
-        private readonly IDistributedCache _redis;
-        private readonly IMemoryCache _memory;
+        private readonly ICachingService _cachingService;
         private const string AllPetPostsCacheKey = "petPosts:all";
 
         public RequestService(
             IRequestRepository requestRepository,
             IHubContext<NotificationsHub> hub,
-            IDistributedCache redis,
-            IMemoryCache memory
+            ICachingService cachingService
             )
         {
             _requestRepository = requestRepository;
             _hub = hub;
-            _redis = redis;
-            _memory = memory;
+            _cachingService = cachingService;
         }
 
         public async Task<(bool Success, string Message, int? RequestId)> CreateAdoptionRequestAsync(int adopterId, int petPostId, string message)
@@ -196,13 +192,8 @@ namespace backend.Requests.Services
                 await _requestRepository.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                // Clear adopter home cache
-                await _redis.RemoveAsync(AllPetPostsCacheKey);
-                _memory.Remove(AllPetPostsCacheKey);
-
-                // Clear owner's own posts cache
-                await _redis.RemoveAsync($"petPosts:owner:{ownerId}");
-                _memory.Remove($"petPosts:owner:{ownerId}");
+                // ── Invalidate cache ─────────────────────────
+                await _cachingService.InvalidateRequestRelatedCacheAsync(request.PetPostId, ownerId);
 
                 return (true, "Adoption request approved");
             }
@@ -232,6 +223,9 @@ namespace backend.Requests.Services
             request.Status = RequestStatus.Rejected;
 
             await _requestRepository.SaveChangesAsync();
+
+            // ── Invalidate cache ─────────────────────────
+            await _cachingService.InvalidateRequestRelatedCacheAsync(request.PetPostId, request.PetPost.OwnerId);
 
             return (true, "Adoption request rejected");
         }
